@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  XCODE_VERSION: '26.2'
+
+jobs:
+  test:
+    name: Build & Test
+    runs-on: macOS-latest
+        
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+
+    - name: Setup Xcode
+      run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
+
+    - name: Build & Test iOS
+      run: |
+        xcodebuild -scheme IONCameraLib \
+          -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.0' \
+          build test
+
+  lint:
+    name: SwiftLint
+    runs-on: macOS-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+      
+    - name: SwiftLint
+      run: |
+        if ! command -v swiftlint &> /dev/null; then
+          brew install swiftlint
+        fi        
+        swiftlint --strict
+
+  validate-podspec:
+    name: Validate Podspec
+    runs-on: macOS-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+
+    - name: Install CocoaPods
+      run: gem install cocoapods --no-document
+
+    - name: Validate Podspec
+      run: pod lib lint IONCameraLib.podspec --allow-warnings

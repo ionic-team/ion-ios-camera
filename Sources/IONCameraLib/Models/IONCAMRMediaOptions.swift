@@ -1,0 +1,25 @@
+public class IONCAMRMediaOptions: IONCAMREditMediaTypeOptionsDelegate, IONCAMRSaveToPhotoAlbumOptionsDelegate {
+    var mediaType: IONCAMRMediaType
+    /// Indicates if the resulting image should be stored on the device's photo gallery.
+    var saveToPhotoAlbum: Bool
+    /// Indicates if we should returns the media's metadata
+    var returnMetadata: Bool
+    /// Sets default camera for capturing a picture.
+    let direction: IONCAMRDirection
+    /// Indicates if an edit step should be added to the Take Picture or Choose from Gallery.
+    var allowEdit: Bool
+    
+    init(mediaType: IONCAMRMediaType, saveToPhotoAlbum: Bool, returnMetadata: Bool, direction: IONCAMRDirection, allowEdit: Bool) {
+        self.mediaType = mediaType
+        self.saveToPhotoAlbum = saveToPhotoAlbum
+        self.returnMetadata = returnMetadata
+        self.direction = direction
+        self.allowEdit = allowEdit
+    }
+}
+
+/// Camera to be used.
+public enum IONCAMRDirection: Int {
+    case back = 0
+    case front
+}

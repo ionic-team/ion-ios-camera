@@ -1,0 +1,23 @@
+# Xcode
+xcuserdata/
+build/
+DerivedData/
+*.xcworkspace
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# CocoaPods
+Pods/
+
+# macOS
+.DS_Store
+
+# IDEs
+.vscode/
+
+# Node / npm
+node_modules/
+package-lock.json

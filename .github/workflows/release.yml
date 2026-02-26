@@ -1,0 +1,66 @@
+name: Release
+
+on:
+  workflow_dispatch: {}
+
+env:
+  XCODE_VERSION: '26.2'
+  NODE_VERSION: '24'
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    name: Test Before Release
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Xcode
+        run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
+
+      - name: Run Tests
+        run: swift test
+
+      - name: Validate Podspec
+        run: |
+          gem install cocoapods --no-document
+          pod lib lint IONCameraLib.podspec --allow-warnings
+
+  release:
+    name: Release
+    runs-on: macos-latest
+    needs: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.CAP_GH_RELEASE_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Xcode
+        run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
+
+      - name: Install CocoaPods
+        run: gem install cocoapods --no-document
+
+      - name: Run semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.CAP_GH_RELEASE_TOKEN }}
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: npx semantic-release
+
+
