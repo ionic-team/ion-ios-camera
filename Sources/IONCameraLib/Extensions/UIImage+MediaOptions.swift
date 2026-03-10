@@ -5,7 +5,7 @@ extension UIImage {
     /// Converts the `UIImage` object into a base 64 string equivalent, based the user defined picture options.
     /// - Parameter options: User defined options for the resulting base64 object, when passed.
     /// - Returns: The resulting base64 equivalent.
-    func toData(with options: IONCAMRPictureOptions? = nil) -> Data? {
+    func toData(with options: IONCAMRTakePhotoOptions? = nil) -> Data? {
         let data: Data?
 
         if let options = options, options.encodingType == .jpeg {
@@ -21,7 +21,7 @@ extension UIImage {
     /// Provides a couple of transformations (rotation and resize) to the `UIImage` object, based on the user defined options.
     /// - Parameter options: User defined options containing the transformations (if any) to apply.
     /// - Returns: The resulting image. It returns `nil` if some issue occured.
-    func fix(with options: IONCAMRPictureOptions) -> UIImage? {
+    func fix(with options: IONCAMRTakePhotoOptions) -> UIImage? {
         var image = self
         
         if options.correctOrientation, let orientedImage = image.fixOrientation() {
@@ -56,16 +56,16 @@ extension UIImage {
     }
 }
 
-// MARK: - IONCAMRVideoOptions extension
+// MARK: - IONCAMRRecordVideoOptions extension
 extension UIImage {
     func pictureThumbnailData(
         with originalResolution: IONCAMRSize? = nil,
-        and originalQuality: Int = IONCAMRPictureOptions.ThumbnailDefaultConfigurations.quality
+        and originalQuality: Int = IONCAMRTakePhotoOptions.ThumbnailDefaultConfigurations.quality
     ) -> String? {
-        guard let originalResolution = originalResolution ?? (try? .initSquare(with: IONCAMRPictureOptions.ThumbnailDefaultConfigurations.resolution))
+        guard let originalResolution = originalResolution ?? (try? .initSquare(with: IONCAMRTakePhotoOptions.ThumbnailDefaultConfigurations.resolution))
         else { return nil }
         let resolution = CGFloat(
-            min(originalResolution.height, originalResolution.width, IONCAMRPictureOptions.ThumbnailDefaultConfigurations.resolution)
+            min(originalResolution.height, originalResolution.width, IONCAMRTakePhotoOptions.ThumbnailDefaultConfigurations.resolution)
         )
         let quality = CGFloat(originalQuality / 100)
 
@@ -73,8 +73,8 @@ extension UIImage {
     }
     
     var defaultVideoThumbnailData: String? {
-        let resolution = CGFloat(IONCAMRVideoOptions.ThumbnailDefaultConfigurations.resolution)
-        let quality = CGFloat(IONCAMRVideoOptions.ThumbnailDefaultConfigurations.quality)
+        let resolution = CGFloat(IONCAMRRecordVideoOptions.ThumbnailDefaultConfigurations.resolution)
+        let quality = CGFloat(IONCAMRRecordVideoOptions.ThumbnailDefaultConfigurations.quality)
 
         return self.applyConfigurations(resolution, and: quality)
     }

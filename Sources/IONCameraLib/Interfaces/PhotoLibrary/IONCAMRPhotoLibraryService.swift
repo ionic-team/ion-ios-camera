@@ -129,7 +129,7 @@ extension IONCAMRPhotoLibraryService {
 extension IONCAMRPhotoLibraryService {
     private func fetchSingleResult(_ asset: PHAsset?) async -> IONCAMRResultItem? {
         guard let asset = asset, let image = try? await self.fetchImage(
-            byLocalIdentifier: asset.localIdentifier, targetSize: CGSize(resolution: IONCAMRPictureOptions.ThumbnailDefaultConfigurations.resolution)
+            byLocalIdentifier: asset.localIdentifier, targetSize: CGSize(resolution: IONCAMRTakePhotoOptions.ThumbnailDefaultConfigurations.resolution)
         )
         else { return nil }
         return .picture(image)
@@ -153,7 +153,7 @@ extension IONCAMRPhotoLibraryService {
     private func fetchVideo(from asset: PHAsset) async throws -> IONCAMRMediaResult {
         guard let image = try await self.fetchImage(
             byLocalIdentifier: asset.localIdentifier,
-            targetSize: CGSize(resolution: IONCAMRVideoOptions.ThumbnailDefaultConfigurations.resolution)
+            targetSize: CGSize(resolution: IONCAMRRecordVideoOptions.ThumbnailDefaultConfigurations.resolution)
         ),
               let videoData = image.defaultVideoThumbnailData,
               let videoURL = try await self.fetchVideo(byLocalIdentifier: asset.localIdentifier)

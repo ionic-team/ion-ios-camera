@@ -129,10 +129,10 @@ struct IONCAMRPictureOptionsConfigurations {
     )
 }
 
-struct IONCAMRVideoOptionsConfigurations {
-    static let video = IONCAMRVideoOptions(saveToPhotoAlbum: false, returnMetadata: false)
-    static let saveToPhotosAlbum = IONCAMRVideoOptions(saveToPhotoAlbum: true, returnMetadata: false)
-    static let withMetadata = IONCAMRVideoOptions(saveToPhotoAlbum: false, returnMetadata: true)
+struct IONCAMRRecordVideoOptionsConfigurations {
+    static let video = IONCAMRRecordVideoOptions(saveToPhotoAlbum: false, returnMetadata: false)
+    static let saveToPhotosAlbum = IONCAMRRecordVideoOptions(saveToPhotoAlbum: true, returnMetadata: false)
+    static let withMetadata = IONCAMRRecordVideoOptions(saveToPhotoAlbum: false, returnMetadata: true)
 }
 
 struct IONCAMREditOptionsConfigurations {

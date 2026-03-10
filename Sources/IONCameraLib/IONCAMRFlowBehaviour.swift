@@ -2,6 +2,7 @@ import Photos
 import UIKit
 
 final class IONCAMRFlowBehaviour: NSObject, IONCAMRFlowDelegate {
+    
     /// Responsible for handling and enabling the image picker behaviour.
     private let picker: IONCAMRPickerDelegate
     /// Responsible for handling and enabling the editing picker behaviour.
@@ -76,7 +77,15 @@ final class IONCAMRFlowBehaviour: NSObject, IONCAMRFlowDelegate {
         )
     }
     
-    func captureMedia(with mediaOptions: IONCAMRMediaOptions) {
+    func takePhoto(with options: IONCAMRTakePhotoOptions) {
+        captureMedia(with: options)
+    }
+    
+    func recordVideo(with options: IONCAMRRecordVideoOptions) {
+        captureMedia(with: options)
+    }
+    
+    private func captureMedia(with mediaOptions: IONCAMRMediaOptions) {
         self.permissionsBehaviour.checkForCamera { [weak self] authorised in
             guard let self = self else { return }
             guard authorised else {
@@ -191,7 +200,7 @@ private extension IONCAMRFlowBehaviour {
         case mediaOptionsConversion, mediaResultCreation, stringConversion, thumbnailGeneratorIssue, treatmentIssue
     }
     
-    func convertToMediaResult(_ image: UIImage, with options: IONCAMRPictureOptions? = nil, separateReturnTypeBasedOn returnComplexVersion: Bool, and returnMetadata: Bool) throws -> IONCAMRMediaResult {
+    func convertToMediaResult(_ image: UIImage, with options: IONCAMRTakePhotoOptions? = nil, separateReturnTypeBasedOn returnComplexVersion: Bool, and returnMetadata: Bool) throws -> IONCAMRMediaResult {
         guard let imageResult = image.toData(with: options) else { throw IONCAMRMultimediaError.treatmentIssue }
         
         let result: IONCAMRMediaResult
@@ -219,7 +228,7 @@ private extension IONCAMRFlowBehaviour {
     /// - Parameters:
     ///   - image: Image to treat.
     ///   - options: User defined options with the transformations to apply to the image.
-    func treat(_ image: UIImage, with options: IONCAMRPictureOptions) throws -> IONCAMRMediaResult {
+    func treat(_ image: UIImage, with options: IONCAMRTakePhotoOptions) throws -> IONCAMRMediaResult {
         if options.saveToPhotoAlbum {
             self.galleryBehaviour.saveToGallery(image)
         }
@@ -234,7 +243,7 @@ private extension IONCAMRFlowBehaviour {
         return options.thumbnailAsData ? [result] : result
     }
     
-    func treat(_ url: URL, with options: IONCAMRVideoOptions, _ completion: @escaping (IONCAMRMediaResult?) -> Void) {
+    func treat(_ url: URL, with options: IONCAMRRecordVideoOptions, _ completion: @escaping (IONCAMRMediaResult?) -> Void) {
         self.temporaryURLArray += [url]
         if options.saveToPhotoAlbum {
             self.galleryBehaviour.saveToGallery(url)
@@ -263,7 +272,7 @@ private extension IONCAMRFlowBehaviour {
     func imagePickerDidReturn(_ image: UIImage) throws -> IONCAMRMediaResult? {
         var result: IONCAMRMediaResult?
         
-        guard let pictureOptions = self.options as? IONCAMRPictureOptions else { throw IONCAMRMultimediaError.mediaOptionsConversion }
+        guard let pictureOptions = self.options as? IONCAMRTakePhotoOptions else { throw IONCAMRMultimediaError.mediaOptionsConversion }
         if !pictureOptions.allowEdit {
             guard let treatedImage = try? self.treat(image, with: pictureOptions) else { throw IONCAMRMultimediaError.treatmentIssue }
             result = treatedImage
@@ -273,7 +282,7 @@ private extension IONCAMRFlowBehaviour {
     }
     
     func videoPickerDidReturn(_ url: URL, _ completion: @escaping (IONCAMRMediaResult?) -> Void) {
-        guard let videoOptions = self.options as? IONCAMRVideoOptions else { return completion(nil) }
+        guard let videoOptions = self.options as? IONCAMRRecordVideoOptions else { return completion(nil) }
         self.treat(url, with: videoOptions, completion)
     }
     
@@ -322,7 +331,7 @@ private extension IONCAMRFlowBehaviour {
 private extension IONCAMRFlowBehaviour {
     func imageEditorDidReturn(_ image: UIImage) throws -> any Encodable {
         if self.coordinator.isSecondStep {
-            if let pictureOptions = self.options as? IONCAMRPictureOptions {
+            if let pictureOptions = self.options as? IONCAMRTakePhotoOptions {
                 return try self.treat(image, with: pictureOptions)
             }
             if let galleryOptions = self.options as? IONCAMRGalleryOptions {

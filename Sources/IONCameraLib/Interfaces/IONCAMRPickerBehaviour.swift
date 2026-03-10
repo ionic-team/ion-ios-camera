@@ -60,7 +60,7 @@ extension IONCAMRPickerBehaviour: UIImagePickerControllerDelegate, UINavigationC
 private extension IONCAMRPickerBehaviour {
     func fetchToReturn(_ picture: UIImage?) -> Result<UIImage, IONCAMRError> {
         guard let originalImage = picture,
-              let pictureOptions = self.mediaOptions as? IONCAMRPictureOptions,
+              let pictureOptions = self.mediaOptions as? IONCAMRTakePhotoOptions,
               let image = originalImage.fix(with: pictureOptions)
         else { return .failure(.takePictureIssue) }
         

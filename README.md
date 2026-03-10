@@ -36,110 +36,262 @@ pod install
 import IONCameraLib
 
 class ViewController: UIViewController {
-    let cameraManager = IONCameraManager()
+    private var cameraManager: IONCAMRCameraManager?
+    private var galleryManager: IONCAMRGalleryManager?
+    private var editManager: IONCAMREditManager?
+    private var videoManager: IONCAMRVideoManager?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        cameraManager.delegate = self
+        setupManagers()
+    }
+    
+    private func setupManagers() {
+        cameraManager = IONCAMRCameraManager(delegate: self, viewController: self)
+        galleryManager = IONCAMRGalleryManager(delegate: self, viewController: self)
+        editManager = IONCAMREditManager(delegate: self, viewController: self)
+        videoManager = IONCAMRVideoManager(delegate: self, viewController: self)
     }
     
     // Take a photo
     func capturePhoto() {
-        let imageConfig = IONImageProcessorConfiguration()
-        imageConfig.imageFormat = .jpeg
-        imageConfig.jpegCompressionQuality = 0.8
-        
-        cameraManager.takePhoto(imageProcessorConfiguration: imageConfig) { controller in
-            self.present(controller, animated: true)
+        do {
+            let photoOptions = try IONCAMRTakePhotoOptions(
+                quality: 80,
+                size: IONCAMRSize(width: 1024, height: 768),
+                correctOrientation: true,
+                encodingType: .jpeg,
+                saveToPhotoAlbum: false,
+                direction: .back,
+                allowEdit: true,
+                returnMetadata: false,
+                latestVersion: true
+            )
+            cameraManager?.takePhoto(with: photoOptions)
+        } catch {
+            print("Error creating photo options: \(error)")
         }
     }
     
     // Record a video  
     func recordVideo() {
-        let videoConfig = IONVideoProcessorConfiguration()
-        videoConfig.videoFormat = .mp4
-        videoConfig.videoQuality = .medium
-        
-        cameraManager.recordVideo(videoProcessorConfiguration: videoConfig) { controller in
-            self.present(controller, animated: true)
+        let videoOptions = IONCAMRRecordVideoOptions(
+            saveToPhotoAlbum: false,
+            returnMetadata: false
+        )
+        cameraManager?.recordVideo(with: videoOptions)
+    }
+    
+    // Choose from gallery
+    func chooseFromGallery() {
+        let galleryOptions = IONCAMRGalleryOptions(
+            mediaType: .picture,
+            allowEdit: true,
+            allowMultipleSelection: false,
+            andThumbnailAsData: false,
+            returnMetadata: false
+        )
+        galleryManager?.chooseFromGallery(with: galleryOptions)
+    }
+    
+    // Edit an image
+    func editImage(_ image: UIImage) {
+        editManager?.editPicture(image)
+    }
+    
+    // Edit image from URL
+    func editImageFromURL(_ urlString: String) {
+        let editOptions = IONCAMREditOptions(
+            saveToPhotoAlbum: false,
+            returnMetadata: false
+        )
+        editManager?.editPicture(from: urlString, with: editOptions)
+    }
+    
+    // Clean temporary files
+    func cleanupTemporaryFiles() {
+        cameraManager?.cleanTemporaryFiles()
+    }
+}
+
+// MARK: - IONCAMRCallbackDelegate
+extension ViewController: IONCAMRCallbackDelegate {
+    func callback(result: String?, error: IONCAMRError?) {
+        if let error = error {
+            print("Error: \(error)")
+        } else if let result = result {
+            print("Success: \(result)")
+            // Parse JSON result to get media information
+            if let data = result.data(using: .utf8) {
+                do {
+                    if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                        print("Media result: \(json)")
+                    }
+                } catch {
+                    print("Failed to parse result JSON")
+                }
+            }
         }
     }
 }
-
-// MARK: - IONCameraManagerDelegate
-extension ViewController: IONCameraManagerDelegate {
-    func cameraManager(_ manager: IONCameraManager, didCaptureMediaWith result: IONMediaResult) {
-        switch result.mediaType {
-        case .image:
-            print("Image captured: \(result.fileURL)")
-        case .video:
-            print("Video captured and processed: \(result.fileURL)")
-        }
-    }
-    
-    func cameraManager(_ manager: IONCameraManager, didFailWithError error: IONCameraError) {
-        print("Camera error: \(error.description)")
-    }
-    
-    func cameraManagerDidCancel(_ manager: IONCameraManager) {
-        print("Camera operation cancelled")
-    }
-}
-```
-
-### Advanced Video Processing
-
-```swift
-// Compress an existing video
-IONVideoProcessor.compressVideo(originalVideoURL, quality: .medium) { processedURL, error in
-    guard let url = processedURL else {
-        print("Compression failed: \(error?.description ?? "Unknown error")")
-        return
-    }
-    print("Video compressed and saved to: \(url)")
-}
-
-// Trim video (5 to 30 seconds)
-IONVideoProcessor.trimVideo(originalVideoURL, startTime: 5.0, endTime: 30.0) { trimmedURL, error in
-    // Handle result...
-}
-
-// Extract thumbnail at 2 seconds
-let thumbnail = IONVideoProcessor.extractThumbnail(from: videoURL, atTime: 2.0)
-
-// Get video information
-let duration = IONVideoProcessor.getVideoDuration(videoURL)
-let resolution = IONVideoProcessor.getVideoResolution(videoURL)
-let fileSize = IONVideoProcessor.getVideoFileSize(videoURL)
 ```
 
 ### Video Playback
 
 ```swift
-// Play video using system player - basic
-IONVideoManager.playVideo(from: videoURL) { playerController in
-    present(playerController, animated: true)
+// Play video using the IONCAMRVideoManager
+class VideoPlayerViewController: UIViewController {
+    private var videoManager: IONCAMRVideoManager?
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        videoManager = IONCAMRVideoManager(delegate: self, viewController: self)
+    }
+    
+    func playVideo(from url: URL) {
+        Task {
+            do {
+                try await videoManager?.playVideo(url)
+            } catch {
+                print("Failed to play video: \(error)")
+            }
+        }
+    }
 }
 
-// Play video with custom configuration
-IONVideoManager.playVideo(
-    from: videoURL,
-    allowsPictureInPicturePlayback: false,
-    showsPlaybackControls: true
-) { playerController in
-    present(playerController, animated: true)
-}
-
-// Create embedded video player view
-let playerView = IONVideoManager.createVideoPlayerView(for: videoURL, frame: videoFrame)
-containerView.addSubview(playerView)
-
-// Check if video can be played
-if IONVideoManager.canPlayVideo(at: videoURL) {
-    let playbackInfo = IONVideoManager.getVideoPlaybackInfo(videoURL)
-    print("Video info: \(playbackInfo ?? [:])")
+extension VideoPlayerViewController: IONCAMRCallbackDelegate {
+    func callback(result: String?, error: IONCAMRError?) {
+        if let error = error {
+            print("Video playback error: \(error)")
+        } else if let result = result {
+            print("Video playback result: \(result)")
+        }
+    }
 }
 ```
+
+### Advanced Usage Examples
+
+```swift
+// Multiple selection from gallery
+func selectMultiplePhotos() {
+    let galleryOptions = IONCAMRGalleryOptions(
+        mediaType: .picture,
+        allowEdit: false,
+        allowMultipleSelection: true,
+        andThumbnailAsData: true,
+        returnMetadata: true
+    )
+    galleryManager?.chooseFromGallery(with: galleryOptions)
+}
+
+// High quality photo with custom size
+func takeHighQualityPhoto() {
+    do {
+        let photoOptions = try IONCAMRTakePhotoOptions(
+            quality: 100,
+            size: IONCAMRSize(width: 2048, height: 1536),
+            correctOrientation: true,
+            encodingType: .jpeg,
+            saveToPhotoAlbum: true,
+            direction: .front,
+            allowEdit: false,
+            returnMetadata: true,
+            latestVersion: true
+        )
+        cameraManager?.takePhoto(with: photoOptions)
+    } catch {
+        print("Error creating high quality photo options: \(error)")
+    }
+}
+
+// Video recording with save to album
+func recordVideoToAlbum() {
+    let videoOptions = IONCAMRRecordVideoOptions(
+        saveToPhotoAlbum: true,
+        returnMetadata: true
+    )
+    cameraManager?.recordVideo(with: videoOptions)
+}
+```
+
+## Key Components
+
+### Manager Classes
+
+- **`IONCAMRCameraManager`**: Handle photo capture and video recording
+- **`IONCAMRGalleryManager`**: Choose media from photo gallery
+- **`IONCAMREditManager`**: Edit photos and images  
+- **`IONCAMRVideoManager`**: Play videos
+
+### Configuration Options
+
+- **`IONCAMRTakePhotoOptions`**: Configure photo capture settings
+- **`IONCAMRRecordVideoOptions`**: Configure video recording settings
+- **`IONCAMRGalleryOptions`**: Configure gallery selection behavior
+- **`IONCAMREditOptions`**: Configure image editing settings
+
+### Callback Protocol
+
+All managers use the `IONCAMRCallbackDelegate` protocol for results:
+
+```swift
+public protocol IONCAMRCallbackDelegate: AnyObject {
+    func callback(result: String?, error: IONCAMRError?)
+}
+```
+
+Results are returned as JSON strings containing `IONCAMRMediaResult` objects with media information including file paths, thumbnails, and metadata.
+
+### Error Handling
+
+The library provides comprehensive error handling through `IONCAMRError` enum:
+
+```swift
+extension ViewController: IONCAMRCallbackDelegate {
+    func callback(result: String?, error: IONCAMRError?) {
+        if let error = error {
+            switch error {
+            case .cameraAccess:
+                // Handle camera permission issues
+                showPermissionAlert()
+            case .photoLibraryAccess:
+                // Handle gallery permission issues
+                showPhotoLibraryPermissionAlert()
+            case .takePictureCancel, .editPictureCancel, .choosePictureCancel:
+                // Handle user cancellations
+                print("Operation was cancelled by user")
+            case .invalidImageData:
+                // Handle invalid image data
+                showErrorAlert("Invalid image selected")
+            default:
+                // Handle other errors
+                showErrorAlert("An error occurred: \(error.localizedDescription)")
+            }
+        } else if let result = result {
+            // Handle successful result
+            processMediaResult(result)
+        }
+    }
+}
+```
+
+## Permissions
+
+The library requires the following permissions in your app's `Info.plist`:
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>This app needs camera access to take photos and record videos.</string>
+
+<key>NSPhotoLibraryUsageDescription</key>
+<string>This app needs photo library access to choose and save media files.</string>
+
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>This app needs permission to save photos and videos to your library.</string>
+```
+
+The library includes a `PrivacyInfo.xcprivacy` file that documents the required privacy permissions according to Apple's requirements.
 
 ## Requirements
 
