@@ -14,6 +14,10 @@ public struct IONCAMRFactory {
     public static func createGalleryManagerWrapper(withDelegate delegate: IONCAMRCallbackDelegate, and viewController: UIViewController) -> IONCAMRGalleryActionDelegate {
         IONCAMRGalleryManager(delegate: delegate, viewController: viewController)
     }
+
+    public static func createEditManagerWrapper(withDelegate delegate: IONCAMRCallbackDelegate, and viewController: UIViewController) -> IONCAMREditActionDelegate {
+        IONCAMREditManager(delegate: delegate, viewController: viewController)
+    }
     
     public static func createVideoManagerWrapper(withDelegate delegate: IONCAMRCallbackDelegate, and viewController: UIViewController) -> IONCAMRVideoActionDelegate {
         IONCAMRVideoManager(delegate: delegate, viewController: viewController)

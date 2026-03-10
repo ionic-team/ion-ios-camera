@@ -45,7 +45,7 @@ final class IONCAMRMediaOptionsTests: XCTestCase {
     }
 
     func test_whenSettingVideoOptions_uiImagePickerControllerMediaTypesShouldReturnMovie() {
-        let videoOptions = IONCAMRVideoOptionsConfigurations.video
+        let videoOptions = IONCAMRRecordVideoOptionsConfigurations.video
 
         XCTAssertEqual(videoOptions.mediaType, .video)
         XCTAssertEqual(videoOptions.mediaType.phAssetArray, [.video])

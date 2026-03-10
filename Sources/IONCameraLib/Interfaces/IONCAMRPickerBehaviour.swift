@@ -60,7 +60,7 @@ extension IONCAMRPickerBehaviour: UIImagePickerControllerDelegate, UINavigationC
 private extension IONCAMRPickerBehaviour {
     func fetchToReturn(_ picture: UIImage?) -> Result<UIImage, IONCAMRError> {
         guard let originalImage = picture,
-              let pictureOptions = self.mediaOptions as? IONCAMRPictureOptions,
+              let pictureOptions = self.mediaOptions as? IONCAMRTakePhotoOptions,
               let image = originalImage.fix(with: pictureOptions)
         else { return .failure(.takePictureIssue) }
         
@@ -68,9 +68,23 @@ private extension IONCAMRPickerBehaviour {
     }
     
     func fetchToReturn(_ videoURL: URL?) -> Result<URL, IONCAMRError> {
-        guard let url = try? videoURL?.createVideoTemporaryPath()
-        else { return .failure(.captureVideoIssue) }
-        
+        guard let videoURL = videoURL else { return .failure(.captureVideoIssue) }
+
+        let isPersistent = (self.mediaOptions as? OSCAMRVideoOptions)?.isPersistent ?? true
+
+        let url: URL
+        if isPersistent {
+            guard let permanentURL = try? videoURL.createVideoPermanentPath() else {
+                return .failure(.captureVideoIssue)
+            }
+            url = permanentURL
+        } else {
+            guard let temporaryURL = try? videoURL.createVideoTemporaryPath() else {
+                return .failure(.captureVideoIssue)
+            }
+            url = temporaryURL
+        }
+
         return .success(url)
     }
 }

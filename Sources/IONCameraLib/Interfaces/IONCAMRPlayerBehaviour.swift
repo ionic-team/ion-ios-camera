@@ -20,7 +20,9 @@ final class IONCAMRPlayerBehaviour: NSObject, IONCAMRPlayerDelegate {
     }
     
     func playVideo(_ url: URL) async throws {
-        let asset = AVAsset(url: url)
+        // Resolve the URL in case the app sandbox path has changed
+        let resolvedURL = try self.resolveVideoURL(url)
+        let asset = AVAsset(url: resolvedURL)
         
         let isPlayable: Bool
         if #available(iOS 15, *) {
@@ -31,7 +33,7 @@ final class IONCAMRPlayerBehaviour: NSObject, IONCAMRPlayerDelegate {
         
         if isPlayable {
             DispatchQueue.main.async {
-                let player = AVPlayer(url: url)
+                let player = AVPlayer(url: resolvedURL)
                 let playerViewController = AVPlayerViewController()
                 playerViewController.player = player
                 self.coordinator.present(playerViewController)
@@ -41,6 +43,28 @@ final class IONCAMRPlayerBehaviour: NSObject, IONCAMRPlayerDelegate {
         } else {
             throw IONCAMRError.playVideoIssue
         }
+    }
+
+    private func resolveVideoURL(_ url: URL) throws -> URL {
+        // Check if the file exists at the given URL
+        if FileManager.default.fileExists(atPath: url.path) {
+            return url
+        }
+
+        // If not, try to reconstruct the path using the current Documents directory
+        // This handles cases where the app sandbox path has changed
+        let fileName = url.lastPathComponent
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let reconstructedURL = documentsURL
+            .appendingPathComponent(videosDirectoryName, isDirectory: true)
+            .appendingPathComponent(fileName)
+
+        // Verify the reconstructed path exists
+        guard FileManager.default.fileExists(atPath: reconstructedURL.path) else {
+            throw IONCAMRError.playVideoIssue
+        }
+
+        return reconstructedURL
     }
 }
 

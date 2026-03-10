@@ -336,7 +336,7 @@ extension IONCAMRFlowTests {
     func test_captureVideo_butNoCameraAvailable_returnError() {
         mockPicker.cameraAvailable = false
 
-        sut.captureMedia(with: IONCAMRVideoOptionsConfigurations.video)
+        sut.captureMedia(with: IONCAMRRecordVideoOptionsConfigurations.video)
 
         XCTAssertNil(singleResult)
         XCTAssertEqual(error, .cameraAvailability)
@@ -345,7 +345,7 @@ extension IONCAMRFlowTests {
     func test_captureVideo_butNoCameraAccess_returnError() {
         mockPermissions.authorised = false
 
-        sut.captureMedia(with: IONCAMRVideoOptionsConfigurations.video)
+        sut.captureMedia(with: IONCAMRRecordVideoOptionsConfigurations.video)
 
         XCTAssertNil(singleResult)
         XCTAssertEqual(error, .cameraAccess)
@@ -354,7 +354,7 @@ extension IONCAMRFlowTests {
     func test_captureVideo_butErrorOccured_returnError() {
         let pickerError = IONCAMRError.captureVideoIssue
 
-        sut.captureMedia(with: IONCAMRVideoOptionsConfigurations.video)
+        sut.captureMedia(with: IONCAMRRecordVideoOptionsConfigurations.video)
         mockPicker.didEndCaptureVideoHandler(with: pickerError)
 
         XCTAssertNil(singleResult)
@@ -362,7 +362,7 @@ extension IONCAMRFlowTests {
     }
 
     func test_captureVideo_butCancels_delegatesToDidCancel() {
-        sut.captureMedia(with: IONCAMRVideoOptionsConfigurations.video)
+        sut.captureMedia(with: IONCAMRRecordVideoOptionsConfigurations.video)
         mockPicker.didCancelCaptureVideo()
 
         XCTAssertNil(singleResult)
@@ -374,7 +374,7 @@ extension IONCAMRFlowTests {
         let videoURL = IONCAMRVideoMock.first.url
         mockThumbnailGenerator.thumbnail = IONCAMRPictureMock.osLogo.image
 
-        sut.captureMedia(with: IONCAMRVideoOptionsConfigurations.video)
+        sut.captureMedia(with: IONCAMRRecordVideoOptionsConfigurations.videoTemporary)
         mockPicker.didEndSuccessfullyCaptureVideoHandler()
 
         XCTAssertEqual(singleResult?.type, .video)
@@ -388,7 +388,7 @@ extension IONCAMRFlowTests {
     func test_captureVideo_isSuccessful_andSaveToPhotoAlbumIsDisabled_whenTemporaryFilesAreCleaned_temporaryFilesArrayGoesEmpty() {
         mockThumbnailGenerator.thumbnail = IONCAMRPictureMock.osLogo.image
 
-        sut.captureMedia(with: IONCAMRVideoOptionsConfigurations.video)
+        sut.captureMedia(with: IONCAMRRecordVideoOptionsConfigurations.video)
         mockPicker.didEndSuccessfullyCaptureVideoHandler()
 
         sut.cleanTemporaryFiles()
@@ -401,7 +401,7 @@ extension IONCAMRFlowTests {
         mockGallery.pleaseSave = true
         mockThumbnailGenerator.thumbnail = IONCAMRPictureMock.osLogoRotated.image
 
-        sut.captureMedia(with: IONCAMRVideoOptionsConfigurations.saveToPhotosAlbum)
+        sut.captureMedia(with: IONCAMRRecordVideoOptionsConfigurations.saveToPhotosAlbumTemporary)
         mockPicker.didEndSuccessfullyCaptureVideoHandler()
 
         XCTAssertEqual(singleResult?.type, .video)
@@ -412,11 +412,42 @@ extension IONCAMRFlowTests {
         XCTAssertTrue(mockGallery.isSaved)
     }
 
+    func test_captureVideo_isSuccessful_andSaveToPhotoAlbumIsDisabled_andIsPersistent_returnVideoURLandThumbnail() {
+        let videoURL = OSCAMRVideoMock.first.url
+        mockThumbnailGenerator.thumbnail = OSCAMRPictureMock.osLogo.image
+
+        sut.captureMedia(with: OSCAMRVideoOptionsConfigurations.video)
+        mockPicker.didEndSuccessfullyCaptureVideoHandler()
+
+        XCTAssertEqual(singleResult?.type, .video)
+        XCTAssertEqual(singleResult?.uri, videoURL.absoluteString)
+        XCTAssertEqual(singleResult?.thumbnail, mockThumbnailGenerator.thumbnail?.defaultVideoThumbnailData)
+        XCTAssertNil(error)
+        XCTAssertEqual(sut.temporaryURLArray, [])
+        XCTAssertFalse(mockGallery.isSaved)
+    }
+
+    func test_captureVideo_isSuccessful_andSaveToPhotoAlbumIsEnabled_andIsPersistent_videoIsSavedIntoPhotoGallery() {
+        let videoURL = OSCAMRVideoMock.first.url
+        mockGallery.pleaseSave = true
+        mockThumbnailGenerator.thumbnail = OSCAMRPictureMock.osLogoRotated.image
+
+        sut.captureMedia(with: OSCAMRVideoOptionsConfigurations.saveToPhotosAlbum)
+        mockPicker.didEndSuccessfullyCaptureVideoHandler()
+
+        XCTAssertEqual(singleResult?.type, .video)
+        XCTAssertEqual(singleResult?.uri, videoURL.absoluteString)
+        XCTAssertEqual(singleResult?.thumbnail, mockThumbnailGenerator.thumbnail?.defaultVideoThumbnailData)
+        XCTAssertNil(error)
+        XCTAssertEqual(sut.temporaryURLArray, [])
+        XCTAssertTrue(mockGallery.isSaved)
+    }
+
     func test_captureVideo_isSuccessful_andReturnMetadataIsEnabled_returnVideoWithMetadata() {
         let video = IONCAMRVideoMock.first
         mockThumbnailGenerator.thumbnail = IONCAMRPictureMock.osLogoRotated.image
 
-        sut.captureMedia(with: IONCAMRVideoOptionsConfigurations.withMetadata)
+        sut.captureMedia(with: IONCAMRRecordVideoOptionsConfigurations.withMetadata)
         mockPicker.didEndSuccessfullyCaptureVideoHandler()
 
         // TODO: This is flaky. It's being done due to multithreading while generating video metadata.

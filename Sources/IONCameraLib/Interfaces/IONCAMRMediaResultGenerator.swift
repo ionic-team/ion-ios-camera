@@ -75,8 +75,8 @@ extension IONCAMRMediaResultGenerator: IONCAMRThumbnailGeneratorDelegate {
     }
     
     func getBase64String(from image: UIImage, with originalSize: IONCAMRSize?, and originalQuality: Int?) -> String? {
-        let size = originalSize ?? IONCAMRPictureOptions.defaultSquare
-        let quality = originalQuality ?? IONCAMRPictureOptions.ThumbnailDefaultConfigurations.quality
+        let size = originalSize ?? IONCAMRTakePhotoOptions.defaultSquare
+        let quality = originalQuality ?? IONCAMRTakePhotoOptions.ThumbnailDefaultConfigurations.quality
 
         return image.pictureThumbnailData(with: size, and: quality)
     }

@@ -1,6 +1,6 @@
 import UIKit
 
-final class IONCAMRCameraManager: NSObject {
+final class IONCAMREditManager: NSObject {
     private weak var delegate: IONCAMRCallbackDelegate?
     private let flow: IONCAMRFlowDelegate
     
@@ -19,20 +19,16 @@ final class IONCAMRCameraManager: NSObject {
     }
 }
 
-extension IONCAMRCameraManager: IONCAMRCameraActionDelegate {
-    func takePhoto(with options: IONCAMRTakePhotoOptions) {
-        self.flow.takePhoto(with: options)
+extension IONCAMREditManager: IONCAMREditActionDelegate {    
+    func editPicture(_ image: UIImage) {
+        self.flow.editPicture(image)
     }
     
-    func recordVideo(with options: IONCAMRRecordVideoOptions) {
-        self.flow.recordVideo(with: options)
-    }
-    
-    func cleanTemporaryFiles() {
-        self.flow.cleanTemporaryFiles()
+    func editPicture(from urlString: String, with options: IONCAMREditOptions) {
+        self.flow.editPicture(from: urlString, with: options)
     }
 }
 
-extension IONCAMRCameraManager: IONCAMRFlowResultsHandler {
+extension IONCAMREditManager: IONCAMRFlowResultsHandler {
     var responseDelegate: IONCAMRCallbackDelegate? { return delegate }
 }

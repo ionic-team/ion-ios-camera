@@ -208,7 +208,7 @@ final class IONCAMRCameraTests: XCTestCase {
     func test_whenUserPressesCaptureVideoButton_andCancels_returnError() {
         mockFlow.triggeredCancelVideo = true
 
-        sut.captureMedia(with: IONCAMRVideoOptionsConfigurations.video)
+        sut.captureMedia(with: IONCAMRRecordVideoOptionsConfigurations.video)
 
         XCTAssertNil(mockDelegate.successText)
         XCTAssertEqual(mockDelegate.error, IONCAMRError.captureVideoCancel)
@@ -218,7 +218,7 @@ final class IONCAMRCameraTests: XCTestCase {
         mockFlow.triggeredCaptureVideo = true
         mockFlow.error = .captureVideoIssue
 
-        sut.captureMedia(with: IONCAMRVideoOptionsConfigurations.video)
+        sut.captureMedia(with: IONCAMRRecordVideoOptionsConfigurations.video)
 
         XCTAssertNil(mockDelegate.successText)
         XCTAssertEqual(mockDelegate.error, mockFlow.error)
@@ -227,7 +227,7 @@ final class IONCAMRCameraTests: XCTestCase {
     func test_whenUserPressesCaptureVideoButton_withSuccess_returnURLandThumbnail() throws {
         mockFlow.triggeredCaptureVideo = true
 
-        sut.captureMedia(with: IONCAMRVideoOptionsConfigurations.video)
+        sut.captureMedia(with: IONCAMRRecordVideoOptionsConfigurations.video)
 
         let mediaResult = IONCAMRVideoMock.first.toMediaResult
         let encoder = JSONEncoder()
@@ -242,7 +242,7 @@ final class IONCAMRCameraTests: XCTestCase {
     func test_whenUserPressesCaptureVideoButton_withSuccess_whenTemporaryFilesIsExecuted_arrayIsEmpty() {
         mockFlow.triggeredCaptureVideo = true
 
-        sut.captureMedia(with: IONCAMRVideoOptionsConfigurations.video)
+        sut.captureMedia(with: IONCAMRRecordVideoOptionsConfigurations.video)
 
         XCTAssertEqual(mockFlow.temporaryURLArray, [IONCAMRVideoMock.first.url])
 
@@ -254,7 +254,7 @@ final class IONCAMRCameraTests: XCTestCase {
     func test_whenUserPressesCaptureVideoButton_withSuccess_andReturnMetadataIsTrue_returnVideoInfoWithMetadata() throws {
         mockFlow.triggeredCaptureVideo = true
 
-        sut.captureMedia(with: IONCAMRVideoOptionsConfigurations.withMetadata)
+        sut.captureMedia(with: IONCAMRRecordVideoOptionsConfigurations.withMetadata)
 
         let successText = mockDelegate.successText ?? ""
         let decoder = JSONDecoder()

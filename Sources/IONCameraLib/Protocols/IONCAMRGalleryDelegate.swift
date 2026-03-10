@@ -7,8 +7,10 @@ protocol IONCAMRGalleryDelegate: AnyObject {
     
     /// Save image to the device's photo library.
     /// - Parameter image: Image to be saved.
-    func saveToGallery(_ image: UIImage)
-    func saveToGallery(_ fileURL: URL)
+    /// - Returns: `true` if the image was saved successfully, `false` otherwise.
+    func saveToGallery(_ image: UIImage) async -> Bool
+    /// - Returns: `true` if the video was saved successfully, `false` otherwise.
+    func saveToGallery(_ fileURL: URL) async -> Bool
     
     func chooseFromGallery(with options: IONCAMRGalleryOptions, _ handler: @escaping (UIViewController) -> Void)
 }

@@ -2,6 +2,7 @@ import Photos
 import UIKit
 
 final class IONCAMRFlowBehaviour: NSObject, IONCAMRFlowDelegate {
+    
     /// Responsible for handling and enabling the image picker behaviour.
     private let picker: IONCAMRPickerDelegate
     /// Responsible for handling and enabling the editing picker behaviour.
@@ -76,7 +77,15 @@ final class IONCAMRFlowBehaviour: NSObject, IONCAMRFlowDelegate {
         )
     }
     
-    func captureMedia(with mediaOptions: IONCAMRMediaOptions) {
+    func takePhoto(with options: IONCAMRTakePhotoOptions) {
+        captureMedia(with: options)
+    }
+    
+    func recordVideo(with options: IONCAMRRecordVideoOptions) {
+        captureMedia(with: options)
+    }
+    
+    private func captureMedia(with mediaOptions: IONCAMRMediaOptions) {
         self.permissionsBehaviour.checkForCamera { [weak self] authorised in
             guard let self = self else { return }
             guard authorised else {
@@ -191,7 +200,7 @@ private extension IONCAMRFlowBehaviour {
         case mediaOptionsConversion, mediaResultCreation, stringConversion, thumbnailGeneratorIssue, treatmentIssue
     }
     
-    func convertToMediaResult(_ image: UIImage, with options: IONCAMRPictureOptions? = nil, separateReturnTypeBasedOn returnComplexVersion: Bool, and returnMetadata: Bool) throws -> IONCAMRMediaResult {
+    func convertToMediaResult(_ image: UIImage, with options: IONCAMRTakePhotoOptions? = nil, separateReturnTypeBasedOn returnComplexVersion: Bool, and returnMetadata: Bool, savedToGallery: Bool? = nil) throws -> IONCAMRMediaResult {
         guard let imageResult = image.toData(with: options) else { throw IONCAMRMultimediaError.treatmentIssue }
         
         let result: IONCAMRMediaResult
@@ -207,9 +216,9 @@ private extension IONCAMRFlowBehaviour {
                 metadata = try? self.metadataGetter.getImageMetadata(from: image, and: imageURL)
             }
             
-            result = IONCAMRMediaResult(pictureWith: imageURL.absoluteString, imageThumbnail, and: metadata)
+            result = IONCAMRMediaResult(pictureWith: imageURL.absoluteString, imageThumbnail, and: metadata, saved: savedToGallery)
         } else {
-            result = IONCAMRMediaResult(pictureWith: imageResult.base64EncodedString())
+            result = IONCAMRMediaResult(pictureWith: imageResult.base64EncodedString(), saved: savedToGallery)
         }
 
         return result
@@ -219,12 +228,13 @@ private extension IONCAMRFlowBehaviour {
     /// - Parameters:
     ///   - image: Image to treat.
     ///   - options: User defined options with the transformations to apply to the image.
-    func treat(_ image: UIImage, with options: IONCAMRPictureOptions) throws -> IONCAMRMediaResult {
-        if options.saveToPhotoAlbum {
-            self.galleryBehaviour.saveToGallery(image)
+    func treat(_ image: UIImage, with options: IONCAMRTakePhotoOptions) throws -> IONCAMRMediaResult {
+        var savedToGallery = false
+        if options.saveToGallery {
+            Task { savedToGallery = await self.galleryBehaviour.saveToGallery(image) }
         }
         
-        return try self.convertToMediaResult(image, with: options, separateReturnTypeBasedOn: options.latestVersion, and: options.returnMetadata)
+        return try self.convertToMediaResult(image, with: options, separateReturnTypeBasedOn: true, and: options.returnMetadata, savedToGallery: savedToGallery)
     }
     
     /// Return type allows us to return a single `IONCAMRMediaResult` (for `ChoosePictureGallery`) or an array of it (for `ChooseFromGallery`).
@@ -234,10 +244,14 @@ private extension IONCAMRFlowBehaviour {
         return options.thumbnailAsData ? [result] : result
     }
     
-    func treat(_ url: URL, with options: IONCAMRVideoOptions, _ completion: @escaping (IONCAMRMediaResult?) -> Void) {
-        self.temporaryURLArray += [url]
-        if options.saveToPhotoAlbum {
-            self.galleryBehaviour.saveToGallery(url)
+    func treat(_ url: URL, with options: IONCAMRRecordVideoOptions, _ completion: @escaping (IONCAMRMediaResult?) -> Void) {
+        // Only add to temporaryURLArray if video is not persistent
+        if !options.isPersistent {
+            self.temporaryURLArray += [url]
+        }
+        
+        if options.saveToGallery {
+            Task { await self.galleryBehaviour.saveToGallery(url) }
         }
         
         self.thumbnailGenerator.getImage(from: url) { image in
@@ -263,7 +277,7 @@ private extension IONCAMRFlowBehaviour {
     func imagePickerDidReturn(_ image: UIImage) throws -> IONCAMRMediaResult? {
         var result: IONCAMRMediaResult?
         
-        guard let pictureOptions = self.options as? IONCAMRPictureOptions else { throw IONCAMRMultimediaError.mediaOptionsConversion }
+        guard let pictureOptions = self.options as? IONCAMRTakePhotoOptions else { throw IONCAMRMultimediaError.mediaOptionsConversion }
         if !pictureOptions.allowEdit {
             guard let treatedImage = try? self.treat(image, with: pictureOptions) else { throw IONCAMRMultimediaError.treatmentIssue }
             result = treatedImage
@@ -273,7 +287,7 @@ private extension IONCAMRFlowBehaviour {
     }
     
     func videoPickerDidReturn(_ url: URL, _ completion: @escaping (IONCAMRMediaResult?) -> Void) {
-        guard let videoOptions = self.options as? IONCAMRVideoOptions else { return completion(nil) }
+        guard let videoOptions = self.options as? IONCAMRRecordVideoOptions else { return completion(nil) }
         self.treat(url, with: videoOptions, completion)
     }
     
@@ -322,7 +336,7 @@ private extension IONCAMRFlowBehaviour {
 private extension IONCAMRFlowBehaviour {
     func imageEditorDidReturn(_ image: UIImage) throws -> any Encodable {
         if self.coordinator.isSecondStep {
-            if let pictureOptions = self.options as? IONCAMRPictureOptions {
+            if let pictureOptions = self.options as? IONCAMRTakePhotoOptions {
                 return try self.treat(image, with: pictureOptions)
             }
             if let galleryOptions = self.options as? IONCAMRGalleryOptions {
@@ -334,12 +348,12 @@ private extension IONCAMRFlowBehaviour {
         
         var separator: Bool = false
         var returnMetadata: Bool = false
-        if let options = self.options as? IONCAMRSaveToPhotoAlbumOptionsDelegate {
+        if let options = self.options as? IONCAMRSaveToGalleryOptionsDelegate {
             separator = true
             returnMetadata = options.returnMetadata
             
-            if options.saveToPhotoAlbum {
-                self.galleryBehaviour.saveToGallery(image)
+            if options.saveToGallery {
+                Task { await self.galleryBehaviour.saveToGallery(image) }
             }
         }
         

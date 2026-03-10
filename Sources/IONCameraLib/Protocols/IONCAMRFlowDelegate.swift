@@ -9,7 +9,9 @@ protocol IONCAMRFlowDelegate: AnyObject {
     
     var temporaryURLArray: [URL] { get set }
     
-    func captureMedia(with mediaOptions: IONCAMRMediaOptions)
+    func takePhoto(with options: IONCAMRTakePhotoOptions)
+    func recordVideo(with options: IONCAMRRecordVideoOptions)
+    
     /// Triggers the user interface that manages the editing a picture feature.
     /// - Parameter image: Image to be edited.
     func editPicture(_ image: UIImage)

@@ -14,22 +14,22 @@ final class IONCAMRGalleryBehaviour: NSObject, IONCAMRGalleryDelegate {
         self.metadataGetter = metadataGetter
     }
     
-    func saveToGallery(_ image: UIImage) {
-        PHPhotoLibrary.shared().performChanges {
-            PHAssetChangeRequest.creationRequestForAsset(from: image)
-        } completionHandler: { success, error in
-            if !success, let error = error {
-                print("Couldn't save image to photo library: \(error)")
+    func saveToGallery(_ image: UIImage) async -> Bool {
+        await withCheckedContinuation { continuation in
+            PHPhotoLibrary.shared().performChanges {
+                PHAssetChangeRequest.creationRequestForAsset(from: image)
+            } completionHandler: { success, _ in
+                continuation.resume(returning: success)
             }
         }
     }
     
-    func saveToGallery(_ fileURL: URL) {
-        PHPhotoLibrary.shared().performChanges {
-            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: fileURL)
-        } completionHandler: { success, error in
-            if !success, let error = error {
-                print("Couldn't save video to photo library: \(error)")
+    func saveToGallery(_ fileURL: URL) async -> Bool {
+        await withCheckedContinuation { continuation in
+            PHPhotoLibrary.shared().performChanges {
+                PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: fileURL)
+            } completionHandler: { success, _ in
+                continuation.resume(returning: success)
             }
         }
     }

@@ -3,22 +3,24 @@ struct IONCAMRMediaResult {
     let uri: String
     let thumbnail: String
     let metadata: IONCAMRMetadata?
+    let saved: Bool?
     
-    init(type: IONCAMRMediaType, uri: String, thumbnail: String, metadata: IONCAMRMetadata? = nil) {
+    init(type: IONCAMRMediaType, uri: String, thumbnail: String, metadata: IONCAMRMetadata? = nil, saved: Bool? = nil   ) {
         self.type = type
         self.uri = uri
         self.thumbnail = thumbnail
         self.metadata = metadata
+        self.saved = saved
     }
 }
 
 extension IONCAMRMediaResult {
-    init(pictureWith uri: String, _ thumbnail: String, and metadata: IONCAMRMetadata? = nil) {
-        self.init(type: .picture, uri: uri, thumbnail: thumbnail, metadata: metadata)
+    init(pictureWith uri: String, _ thumbnail: String, and metadata: IONCAMRMetadata? = nil, saved: Bool? = nil) {
+        self.init(type: .picture, uri: uri, thumbnail: thumbnail, metadata: metadata, saved: saved)
     }
     
-    init(pictureWith data: String) {
-        self.init(type: .picture, uri: "", thumbnail: data)
+    init(pictureWith data: String, saved: Bool? = nil) {
+        self.init(type: .picture, uri: "", thumbnail: data, saved: saved)
     }
     
     init(videoWith uri: String, _ thumbnail: String, and metadata: IONCAMRMetadata? = nil) {
@@ -28,7 +30,7 @@ extension IONCAMRMediaResult {
 
 extension IONCAMRMediaResult: Encodable {
     enum CodingKeys: String, CodingKey {
-        case type, uri, thumbnail, metadata
+        case type, uri, thumbnail, metadata, saved
     }
     
     func encode(to encoder: Encoder) throws {
@@ -37,5 +39,6 @@ extension IONCAMRMediaResult: Encodable {
         try container.encode(self.uri, forKey: .uri)
         try container.encode(self.thumbnail, forKey: .thumbnail)
         try container.encodeIfPresent(self.metadata, forKey: .metadata)
+        try container.encodeIfPresent(self.saved, forKey: .saved)
     }
 }

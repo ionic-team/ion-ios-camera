@@ -1,8 +1,6 @@
 import UIKit
 
 public protocol IONCAMRGalleryActionDelegate: AnyObject {
-    func editPicture(_ image: UIImage)
-    func editPicture(from urlString: String, with options: IONCAMREditOptions)
     func chooseFromGallery(with options: IONCAMRGalleryOptions)
 }
 
