@@ -43,8 +43,8 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
 
         let saveToGallery = try container.decode(Bool.self, forKey: .saveToGallery)
         guard 
-            let cameraDirection = IONCAMRDirection(rawValue: try container.decode(Int.self, forKey: .cameraDirection)) 
-        else { 
+            let cameraDirection = IONCAMRDirection(rawValue: try container.decode(String.self, forKey: .cameraDirection))
+        else {
             throw throwError(field: "cameraDirection")
         }
 
