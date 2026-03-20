@@ -3,7 +3,7 @@ private enum IONCAMRSizeError: Error {
 }
 
 /// Target size for the resulting image.
-public struct IONCAMRSize {
+public struct IONCAMRSize: Decodable {
     /// Width for the image.
     let width: Int
     /// Height for the image.

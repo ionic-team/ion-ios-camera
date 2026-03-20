@@ -19,7 +19,7 @@ final class IONCAMRGalleryManager: NSObject {
     }
 }
 
-extension IONCAMRGalleryManager: IONCAMRGalleryActionDelegate {    
+extension IONCAMRGalleryManager: IONCAMRGalleryActionDelegate {
     func chooseFromGallery(with options: IONCAMRGalleryOptions) {
         self.flow.chooseFromGallery(with: options)
     }

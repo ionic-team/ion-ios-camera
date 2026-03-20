@@ -14,8 +14,8 @@ protocol IONCAMRFlowDelegate: AnyObject {
     
     /// Triggers the user interface that manages the editing a picture feature.
     /// - Parameter image: Image to be edited.
-    func editPicture(_ image: UIImage)
-    func editPicture(from urlString: String, with options: IONCAMREditOptions)
+    func editPhoto(_ image: UIImage)
+    func editPhoto(with options: IONCAMRPhotoEditOptions)
     func chooseFromGallery(with options: IONCAMRGalleryOptions)
     
     func cleanTemporaryFiles()

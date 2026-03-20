@@ -70,7 +70,7 @@ private extension IONCAMRPickerBehaviour {
     func fetchToReturn(_ videoURL: URL?) -> Result<URL, IONCAMRError> {
         guard let videoURL = videoURL else { return .failure(.captureVideoIssue) }
 
-        let isPersistent = (self.mediaOptions as? OSCAMRVideoOptions)?.isPersistent ?? true
+        let isPersistent = (self.mediaOptions as? IONCAMRRecordVideoOptions)?.isPersistent ?? true
 
         let url: URL
         if isPersistent {

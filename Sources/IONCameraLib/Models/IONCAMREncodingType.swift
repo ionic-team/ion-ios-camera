@@ -1,5 +1,5 @@
 /// Format for the resulting encoded image.
-public enum IONCAMREncodingType: Int, CustomStringConvertible {
+public enum IONCAMREncodingType: Int, Decodable, CustomStringConvertible {
     case jpeg = 0
     case png
     

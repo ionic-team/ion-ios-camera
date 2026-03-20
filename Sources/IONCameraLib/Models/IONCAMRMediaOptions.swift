@@ -19,7 +19,7 @@ public class IONCAMRMediaOptions: IONCAMREditMediaTypeOptionsDelegate, IONCAMRSa
 }
 
 /// Camera to be used.
-public enum IONCAMRDirection: Int {
+public enum IONCAMRDirection: Int, Decodable {
     case back = 0
     case front
 }

@@ -1,19 +1,34 @@
-public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate {
-    var mediaType: IONCAMRMediaType
+public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodable {
+    public var mediaType: IONCAMRMediaType
     /// Indicates if an edit step should be added to Choose from Gallery.
-    var allowEdit: Bool
+    public var allowEdit: Bool
     /// Indicates if it's multiple result
-    let allowMultipleSelection: Bool
+    public let allowMultipleSelection: Bool
     /// Indicates if we're in Choose Pic Gallery (true) or Choose from Gallery (false)
-    let thumbnailAsData: Bool
+    public let thumbnailAsData: Bool
     /// Indicates if the media's metadata should be returned
-    var returnMetadata: Bool
-
+    public var returnMetadata: Bool
+    
     init(mediaType: IONCAMRMediaType, allowEdit: Bool, allowMultipleSelection: Bool, andThumbnailAsData: Bool, returnMetadata: Bool) {
         self.mediaType = mediaType
         self.allowEdit = allowEdit
         self.allowMultipleSelection = allowMultipleSelection
         self.thumbnailAsData = andThumbnailAsData
         self.returnMetadata = returnMetadata
+    }
+
+    public required convenience init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let mediaTypeRaw = try container.decode(Int.self, forKey: .mediaType)
+        let mediaType = try IONCAMRMediaType(from: mediaTypeRaw)
+        let allowEdit = try container.decode(Bool.self, forKey: .allowEdit)
+        let allowMultipleSelection = try container.decode(Bool.self, forKey: .allowMultipleSelection)
+        let thumbnailAsData = try container.decodeIfPresent(Bool.self, forKey: .thumbnailAsData) ?? true
+        let returnMetadata = try container.decode(Bool.self, forKey: .includeMetadata)
+        self.init(mediaType: mediaType, allowEdit: allowEdit, allowMultipleSelection: allowMultipleSelection, andThumbnailAsData: thumbnailAsData, returnMetadata: returnMetadata)
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case mediaType, allowEdit, allowMultipleSelection, thumbnailAsData, includeMetadata
     }
 }

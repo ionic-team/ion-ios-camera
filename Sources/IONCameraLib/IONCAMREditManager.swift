@@ -20,12 +20,12 @@ final class IONCAMREditManager: NSObject {
 }
 
 extension IONCAMREditManager: IONCAMREditActionDelegate {    
-    func editPicture(_ image: UIImage) {
-        self.flow.editPicture(image)
+    func editPhoto(_ image: UIImage) {
+        self.flow.editPhoto(image)
     }
     
-    func editPicture(from urlString: String, with options: IONCAMREditOptions) {
-        self.flow.editPicture(from: urlString, with: options)
+    func editPhoto(with options: IONCAMRPhotoEditOptions) {
+        self.flow.editPhoto(with: options)
     }
 }
 

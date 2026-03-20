@@ -3,7 +3,7 @@ private enum IONCAMRTakePhotoOptionsError: Error {
 }
 
 /// Object that contains all user configurable object to be applied to the plugin.
-public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions {
+public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
     /// Picture quality, in percentage.
     let quality: Int
     /// Height and width of the resulting photo.
@@ -12,14 +12,60 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions {
     let correctOrientation: Bool
     /// Indicates  the format to "store" the image.
     let encodingType: IONCAMREncodingType
-    
+
+    private enum CodingKeys: String, CodingKey {
+        case quality, width, height, correctOrientation, encodingType, saveToGallery, cameraDirection, allowEdit, includeMetadata
+    }
+
+    required public convenience init(from decoder: Decoder) throws {
+        func throwError(field: String) -> IONCAMRTakePhotoOptionsError {
+            IONCAMRTakePhotoOptionsError.invalid(field: field)
+        }
+        
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        let quality = try container.decode(Int.self, forKey: .quality)
+        if quality < 0 || quality > 100 { throw throwError(field: "quality") }
+        
+        let width = try container.decode(Int.self, forKey: .width)
+        let height = try container.decode(Int.self, forKey: .height)
+        let size = try IONCAMRSize(width: width, height: height)
+
+        let correctOrientation = try container.decode(Bool.self, forKey: .correctOrientation)
+        guard 
+            let encodingType = IONCAMREncodingType(rawValue: try container.decode(Int.self, forKey: .encodingType))
+        else { 
+            throw throwError(field: "encodingType")
+        }
+
+        let saveToGallery = try container.decode(Bool.self, forKey: .saveToGallery)
+        guard 
+            let cameraDirection = IONCAMRDirection(rawValue: try container.decode(Int.self, forKey: .cameraDirection)) 
+        else { 
+            throw throwError(field: "cameraDirection")
+        }
+
+        let allowEdit = try container.decode(Bool.self, forKey: .allowEdit)
+        let includeMetadata = try container.decode(Bool.self, forKey: .includeMetadata)
+        try self.init(
+            quality: quality,
+            size: size,
+            correctOrientation: correctOrientation,
+            encodingType: encodingType,
+            saveToGallery: saveToGallery,
+            cameraDirection: cameraDirection,
+            allowEdit: allowEdit,
+            returnMetadata: includeMetadata
+        )
+    }
+
     public init(
         quality: Int,
         size: IONCAMRSize? = nil,
         correctOrientation: Bool,
         encodingType: IONCAMREncodingType,
         saveToGallery: Bool,
-        direction: IONCAMRDirection,
+        cameraDirection: IONCAMRDirection,
         allowEdit: Bool,
         returnMetadata: Bool
     ) throws {
@@ -37,7 +83,7 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions {
         self.correctOrientation = correctOrientation
         self.encodingType = encodingType
         super.init(
-            mediaType: .picture, saveToGallery: saveToGallery, returnMetadata: returnMetadata, direction: direction, allowEdit: allowEdit
+            mediaType: .picture, saveToGallery: saveToGallery, returnMetadata: returnMetadata, direction: cameraDirection, allowEdit: allowEdit
         )
     }
 }

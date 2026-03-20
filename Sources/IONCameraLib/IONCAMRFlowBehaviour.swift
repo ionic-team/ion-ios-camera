@@ -105,14 +105,14 @@ final class IONCAMRFlowBehaviour: NSObject, IONCAMRFlowDelegate {
         }
     }
     
-    func editPicture(_ image: UIImage) {
+    func editPhoto(_ image: UIImage) {
         self.editorBehaviour.editPicture(image) { [weak self] viewController in
             self?.present(viewController)
         }
     }
     
-    func editPicture(from urlString: String, with options: IONCAMREditOptions) {
-        guard let image = self.imageFetcher.retrieveImage(from: urlString) else {
+    func editPhoto(with options: IONCAMRPhotoEditOptions) {
+        guard let image = self.imageFetcher.retrieveImage(from: options.uri) else {
             self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: .fetchImageFromURLFailed)
             return
         }
@@ -313,7 +313,7 @@ private extension IONCAMRFlowBehaviour {
                 do {
                     guard let mediaResult = try self.imagePickerDidReturn(image) else {
                         canDismiss = false
-                        self.editPicture(image)
+                        self.editPhoto(image)
                         return
                     }
                     self.delegate?.didSucceed(with: mediaResult)
@@ -414,7 +414,7 @@ private extension IONCAMRFlowBehaviour {
                     self.delegate?.didSucceed(with: mediaResult)
                 } else {
                     canDismiss = false
-                    self.editPicture(image)
+                    self.editPhoto(image)
                 }
             }
         case .failure(let error):
@@ -444,7 +444,7 @@ private extension IONCAMRFlowBehaviour {
                 else { return didFailed(with: .fetchImageFromURLFailed) }
                       
                 canDismiss = false
-                self.editPicture(image)
+                self.editPhoto(image)
             } else {
                 self.delegate?.didSucceed(with: items)
             }
