@@ -27,9 +27,12 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
         let quality = try container.decode(Int.self, forKey: .quality)
         if quality < 0 || quality > 100 { throw throwError(field: "quality") }
         
-        let width = try container.decode(Int.self, forKey: .width)
-        let height = try container.decode(Int.self, forKey: .height)
-        let size = try IONCAMRSize(width: width, height: height)
+        var size: IONCAMRSize? = nil
+        let width = try container.decodeIfPresent(Int.self, forKey: .width)
+        let height = try container.decodeIfPresent(Int.self, forKey: .height)
+        if let width = width, let height = height {
+            size = try IONCAMRSize(width: width, height: height)
+        }
 
         let correctOrientation = try container.decode(Bool.self, forKey: .correctOrientation)
         guard 
