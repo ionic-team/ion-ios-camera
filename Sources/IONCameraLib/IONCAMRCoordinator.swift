@@ -22,7 +22,14 @@ class IONCAMRCoordinator {
     /// Presents the passed view controller, adding it to the currently presented view controller array.
     /// - Parameter viewController: New view controller to present.
     func present(_ viewController: UIViewController) {
-        (self.currentlyPresentedViewControllerArray.last ?? self.rootViewController).present(viewController, animated: true)
+        let presentedViewController = self.currentlyPresentedViewControllerArray.last ?? self.rootViewController
+        if (viewController.modalPresentationStyle == UIModalPresentationStyle.popover) {
+            viewController.popoverPresentationController?.sourceRect = CGRectMake(presentedViewController.view.center.x, presentedViewController.view.center.y, 0, 0);
+            viewController.popoverPresentationController?.sourceView = presentedViewController.view;
+            viewController.popoverPresentationController?.permittedArrowDirections = [];
+
+        }
+        presentedViewController.present(viewController, animated: true)
         self.currentlyPresentedViewControllerArray.append(viewController)
     }
     
