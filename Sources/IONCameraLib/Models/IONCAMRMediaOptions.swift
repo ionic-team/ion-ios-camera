@@ -8,10 +8,10 @@ public class IONCAMRMediaOptions: IONCAMREditMediaTypeOptionsDelegate, IONCAMRSa
     let direction: IONCAMRDirection
     /// Indicates if an edit step should be added to the Take Picture or Choose from Gallery.
     var allowEdit: Bool
-    /// Presentation style to use when showing the camera interface. Default is `.fullScreen`.
-    var presentationStyle: IONCAMRPresentationStyle = .fullScreen
+    /// Presentation style to use when showing the camera interface. Default is `.fullscreen`.
+    var presentationStyle: IONCAMRPresentationStyle = .fullscreen
     
-    init(mediaType: IONCAMRMediaType, saveToGallery: Bool, returnMetadata: Bool, direction: IONCAMRDirection, allowEdit: Bool, presentationStyle: IONCAMRPresentationStyle = .fullScreen) {
+    init(mediaType: IONCAMRMediaType, saveToGallery: Bool, returnMetadata: Bool, direction: IONCAMRDirection, allowEdit: Bool, presentationStyle: IONCAMRPresentationStyle = .fullscreen) {
         self.mediaType = mediaType
         self.saveToGallery = saveToGallery
         self.returnMetadata = returnMetadata

@@ -228,12 +228,11 @@ private extension IONCAMRFlowBehaviour {
     /// - Parameters:
     ///   - image: Image to treat.
     ///   - options: User defined options with the transformations to apply to the image.
-    func treat(_ image: UIImage, with options: IONCAMRTakePhotoOptions) throws -> IONCAMRMediaResult {
+    func treat(_ image: UIImage, with options: IONCAMRTakePhotoOptions) async throws -> IONCAMRMediaResult {
         var savedToGallery = false
         if options.saveToGallery {
-            Task { savedToGallery = await self.galleryBehaviour.saveToGallery(image) }
+            savedToGallery = await self.galleryBehaviour.saveToGallery(image)
         }
-        
         return try self.convertToMediaResult(image, with: options, separateReturnTypeBasedOn: true, and: options.returnMetadata, savedToGallery: savedToGallery)
     }
     
@@ -274,12 +273,12 @@ private extension IONCAMRFlowBehaviour {
 
 // MARK: Picker Related Extension
 private extension IONCAMRFlowBehaviour {
-    func imagePickerDidReturn(_ image: UIImage) throws -> IONCAMRMediaResult? {
+    func imagePickerDidReturn(_ image: UIImage) async throws -> IONCAMRMediaResult? {
         var result: IONCAMRMediaResult?
         
         guard let pictureOptions = self.options as? IONCAMRTakePhotoOptions else { throw IONCAMRMultimediaError.mediaOptionsConversion }
         if !pictureOptions.allowEdit {
-            guard let treatedImage = try? self.treat(image, with: pictureOptions) else { throw IONCAMRMultimediaError.treatmentIssue }
+            guard let treatedImage = try? await self.treat(image, with: pictureOptions) else { throw IONCAMRMultimediaError.treatmentIssue }
             result = treatedImage
         }
         
@@ -310,15 +309,17 @@ private extension IONCAMRFlowBehaviour {
         case .success(let item):
             switch item {
             case .picture(let image):
-                do {
-                    guard let mediaResult = try self.imagePickerDidReturn(image) else {
-                        canDismiss = false
-                        self.editPhoto(image)
-                        return
+                Task {
+                    do {
+                        guard let mediaResult = try await self.imagePickerDidReturn(image) else {
+                            canDismiss = false
+                            self.editPhoto(image)
+                            return
+                        }
+                        self.delegate?.didSucceed(with: mediaResult)
+                    } catch {
+                        didFailed(withError: .takePictureIssue)
                     }
-                    self.delegate?.didSucceed(with: mediaResult)
-                } catch {
-                    didFailed(withError: .takePictureIssue)
                 }
             case .video(let url):
                 self.videoPickerDidReturn(url) { [weak self] mediaResult in
@@ -334,30 +335,31 @@ private extension IONCAMRFlowBehaviour {
 
 // MARK: - Editor Related Extension
 private extension IONCAMRFlowBehaviour {
-    func imageEditorDidReturn(_ image: UIImage) throws -> any Encodable {
+    func imageEditorDidReturn(_ image: UIImage) async throws -> any Encodable {
         if self.coordinator.isSecondStep {
             if let pictureOptions = self.options as? IONCAMRTakePhotoOptions {
-                return try self.treat(image, with: pictureOptions)
+                return try await self.treat(image, with: pictureOptions)
             }
             if let galleryOptions = self.options as? IONCAMRGalleryOptions {
                 return try self.treat(image, with: galleryOptions)
             }
-            
+
             throw IONCAMRMultimediaError.treatmentIssue
         }
-        
+
         var separator: Bool = false
         var returnMetadata: Bool = false
+        var savedToGallery = false
         if let options = self.options as? IONCAMRSaveToGalleryOptionsDelegate {
             separator = true
             returnMetadata = options.returnMetadata
-            
+
             if options.saveToGallery {
-                Task { await self.galleryBehaviour.saveToGallery(image) }
+                savedToGallery = await self.galleryBehaviour.saveToGallery(image)
             }
         }
-        
-        return try self.convertToMediaResult(image, separateReturnTypeBasedOn: separator, and: returnMetadata)
+
+        return try self.convertToMediaResult(image, separateReturnTypeBasedOn: separator, and: returnMetadata, savedToGallery: savedToGallery)
     }
     
     /// Method triggered when the user could finish, with or without success, the editor behaviour.
@@ -375,11 +377,13 @@ private extension IONCAMRFlowBehaviour {
         switch result {
         case .success(let item):
             if case .picture(let image) = item {
-                do {
-                    let result = try imageEditorDidReturn(image)
-                    self.delegate?.didSucceed(with: result)
-                } catch {
-                    didFailed()
+                Task {
+                    do {
+                        let result = try await imageEditorDidReturn(image)
+                        self.delegate?.didSucceed(with: result)
+                    } catch {
+                        didFailed()
+                    }
                 }
             }
         case .failure(let error):

@@ -38,7 +38,7 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
         let cameraDirection = try container.decodeIfPresent(IONCAMRDirection.self, forKey: .cameraDirection) ?? .back
         let allowEdit = try container.decodeIfPresent(Bool.self, forKey: .allowEdit) ?? false
         let includeMetadata = try container.decodeIfPresent(Bool.self, forKey: .includeMetadata) ?? false
-        let presentationStyle = try container.decodeIfPresent(IONCAMRPresentationStyle.self, forKey: .presentationStyle) ?? .fullScreen
+        let presentationStyle = try container.decodeIfPresent(IONCAMRPresentationStyle.self, forKey: .presentationStyle) ?? .fullscreen
 
         try self.init(
             quality: quality,
@@ -62,7 +62,7 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
         cameraDirection: IONCAMRDirection,
         allowEdit: Bool,
         returnMetadata: Bool,
-        presentationStyle: IONCAMRPresentationStyle = .fullScreen
+        presentationStyle: IONCAMRPresentationStyle = .fullscreen
     ) throws {
         func throwError(field: String) -> IONCAMRTakePhotoOptionsError {
             IONCAMRTakePhotoOptionsError.invalid(field: field)
