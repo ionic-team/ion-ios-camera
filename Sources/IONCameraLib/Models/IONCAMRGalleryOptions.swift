@@ -19,12 +19,12 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
 
     public required convenience init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        let mediaTypeRaw = try container.decode(Int.self, forKey: .mediaType)
+        let mediaTypeRaw = try container.decodeIfPresent(Int.self, forKey: .mediaType) ?? 0
         let mediaType = try IONCAMRMediaType(from: mediaTypeRaw)
-        let allowEdit = try container.decode(Bool.self, forKey: .allowEdit)
-        let allowMultipleSelection = try container.decode(Bool.self, forKey: .allowMultipleSelection)
+        let allowEdit = try container.decodeIfPresent(Bool.self, forKey: .allowEdit) ?? false
+        let allowMultipleSelection = try container.decodeIfPresent(Bool.self, forKey: .allowMultipleSelection) ?? false
         let thumbnailAsData = try container.decodeIfPresent(Bool.self, forKey: .thumbnailAsData) ?? true
-        let returnMetadata = try container.decode(Bool.self, forKey: .includeMetadata)
+        let returnMetadata = try container.decodeIfPresent(Bool.self, forKey: .includeMetadata) ?? false
         self.init(mediaType: mediaType, allowEdit: allowEdit, allowMultipleSelection: allowMultipleSelection, andThumbnailAsData: thumbnailAsData, returnMetadata: returnMetadata)
     }
 

@@ -14,9 +14,9 @@ public class IONCAMRRecordVideoOptions: IONCAMRMediaOptions, Decodable {
 
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.isPersistent = try container.decode(Bool.self, forKey: .isPersistent)
-        let saveToGallery = try container.decode(Bool.self, forKey: .saveToGallery)
-        let returnMetadata = try container.decode(Bool.self, forKey: .includeMetadata)
+        self.isPersistent = try container.decodeIfPresent(Bool.self, forKey: .isPersistent) ?? true
+        let saveToGallery = try container.decodeIfPresent(Bool.self, forKey: .saveToGallery) ?? false
+        let returnMetadata = try container.decodeIfPresent(Bool.self, forKey: .includeMetadata) ?? false
         super.init(
             mediaType: .video,
             saveToGallery: saveToGallery,

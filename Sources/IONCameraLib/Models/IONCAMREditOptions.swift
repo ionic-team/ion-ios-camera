@@ -15,8 +15,8 @@ public class IONCAMRPhotoEditOptions: IONCAMRSaveToGalleryOptionsDelegate, Decod
     required public convenience init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let uri = try container.decode(String.self, forKey: .uri)
-        let saveToGallery = try container.decode(Bool.self, forKey: .saveToGallery)
-        let returnMetadata = try container.decode(Bool.self, forKey: .returnMetadata)
+        let saveToGallery = try container.decodeIfPresent(Bool.self, forKey: .saveToGallery) ?? false
+        let returnMetadata = try container.decodeIfPresent(Bool.self, forKey: .returnMetadata) ?? false
         self.init(uri: uri, saveToGallery: saveToGallery, returnMetadata: returnMetadata)
     }
     

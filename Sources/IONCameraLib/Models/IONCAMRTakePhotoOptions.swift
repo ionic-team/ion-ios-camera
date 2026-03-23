@@ -24,7 +24,7 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
         
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        let quality = try container.decode(Int.self, forKey: .quality)
+        let quality = try container.decodeIfPresent(Int.self, forKey: .quality) ?? 90
         if quality < 0 || quality > 100 { throw throwError(field: "quality") }
         
         var size: IONCAMRSize? = nil
@@ -34,22 +34,22 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
             size = try IONCAMRSize(width: width, height: height)
         }
 
-        let correctOrientation = try container.decode(Bool.self, forKey: .correctOrientation)
-        guard 
-            let encodingType = IONCAMREncodingType(rawValue: try container.decode(Int.self, forKey: .encodingType))
-        else { 
+        let correctOrientation = try container.decodeIfPresent(Bool.self, forKey: .correctOrientation) ?? false
+        guard
+            let encodingType = IONCAMREncodingType(rawValue: try container.decodeIfPresent(Int.self, forKey: .encodingType) ?? 0)
+        else {
             throw throwError(field: "encodingType")
         }
 
-        let saveToGallery = try container.decode(Bool.self, forKey: .saveToGallery)
-        guard 
-            let cameraDirection = IONCAMRDirection(rawValue: try container.decode(Int.self, forKey: .cameraDirection)) 
+        let saveToGallery = try container.decodeIfPresent(Bool.self, forKey: .saveToGallery) ?? false
+        guard
+            let cameraDirection = IONCAMRDirection(rawValue: try container.decodeIfPresent(Int.self, forKey: .cameraDirection) ?? 0)
         else { 
             throw throwError(field: "cameraDirection")
         }
 
-        let allowEdit = try container.decode(Bool.self, forKey: .allowEdit)
-        let includeMetadata = try container.decode(Bool.self, forKey: .includeMetadata)
+        let allowEdit = try container.decodeIfPresent(Bool.self, forKey: .allowEdit) ?? false
+        let includeMetadata = try container.decodeIfPresent(Bool.self, forKey: .includeMetadata) ?? false
         try self.init(
             quality: quality,
             size: size,
