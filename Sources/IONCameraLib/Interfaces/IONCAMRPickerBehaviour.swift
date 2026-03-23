@@ -21,6 +21,7 @@ final class IONCAMRPickerBehaviour: NSObject, IONCAMRPickerDelegate {
             pickerController.cameraDevice = mediaOptions.cameraDevice
             pickerController.videoQuality = .typeHigh
             pickerController.delegate = self
+            pickerController.modalPresentationStyle = mediaOptions.presentationStyle.uiModalPresentationStyle
             handler(pickerController)
         }
     }

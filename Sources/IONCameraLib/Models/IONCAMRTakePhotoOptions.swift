@@ -14,7 +14,7 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
     let encodingType: IONCAMREncodingType
 
     private enum CodingKeys: String, CodingKey {
-        case quality, width, height, correctOrientation, encodingType, saveToGallery, cameraDirection, allowEdit, includeMetadata
+        case quality, width, height, correctOrientation, encodingType, saveToGallery, cameraDirection, allowEdit, includeMetadata, presentationStyle
     }
 
     required public convenience init(from decoder: Decoder) throws {
@@ -26,30 +26,20 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
         
         let quality = try container.decodeIfPresent(Int.self, forKey: .quality) ?? 90
         if quality < 0 || quality > 100 { throw throwError(field: "quality") }
-        
         var size: IONCAMRSize? = nil
         let width = try container.decodeIfPresent(Int.self, forKey: .width)
         let height = try container.decodeIfPresent(Int.self, forKey: .height)
         if let width = width, let height = height {
             size = try IONCAMRSize(width: width, height: height)
         }
-
         let correctOrientation = try container.decodeIfPresent(Bool.self, forKey: .correctOrientation) ?? false
-        guard
-            let encodingType = IONCAMREncodingType(rawValue: try container.decodeIfPresent(Int.self, forKey: .encodingType) ?? 0)
-        else {
-            throw throwError(field: "encodingType")
-        }
-
+        let encodingType = try container.decodeIfPresent(IONCAMREncodingType.self, forKey: .encodingType) ?? .jpeg
         let saveToGallery = try container.decodeIfPresent(Bool.self, forKey: .saveToGallery) ?? false
-        guard 
-            let cameraDirection = IONCAMRDirection(rawValue: try container.decodeIfPresent(String.self, forKey: .cameraDirection) ?? IONCAMRDirection.back.rawValue)
-        else {
-            throw throwError(field: "cameraDirection")
-        }
-
+        let cameraDirection = try container.decodeIfPresent(IONCAMRDirection.self, forKey: .cameraDirection) ?? .back
         let allowEdit = try container.decodeIfPresent(Bool.self, forKey: .allowEdit) ?? false
         let includeMetadata = try container.decodeIfPresent(Bool.self, forKey: .includeMetadata) ?? false
+        let presentationStyle = try container.decodeIfPresent(IONCAMRPresentationStyle.self, forKey: .presentationStyle) ?? .fullScreen
+
         try self.init(
             quality: quality,
             size: size,
@@ -58,7 +48,8 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
             saveToGallery: saveToGallery,
             cameraDirection: cameraDirection,
             allowEdit: allowEdit,
-            returnMetadata: includeMetadata
+            returnMetadata: includeMetadata,
+            presentationStyle: presentationStyle
         )
     }
 
@@ -70,7 +61,8 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
         saveToGallery: Bool,
         cameraDirection: IONCAMRDirection,
         allowEdit: Bool,
-        returnMetadata: Bool
+        returnMetadata: Bool,
+        presentationStyle: IONCAMRPresentationStyle = .fullScreen
     ) throws {
         func throwError(field: String) -> IONCAMRTakePhotoOptionsError {
             IONCAMRTakePhotoOptionsError.invalid(field: field)
@@ -86,7 +78,12 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
         self.correctOrientation = correctOrientation
         self.encodingType = encodingType
         super.init(
-            mediaType: .picture, saveToGallery: saveToGallery, returnMetadata: returnMetadata, direction: cameraDirection, allowEdit: allowEdit
+            mediaType: .picture, 
+            saveToGallery: saveToGallery, 
+            returnMetadata: returnMetadata, 
+            direction: cameraDirection, 
+            allowEdit: allowEdit, 
+            presentationStyle: presentationStyle
         )
     }
 }
