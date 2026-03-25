@@ -39,7 +39,10 @@ final class IONCAMRGalleryBehaviour: NSObject, IONCAMRGalleryDelegate {
         self.returnMetadata = options.returnMetadata
         DispatchQueue.main.async {
             let viewController = self.displayPhotoLibraryView(
-                with: options.mediaType.phAssetArray, options.allowMultipleSelection, and: options.thumbnailAsData
+                mediaTypes: options.mediaType.phAssetArray, 
+                allowMultipleSelection: options.allowMultipleSelection, 
+                limit: options.limit, 
+                thumbnailAsData: options.thumbnailAsData
             )
 
             handler(viewController)
@@ -48,15 +51,15 @@ final class IONCAMRGalleryBehaviour: NSObject, IONCAMRGalleryDelegate {
 }
 
 extension IONCAMRGalleryBehaviour {
-    func displayPhotoLibraryView(with mediaTypeArray: [PHAssetMediaType], _ allowMultipleSelection: Bool, and thumbnailAsData: Bool) -> UIViewController {
+    func displayPhotoLibraryView(mediaTypes: [PHAssetMediaType], allowMultipleSelection: Bool, limit: Int = 0, thumbnailAsData: Bool) -> UIViewController {
         let photoLibraryService = IONCAMRPhotoLibraryService(
             delegate: self,
             metadataGetter: self.metadataGetter,
-            mediaTypeArray: mediaTypeArray,
+            mediaTypeArray: mediaTypes,
             thumbnailAsData: thumbnailAsData,
             returnMetadata: self.returnMetadata
         )
-        let photoLibraryView = IONCAMRPhotoLibraryView(allowMultipleSelection: allowMultipleSelection).environmentObject(photoLibraryService)
+        let photoLibraryView = IONCAMRPhotoLibraryView(allowMultipleSelection: allowMultipleSelection, limit: limit).environmentObject(photoLibraryService)
         let viewController = UIHostingController(rootView: photoLibraryView)
         viewController.navigationItem.title = "Photo Library"
         

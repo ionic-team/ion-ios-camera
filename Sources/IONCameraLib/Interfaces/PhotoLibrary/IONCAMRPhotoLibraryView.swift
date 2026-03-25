@@ -6,6 +6,7 @@ struct IONCAMRPhotoLibraryView: View {
     @EnvironmentObject var photoLibraryService: IONCAMRPhotoLibraryService
     
     var allowMultipleSelection: Bool
+    var limit: Int = 0
     
     @State var selectedAssetArray = [PHAsset]()
     @State var showActionSheet: Bool = false
@@ -76,7 +77,9 @@ struct IONCAMRPhotoLibraryView: View {
                                         if let assetIndex = self.selectedAssetArray.firstIndex(of: asset) {
                                             self.selectedAssetArray.remove(at: assetIndex)
                                         } else if self.allowMultipleSelection {
-                                            self.selectedAssetArray.append(asset)
+                                            if self.limit == 0 || self.selectedAssetArray.count < self.limit {
+                                                self.selectedAssetArray.append(asset)
+                                            }
                                         } else {
                                             self.selectedAssetArray = [asset]
                                         }

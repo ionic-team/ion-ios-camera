@@ -8,13 +8,16 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
     public let thumbnailAsData: Bool
     /// Indicates if the media's metadata should be returned
     public var returnMetadata: Bool
+    /// Indicates the maximum number of media items that can be selected when allowMultipleSelection is true. Ignored if allowMultipleSelection is false. 0 means no limit.
+    public let limit: Int
     
-    init(mediaType: IONCAMRMediaType, allowEdit: Bool, allowMultipleSelection: Bool, andThumbnailAsData: Bool, returnMetadata: Bool) {
+    init(mediaType: IONCAMRMediaType, allowEdit: Bool, allowMultipleSelection: Bool, andThumbnailAsData: Bool, returnMetadata: Bool, limit: Int = 0) {
         self.mediaType = mediaType
         self.allowEdit = allowEdit
         self.allowMultipleSelection = allowMultipleSelection
         self.thumbnailAsData = andThumbnailAsData
         self.returnMetadata = returnMetadata
+        self.limit = limit
     }
 
     public required convenience init(from decoder: Decoder) throws {
@@ -25,10 +28,11 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
         let allowMultipleSelection = try container.decodeIfPresent(Bool.self, forKey: .allowMultipleSelection) ?? false
         let thumbnailAsData = try container.decodeIfPresent(Bool.self, forKey: .thumbnailAsData) ?? true
         let returnMetadata = try container.decodeIfPresent(Bool.self, forKey: .includeMetadata) ?? false
-        self.init(mediaType: mediaType, allowEdit: allowEdit, allowMultipleSelection: allowMultipleSelection, andThumbnailAsData: thumbnailAsData, returnMetadata: returnMetadata)
+        let limit = try container.decodeIfPresent(Int.self, forKey: .limit) ?? 0
+        self.init(mediaType: mediaType, allowEdit: allowEdit, allowMultipleSelection: allowMultipleSelection, andThumbnailAsData: thumbnailAsData, returnMetadata: returnMetadata, limit: limit)
     }
 
     private enum CodingKeys: String, CodingKey {
-        case mediaType, allowEdit, allowMultipleSelection, thumbnailAsData, includeMetadata
+        case mediaType, allowEdit, allowMultipleSelection, thumbnailAsData, includeMetadata, limit
     }
 }
