@@ -7,7 +7,7 @@
     [
       "@semantic-release/exec",
       {
-        "prepareCmd": "bash ./scripts/update_xcodeproj_version.sh ${nextRelease.version} \"IONCameraLib.xcodeproj/project.pbxproj\" && bash ./scripts/update_readme_version.sh ${nextRelease.version} \"IONCameraLib\" \"README.md\" && bash ./scripts/build_framework.sh \"IONCameraLib\" \"LICENSE\""
+        "prepareCmd": "bash ./scripts/update_readme_version.sh ${nextRelease.version} \"IONCameraLib\" \"README.md\""
       }
     ],
     "@semantic-release/changelog",
@@ -22,7 +22,6 @@
       {
         "assets": [
           "CHANGELOG.md",
-          "IONCameraLib.xcodeproj/project.pbxproj",
           "IONCameraLib.podspec",
           "package.json",
           "README.md"
@@ -33,12 +32,6 @@
     [
       "@semantic-release/github",
       {
-        "assets": [
-          {
-            "path": "IONCameraLib.zip",
-            "label": "IONCameraLib XCFramework"
-          }
-        ],
         "successComment": false,
         "failComment": false,
         "releasedLabels": false
