@@ -1,4 +1,4 @@
-@testable import OSCameraLib
+@testable import IONCameraLib
 
 extension IONCAMRFlowBehaviour {
     func choosePicture(allowEdit: Bool) {
@@ -7,7 +7,7 @@ extension IONCAMRFlowBehaviour {
         )
         self.chooseFromGallery(with: options)
     }
-    
+
     func chooseMultimedia(type mediaType: IONCAMRMediaType, allowEdit: Bool = false, allowMultipleSelection: Bool, returnMetadata: Bool, andThumbnailAsData: Bool = false) {
         let options = IONCAMRGalleryOptions(
             mediaType: mediaType,
@@ -34,18 +34,17 @@ extension IONCAMRMetadata: Equatable {
     }
 }
 
-extension IONCAMRPictureOptions {
-    convenience init(quality: Int, size: IONCAMRSize? = nil, correctOrientation: Bool, encodingType: IONCAMREncodingType, saveToPhotoAlbum: Bool, direction: IONCAMRDirection, allowEdit: Bool, returnMetadata: Bool) throws {
+extension IONCAMRTakePhotoOptions {
+    convenience init(quality: Int, size: IONCAMRSize? = nil, correctOrientation: Bool, encodingType: IONCAMREncodingType, saveToGallery: Bool, cameraDirection: IONCAMRDirection, allowEdit: Bool, returnMetadata: Bool) throws {
         try self.init(
             quality: quality,
             size: size,
             correctOrientation: correctOrientation,
             encodingType: encodingType,
-            saveToPhotoAlbum: saveToPhotoAlbum,
-            direction: direction,
+            saveToGallery: saveToGallery,
+            cameraDirection: cameraDirection,
             allowEdit: allowEdit,
-            returnMetadata: returnMetadata,
-            latestVersion: false
+            returnMetadata: returnMetadata
         )
     }
 }

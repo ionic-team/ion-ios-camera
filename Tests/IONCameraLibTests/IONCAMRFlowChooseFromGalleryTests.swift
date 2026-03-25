@@ -1,5 +1,5 @@
 import XCTest
-@testable import OSCameraLib
+@testable import IONCameraLib
 
 /// This was introduced on May 18th 2023 on the scope of https://outsystemsrd.atlassian.net/browse/RMET-2494.
 /// Despite the name, it doesn't contain the whole `Choose from Gallery` client action tests

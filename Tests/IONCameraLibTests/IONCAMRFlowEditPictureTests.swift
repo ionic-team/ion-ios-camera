@@ -1,5 +1,5 @@
 import XCTest
-@testable import OSCameraLib
+@testable import IONCameraLib
 
 final class IONCAMRFlowEditPictureTests: XCTestCase {
     private var resultsDelegate: IONCAMRFlowResultsDelegateMock!
@@ -44,7 +44,7 @@ final class IONCAMRFlowEditPictureTests: XCTestCase {
     func test_editPictureOnAURL_whenSomethingWrongOccurs_returnError() {
         imageFetcher.callShouldSucceed = false
 
-        sut.editPicture(from: IONCAMRPictureMock.osLogo.url.absoluteString, with: IONCAMREditOptionsConfigurations.noSaveNorMetadata)
+        sut.editPhoto(with: IONCAMREditOptionsConfigurations.noSaveNorMetadata(uri: IONCAMRPictureMock.osLogo.url.absoluteString))
 
         XCTAssertNil(resultsDelegate.resultSingle)
         XCTAssertEqual(resultsDelegate.error, IONCAMRError.fetchImageFromURLFailed)
@@ -53,7 +53,7 @@ final class IONCAMRFlowEditPictureTests: XCTestCase {
     func test_editPictureOnAURL_whenSaveToGallerySetToFalse_andReturnMetadataSetToFalse_whenSuccessful_returnEditedAsset() {
         urlGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
 
-        sut.editPicture(from: IONCAMRPictureMock.osLogo.url.absoluteString, with: IONCAMREditOptionsConfigurations.noSaveNorMetadata)
+        sut.editPhoto(with: IONCAMREditOptionsConfigurations.noSaveNorMetadata(uri: IONCAMRPictureMock.osLogo.url.absoluteString))
 
         editorBehaviour.didEndSuccessfullyEditPictureHandler()
 
@@ -66,7 +66,7 @@ final class IONCAMRFlowEditPictureTests: XCTestCase {
     func test_editPictureOnAURL_whenSaveToGallerySetToTrue_whenSuccessful_returnEditedAsset() {
         urlGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
 
-        sut.editPicture(from: IONCAMRPictureMock.osLogo.url.absoluteString, with: IONCAMREditOptionsConfigurations.saveWithoutMetadata)
+        sut.editPhoto(with: IONCAMREditOptionsConfigurations.saveWithoutMetadata(uri: IONCAMRPictureMock.osLogo.url.absoluteString))
 
         editorBehaviour.didEndSuccessfullyEditPictureHandler()
 
@@ -79,7 +79,7 @@ final class IONCAMRFlowEditPictureTests: XCTestCase {
     func test_editPictureOnAURL_whenReturnMetadataSetToTrue_whenSuccessful_returnEditedAsset() {
         urlGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
 
-        sut.editPicture(from: IONCAMRPictureMock.osLogo.url.absoluteString, with: IONCAMREditOptionsConfigurations.metadataWithoutSave)
+        sut.editPhoto(with: IONCAMREditOptionsConfigurations.metadataWithoutSave(uri: IONCAMRPictureMock.osLogo.url.absoluteString))
 
         editorBehaviour.didEndSuccessfullyEditPictureHandler()
 

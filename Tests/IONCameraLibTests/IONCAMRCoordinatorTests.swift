@@ -1,5 +1,5 @@
 import XCTest
-@testable import OSCameraLib
+@testable import IONCameraLib
 
 final class IONCAMRCoordinatorTests: XCTestCase {
     private var rootViewController: UIViewController!
