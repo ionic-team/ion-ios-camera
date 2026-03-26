@@ -22,7 +22,8 @@ let package = Package(
         ),
         .testTarget(
             name: "IONCameraLibTests",
-            dependencies: ["IONCameraLib", "Nimble", "Quick"]
+            dependencies: ["IONCameraLib", "Nimble", "Quick"],
+            resources: [.process("Media.xcassets")]
         ),
     ]
 )

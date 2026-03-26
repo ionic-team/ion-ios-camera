@@ -170,19 +170,19 @@ class IONCAMRPictureMock {
     }
 
     static let osLogo = IONCAMRPictureMock(
-        image: UIImage(named: "outsystems_logo", in: Bundle(for: IONCAMRPictureMock.self), compatibleWith: nil)!,
+        image: UIImage(named: "outsystems_logo", in: .module, compatibleWith: nil)!,
         url: URL(string: "oslogo_picture.jpeg")!,
         thumbnail: "oslogo_picture_thumbnail",
         metadata: IONCAMRMetadataOptions.photoMetadata
     )
     static let osLogoBlue = IONCAMRPictureMock(
-        image: UIImage(named: "outsystems_logo_blue", in: Bundle(for: IONCAMRPictureMock.self), compatibleWith: nil)!,
+        image: UIImage(named: "outsystems_logo_blue", in: .module, compatibleWith: nil)!,
         url: URL(string: "oslogoblue_picture.jpeg")!,
         thumbnail: "oslogoblue_picture_thumbnail",
         metadata: IONCAMRMetadataOptions.photoMetadata
     )
     static let osLogoRotated = IONCAMRPictureMock(
-        image: UIImage(named: "outsystems_logo_rotated", in: Bundle(for: IONCAMRPictureMock.self), compatibleWith: nil)!,
+        image: UIImage(named: "outsystems_logo_rotated", in: .module, compatibleWith: nil)!,
         url: URL(string: "oslogorotated_picture.jpeg")!,
         thumbnail: "oslogorotated_picture_thumbnail",
         metadata: IONCAMRMetadataOptions.photoMetadata
@@ -445,6 +445,14 @@ class IONCAMRPickerBehaviourMock: IONCAMRPickerDelegate {
 }
 
 class IONCAMRGalleryBehaviourMock: IONCAMRGalleryDelegate {
+    func saveToGallery(_ image: UIImage) async -> Bool {
+        return true
+    }
+    
+    func saveToGallery(_ fileURL: URL) async -> Bool {
+        return true
+    }
+    
     weak var delegate: IONCAMRGalleryResultsDelegate?
     var pleaseSave: Bool = true
     var isSaved: Bool = false
