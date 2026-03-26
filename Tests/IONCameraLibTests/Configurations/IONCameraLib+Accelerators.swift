@@ -33,18 +33,3 @@ extension IONCAMRMetadata: Equatable {
         && lhs.duration == rhs.duration
     }
 }
-
-extension IONCAMRTakePhotoOptions {
-    convenience init(quality: Int, size: IONCAMRSize? = nil, correctOrientation: Bool, encodingType: IONCAMREncodingType, saveToGallery: Bool, cameraDirection: IONCAMRDirection, allowEdit: Bool, returnMetadata: Bool) throws {
-        try self.init(
-            quality: quality,
-            size: size,
-            correctOrientation: correctOrientation,
-            encodingType: encodingType,
-            saveToGallery: saveToGallery,
-            cameraDirection: cameraDirection,
-            allowEdit: allowEdit,
-            returnMetadata: returnMetadata
-        )
-    }
-}

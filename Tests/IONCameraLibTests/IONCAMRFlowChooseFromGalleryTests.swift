@@ -91,7 +91,7 @@ final class IONCAMRFlowChooseFromGalleryTests: XCTestCase {
         XCTAssertEqual(resultsDelegate.error, .fetchImageFromURLFailed)
     }
 
-    func test_chooseFromGallery_withAllowEditSetToTrue_whenMediaTypeSetToPicture_andAllowMultipleSelectionSetToFalse_returnEditedPicture() {
+    func test_chooseFromGallery_withAllowEditSetToTrue_whenMediaTypeSetToPicture_andAllowMultipleSelectionSetToFalse_returnEditedPicture() async {
         sut.chooseMultimedia(
             type: .picture, allowEdit: true, allowMultipleSelection: false, returnMetadata: false, andThumbnailAsData: true
         )
@@ -99,6 +99,7 @@ final class IONCAMRFlowChooseFromGalleryTests: XCTestCase {
         urlGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
         galleryBehaviour.didEndSuccessfullyChooseSinglePictureHandler()
         editorBehaviour.didEndSuccessfullyEditPictureHandler()
+        await resultsDelegate.waitForResult()
 
         XCTAssertTrue(editorBehaviour.hasBeenEdited)
         XCTAssertNil(resultsDelegate.error)
@@ -106,7 +107,7 @@ final class IONCAMRFlowChooseFromGalleryTests: XCTestCase {
         XCTAssertEqual(sut.temporaryURLArray.map(\.absoluteString), [resultsDelegate.resultArray!.first!.uri])
     }
 
-    func test_chooseFromGallery_withAllowEditSetToTrue_whenMediaTypeSetToPicture_andAllowMultipleSelectionSetToFalse_andReturnMetadataSetToTrue_returnEditedPicture() {
+    func test_chooseFromGallery_withAllowEditSetToTrue_whenMediaTypeSetToPicture_andAllowMultipleSelectionSetToFalse_andReturnMetadataSetToTrue_returnEditedPicture() async {
         urlGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
 
         sut.chooseMultimedia(
@@ -114,6 +115,7 @@ final class IONCAMRFlowChooseFromGalleryTests: XCTestCase {
         )
         galleryBehaviour.didEndSuccessfullyChooseSinglePictureHandler()
         editorBehaviour.didEndSuccessfullyEditPictureHandler()
+        await resultsDelegate.waitForResult()
 
         XCTAssertTrue(editorBehaviour.hasBeenEdited)
         XCTAssertNil(resultsDelegate.error)

@@ -50,12 +50,13 @@ final class IONCAMRFlowEditPictureTests: XCTestCase {
         XCTAssertEqual(resultsDelegate.error, IONCAMRError.fetchImageFromURLFailed)
     }
 
-    func test_editPictureOnAURL_whenSaveToGallerySetToFalse_andReturnMetadataSetToFalse_whenSuccessful_returnEditedAsset() {
+    func test_editPictureOnAURL_whenSaveToGallerySetToFalse_andReturnMetadataSetToFalse_whenSuccessful_returnEditedAsset() async {
         urlGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
 
         sut.editPhoto(with: IONCAMREditOptionsConfigurations.noSaveNorMetadata(uri: IONCAMRPictureMock.osLogo.url.absoluteString))
 
         editorBehaviour.didEndSuccessfullyEditPictureHandler()
+        await resultsDelegate.waitForResult()
 
         XCTAssertNil(resultsDelegate.error)
         XCTAssertEqual(resultsDelegate.resultSingle, IONCAMRPictureMock.osLogoBlue.toMediaResult)
@@ -63,12 +64,13 @@ final class IONCAMRFlowEditPictureTests: XCTestCase {
         XCTAssertFalse(galleryBehaviour.isSaved)
     }
 
-    func test_editPictureOnAURL_whenSaveToGallerySetToTrue_whenSuccessful_returnEditedAsset() {
+    func test_editPictureOnAURL_whenSaveToGallerySetToTrue_whenSuccessful_returnEditedAsset() async {
         urlGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
 
         sut.editPhoto(with: IONCAMREditOptionsConfigurations.saveWithoutMetadata(uri: IONCAMRPictureMock.osLogo.url.absoluteString))
 
         editorBehaviour.didEndSuccessfullyEditPictureHandler()
+        await resultsDelegate.waitForResult()
 
         XCTAssertNil(resultsDelegate.error)
         XCTAssertEqual(resultsDelegate.resultSingle, IONCAMRPictureMock.osLogoBlue.toMediaResult)
@@ -76,12 +78,13 @@ final class IONCAMRFlowEditPictureTests: XCTestCase {
         XCTAssertTrue(galleryBehaviour.isSaved)
     }
 
-    func test_editPictureOnAURL_whenReturnMetadataSetToTrue_whenSuccessful_returnEditedAsset() {
+    func test_editPictureOnAURL_whenReturnMetadataSetToTrue_whenSuccessful_returnEditedAsset() async {
         urlGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
 
         sut.editPhoto(with: IONCAMREditOptionsConfigurations.metadataWithoutSave(uri: IONCAMRPictureMock.osLogo.url.absoluteString))
 
         editorBehaviour.didEndSuccessfullyEditPictureHandler()
+        await resultsDelegate.waitForResult()
 
         XCTAssertNil(resultsDelegate.error)
         XCTAssertEqual(resultsDelegate.resultSingle, IONCAMRPictureMock.osLogoBlue.toMediaResultWithMetadata)
