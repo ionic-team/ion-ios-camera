@@ -16,8 +16,14 @@ final class IONCAMRFlowTests: XCTestCase {
     private var mockThumbnailGenerator: IONCAMRThumbnailGeneratorMock!
     private var mockImageFetcher: IONCAMRImageFetcherBehaviourMock!
     private var mockURLGenerator: IONCAMRURLGeneratorMock!
+    private var continuation: CheckedContinuation<Void, Never>?
 
     var sut: IONCAMRFlowBehaviour!
+
+    func waitForResult() async {
+        guard singleResult == nil, multipleResult == nil, error == nil, !cancel else { return }
+        await withCheckedContinuation { self.continuation = $0 }
+    }
 
     override func setUp() {
         mockPicker = IONCAMRPickerBehaviourMock()
@@ -119,37 +125,37 @@ extension IONCAMRFlowTests {
         XCTAssertTrue(cancel)
     }
 
-    func test_takePicture_oldVersion_withAllowEditEnabled_isSuccessful_returnEditedImage() {
-        let options = IONCAMRPictureOptionsConfigurations.allowEdit!
+    func test_takePicture_oldVersion_withAllowEditEnabled_isSuccessful_returnEditedImage() async {
         mockCoordinator.hasTwoSteps = true
+        mockURLGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
 
-        sut.takePhoto(with: options)
+        sut.takePhoto(with: IONCAMRPictureOptionsConfigurations.allowEdit!)
         mockPicker.didEndSuccessfullyTakePictureHandler()
         mockEditor.didEndSuccessfullyEditPictureHandler()
+        await waitForResult()
 
-        XCTAssertEqual(singleResult?.thumbnail, IONCAMRPictureMock.osLogoBlue.image.toData(with: options)?.base64EncodedString())
-        XCTAssertEqual(singleResult?.uri, "")
-        XCTAssertNil(singleResult?.metadata)
+        XCTAssertEqual(singleResult, IONCAMRPictureMock.osLogoBlue.toMediaResult)
         XCTAssertNil(error)
         XCTAssertFalse(mockGallery.isSaved)
+        XCTAssertEqual(sut.temporaryURLArray.map(\.absoluteString), [singleResult!.uri])
     }
 
-    func test_takePicture_oldVersion_withAllowEditEnabled_isSuccessful_andSavedIntoPhotoLibrary_returnEditedImage() {
-        let options = IONCAMRPictureOptionsConfigurations.allowEditAndSaveToPhotoAlbum!
+    func test_takePicture_oldVersion_withAllowEditEnabled_isSuccessful_andSavedIntoPhotoLibrary_returnEditedImage() async {
         mockCoordinator.hasTwoSteps = true
+        mockURLGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
 
-        sut.takePhoto(with: options)
+        sut.takePhoto(with: IONCAMRPictureOptionsConfigurations.allowEditAndSaveToPhotoAlbum!)
         mockPicker.didEndSuccessfullyTakePictureHandler()
         mockEditor.didEndSuccessfullyEditPictureHandler()
+        await waitForResult()
 
-        XCTAssertEqual(singleResult?.thumbnail, IONCAMRPictureMock.osLogoBlue.image.toData(with: options)?.base64EncodedString())
-        XCTAssertEqual(singleResult?.uri, "")
-        XCTAssertNil(singleResult?.metadata)
+        XCTAssertEqual(singleResult, IONCAMRPictureMock.osLogoBlue.toMediaResult)
         XCTAssertNil(error)
         XCTAssertTrue(mockGallery.isSaved)
+        XCTAssertEqual(sut.temporaryURLArray.map(\.absoluteString), [singleResult!.uri])
     }
 
-    func test_takePicture_newVersion_withAllowEditEnabled_isSuccessful_returnEditedImage() {
+    func test_takePicture_newVersion_withAllowEditEnabled_isSuccessful_returnEditedImage() async {
         let options = IONCAMRPictureOptionsConfigurations.allowEditLatestVersion!
         mockCoordinator.hasTwoSteps = true
         mockURLGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
@@ -157,13 +163,14 @@ extension IONCAMRFlowTests {
         sut.takePhoto(with: options)
         mockPicker.didEndSuccessfullyTakePictureHandler()
         mockEditor.didEndSuccessfullyEditPictureHandler()
+        await waitForResult()
 
         XCTAssertEqual(singleResult, IONCAMRPictureMock.osLogoBlue.toMediaResult)
         XCTAssertNil(error)
         XCTAssertEqual(sut.temporaryURLArray.map(\.absoluteString), [singleResult!.uri])
     }
 
-    func test_takePicture_newVersion_withAllowEditEnabled_isSuccessful_returnEditedImageWithMetadata() {
+    func test_takePicture_newVersion_withAllowEditEnabled_isSuccessful_returnEditedImageWithMetadata() async {
         let options = IONCAMRPictureOptionsConfigurations.allowEditLatestVersionWithMetadata!
         mockCoordinator.hasTwoSteps = true
         mockURLGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
@@ -171,57 +178,59 @@ extension IONCAMRFlowTests {
         sut.takePhoto(with: options)
         mockPicker.didEndSuccessfullyTakePictureHandler()
         mockEditor.didEndSuccessfullyEditPictureHandler()
+        await waitForResult()
 
         XCTAssertEqual(singleResult, IONCAMRPictureMock.osLogoBlue.toMediaResultWithMetadata)
         XCTAssertNil(error)
         XCTAssertEqual(sut.temporaryURLArray.map(\.absoluteString), [singleResult!.uri])
     }
 
-    func test_takePicture_oldVersion_isSuccessful_returnImage() {
-        let options = IONCAMRPictureOptionsConfigurations.jpegEncodingType!
+    func test_takePicture_oldVersion_isSuccessful_returnImage() async {
+        mockURLGenerator.urlToReturn = IONCAMRPictureMock.osLogo.url
 
-        sut.takePhoto(with: options)
+        sut.takePhoto(with: IONCAMRPictureOptionsConfigurations.jpegEncodingType!)
         mockPicker.didEndSuccessfullyTakePictureHandler()
+        await waitForResult()
 
-        XCTAssertEqual(singleResult?.thumbnail, IONCAMRPictureMock.osLogo.image.toData(with: options)?.base64EncodedString())
-        XCTAssertEqual(singleResult?.uri, "")
-        XCTAssertNil(singleResult?.metadata)
+        XCTAssertEqual(singleResult, IONCAMRPictureMock.osLogo.toMediaResult)
         XCTAssertNil(error)
         XCTAssertFalse(mockGallery.isSaved)
+        XCTAssertEqual(sut.temporaryURLArray.map(\.absoluteString), [singleResult!.uri])
     }
 
-    func test_takePicture_oldVersion_isSuccessful_andSavedIntoPhotoLibrary_returnImage() {
-        mockGallery.pleaseSave = true
-        let options = IONCAMRPictureOptionsConfigurations.saveToPhotosAlbum!
+    func test_takePicture_oldVersion_isSuccessful_andSavedIntoPhotoLibrary_returnImage() async {
+        mockURLGenerator.urlToReturn = IONCAMRPictureMock.osLogo.url
 
-        sut.takePhoto(with: options)
+        sut.takePhoto(with: IONCAMRPictureOptionsConfigurations.saveToPhotosAlbum!)
         mockPicker.didEndSuccessfullyTakePictureHandler()
+        await waitForResult()
 
-        XCTAssertEqual(singleResult?.thumbnail, IONCAMRPictureMock.osLogo.image.toData(with: options)?.base64EncodedString())
-        XCTAssertEqual(singleResult?.uri, "")
-        XCTAssertNil(singleResult?.metadata)
+        XCTAssertEqual(singleResult, IONCAMRPictureMock.osLogo.toMediaResult)
         XCTAssertNil(error)
         XCTAssertTrue(mockGallery.isSaved)
+        XCTAssertEqual(sut.temporaryURLArray.map(\.absoluteString), [singleResult!.uri])
     }
 
-    func test_takePicture_newVersion_isSuccessful_returnImage() {
+    func test_takePicture_newVersion_isSuccessful_returnImage() async {
         let options = IONCAMRPictureOptionsConfigurations.noEditEncodingTypeLatestVersion!
         mockURLGenerator.urlToReturn = IONCAMRPictureMock.osLogo.url
 
         sut.takePhoto(with: options)
         mockPicker.didEndSuccessfullyTakePictureHandler()
+        await waitForResult()
 
         XCTAssertEqual(singleResult, IONCAMRPictureMock.osLogo.toMediaResult)
         XCTAssertNil(error)
         XCTAssertEqual(sut.temporaryURLArray.map(\.absoluteString), [singleResult!.uri])
     }
 
-    func test_takePicture_newVersion_isSuccessful_returnImageWithMetadata() {
+    func test_takePicture_newVersion_isSuccessful_returnImageWithMetadata() async {
         let options = IONCAMRPictureOptionsConfigurations.noEditLatestVersionWithMetadata!
         mockURLGenerator.urlToReturn = IONCAMRPictureMock.osLogo.url
 
         sut.takePhoto(with: options)
         mockPicker.didEndSuccessfullyTakePictureHandler()
+        await waitForResult()
 
         XCTAssertEqual(singleResult, IONCAMRPictureMock.osLogo.toMediaResultWithMetadata)
         XCTAssertNil(error)
@@ -250,9 +259,10 @@ extension IONCAMRFlowTests {
         XCTAssertTrue(cancel)
     }
 
-    func test_editPicture_isSuccessful_returnImage() {
+    func test_editPicture_isSuccessful_returnImage() async {
         sut.editPhoto(IONCAMRPictureMock.osLogo.image)
         mockEditor.didEndSuccessfullyEditPictureHandler()
+        await waitForResult()
 
         XCTAssertEqual(singleResult?.thumbnail, IONCAMRPictureMock.osLogoBlue.image.toData()?.base64EncodedString())
         XCTAssertNil(error)
@@ -311,12 +321,13 @@ extension IONCAMRFlowTests {
         XCTAssertTrue(cancel)
     }
 
-    func test_choosePicture_withAllowEditEnabled_isSuccessful_returnImage() {
+    func test_choosePicture_withAllowEditEnabled_isSuccessful_returnImage() async {
         mockCoordinator.hasTwoSteps = true
 
         sut.choosePicture(allowEdit: true)
         mockGallery.didEndSuccessfullyChoosePictureHandler()
         mockEditor.didEndSuccessfullyEditPictureHandler()
+        await waitForResult()
 
         XCTAssertEqual(singleResult?.thumbnail, IONCAMRPictureMock.osLogoBlue.image.toData()?.base64EncodedString())
         XCTAssertNil(error)
@@ -587,6 +598,9 @@ extension IONCAMRFlowTests: IONCAMRFlowResultsDelegate {
         case .failure(let error):
             self.error = error
         }
+
+        continuation?.resume()
+        continuation = nil
     }
 
     func didCancel(_ error: IONCAMRError) {
@@ -594,5 +608,8 @@ extension IONCAMRFlowTests: IONCAMRFlowResultsDelegate {
         self.singleResult = nil
         self.multipleResult = nil
         self.error = nil
+
+        continuation?.resume()
+        continuation = nil
     }
 }

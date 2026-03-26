@@ -208,14 +208,14 @@ private extension IONCAMRFlowBehaviour {
             guard let imageURL = self.urlGenerator.url(for: imageResult, withEncodingType: options?.encodingType),
                   let imageThumbnail = self.thumbnailGenerator.getBase64String(from: image, with: options?.size, and: options?.quality)
             else { throw IONCAMRMultimediaError.mediaResultCreation }
-            
+
             self.temporaryURLArray += [imageURL]
-            
+
             var metadata: IONCAMRMetadata?
             if returnMetadata {
                 metadata = try? self.metadataGetter.getImageMetadata(from: image, and: imageURL)
             }
-            
+
             result = IONCAMRMediaResult(pictureWith: imageURL.absoluteString, imageThumbnail, and: metadata, saved: savedToGallery)
         } else {
             result = IONCAMRMediaResult(pictureWith: imageResult.base64EncodedString(), saved: savedToGallery)
@@ -296,15 +296,9 @@ private extension IONCAMRFlowBehaviour {
         func didFailed(withError error: IONCAMRError) {
             self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
         }
-        
-        var canDismiss = true
-        defer {
-            if canDismiss {
-                self.coordinator.dismiss()
-                self.options = nil
-            }
-        }
-        
+
+        defer { self.coordinator.dismiss() }
+
         switch result {
         case .success(let item):
             switch item {
@@ -312,22 +306,25 @@ private extension IONCAMRFlowBehaviour {
                 Task {
                     do {
                         guard let mediaResult = try await self.imagePickerDidReturn(image) else {
-                            canDismiss = false
                             self.editPhoto(image)
                             return
                         }
+                        self.options = nil
                         self.delegate?.didSucceed(with: mediaResult)
                     } catch {
+                        self.options = nil
                         didFailed(withError: .takePictureIssue)
                     }
                 }
             case .video(let url):
                 self.videoPickerDidReturn(url) { [weak self] mediaResult in
+                    self?.options = nil
                     guard let mediaResult = mediaResult else { return didFailed(withError: .captureVideoIssue) }
                     self?.delegate?.didSucceed(with: mediaResult)
                 }
             }
         case .failure(let error):
+            self.options = nil
             didFailed(withError: error)
         }
     }
@@ -368,25 +365,25 @@ private extension IONCAMRFlowBehaviour {
         func didFailed(with error: IONCAMRError = .editPictureIssue) {
             self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
         }
-        
-        defer {
-            self.coordinator.dismiss()
-            self.options = nil
-        }
-        
+
+        defer { self.coordinator.dismiss() }
+
         switch result {
         case .success(let item):
             if case .picture(let image) = item {
                 Task {
                     do {
                         let result = try await imageEditorDidReturn(image)
+                        self.options = nil
                         self.delegate?.didSucceed(with: result)
                     } catch {
+                        self.options = nil
                         didFailed()
                     }
                 }
             }
         case .failure(let error):
+            self.options = nil
             didFailed(with: error)
         }
     }

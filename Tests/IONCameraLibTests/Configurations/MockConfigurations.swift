@@ -446,10 +446,12 @@ class IONCAMRPickerBehaviourMock: IONCAMRPickerDelegate {
 
 class IONCAMRGalleryBehaviourMock: IONCAMRGalleryDelegate {
     func saveToGallery(_ image: UIImage) async -> Bool {
+        self.isSaved = true
         return true
     }
     
     func saveToGallery(_ fileURL: URL) async -> Bool {
+        self.isSaved = true
         return true
     }
     
