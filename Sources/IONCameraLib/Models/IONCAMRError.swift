@@ -7,9 +7,9 @@ public enum IONCAMRError: Int, CustomNSError, LocalizedError {
     case cameraAvailability = 8
     
     // MARK: - Take Pictures Errors
+    case takePictureCancel = 7
     case takePictureIssue = 11
     case takePictureArguments = 15
-    case takePictureCancel = 16
     
     // MARK: - Edit Picture Errors
     case invalidImageData = 9
@@ -48,18 +48,18 @@ public enum IONCAMRError: Int, CustomNSError, LocalizedError {
         case .cameraAvailability:
             return "No camera available."
         case .takePictureIssue:
-            return "Couldn't capture picture."
+            return "Couldn't take photo."
         case .takePictureArguments:
             return "Couldn't decode the 'Take Picture' action parameters."
         case .takePictureCancel:
-            return "Couldn't capture picture because the process was canceled."
+            return "Couldn't take photo because the process was canceled."
             
         case .invalidImageData:
             return "The selected file contains data that isn't valid."
         case .editPictureIssue:
             return "Couldn't edit image."
         case .editPictureCancel:
-            return "Couldn't edit picture because the process was canceled."
+            return "Couldn't edit photo because the process was canceled."
             
         case .photoLibraryAccess:
             return "Couldn't access your photo gallery because access wasn't provided. Check its permissions and try again."
@@ -71,9 +71,9 @@ public enum IONCAMRError: Int, CustomNSError, LocalizedError {
             return "Couldn't choose picture because the process was canceled."
             
         case .captureVideoIssue:
-            return "Couldn't capture video."
+            return "Couldn't record video."
         case .captureVideoCancel:
-            return "Couldn't capture video because the process was canceled."
+            return "Couldn't record video because the process was canceled."
             
         case .videoNotFound:
             return "Couldn't get video from the gallery."
