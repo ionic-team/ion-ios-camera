@@ -107,24 +107,26 @@ struct IONCAMRImageEditorView: View {
             Spacer()
             
             Button {
-                guard let cgImage = image.cgImage else {
-                    delegate?.finishEditing(with: .editPictureIssue)    // it wasn't possible to retrieve the image, so an error is returned.
-                    return
-                }
-                let scaler = CGSize(width: CGFloat(cgImage.width) / imageWidth, height: CGFloat(cgImage.height) / imageHeight)
-                let dim = CGSize(width: cgImage.width, height: cgImage.height)
-                let cropRect = CGRect(
-                    x: croppingOffset.width * scaler.width,
-                    y: croppingOffset.height * scaler.height,
-                    width: dim.width * croppingWidthMagnification,
-                    height: dim.height * croppingHeightMagnification
-                )
-                
-                if let cImage = cgImage.cropping(to: cropRect) {
-                    let croppedImage = UIImage(cgImage: cImage)
-                    delegate?.finishEditing(with: croppedImage)         // the resulting cropped image is returned.
-                } else {
-                    delegate?.finishEditing(with: .editPictureIssue)    // it wasn't possible to retrieve the image, so an error is returned.
+                Task {
+                    guard let cgImage = image.cgImage else {
+                        await delegate?.finishEditing(with: .editPictureIssue)    // it wasn't possible to retrieve the image, so an error is returned.
+                        return
+                    }
+                    let scaler = CGSize(width: CGFloat(cgImage.width) / imageWidth, height: CGFloat(cgImage.height) / imageHeight)
+                    let dim = CGSize(width: cgImage.width, height: cgImage.height)
+                    let cropRect = CGRect(
+                        x: croppingOffset.width * scaler.width,
+                        y: croppingOffset.height * scaler.height,
+                        width: dim.width * croppingWidthMagnification,
+                        height: dim.height * croppingHeightMagnification
+                    )
+                    
+                    if let cImage = cgImage.cropping(to: cropRect) {
+                        let croppedImage = UIImage(cgImage: cImage)
+                        await delegate?.finishEditing(with: croppedImage)         // the resulting cropped image is returned.
+                    } else {
+                        await delegate?.finishEditing(with: .editPictureIssue)    // it wasn't possible to retrieve the image, so an error is returned.
+                    }
                 }
             } label: {
                 Text("Done")

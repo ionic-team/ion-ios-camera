@@ -198,7 +198,7 @@ extension IONCAMRPhotoLibraryService {
             } else {
                 let item = await self.fetchSingleResult(assetArray.first)
                 Task { @MainActor in
-                    self.delegate?.didPickPicture(item)
+                    await self.delegate?.didPickPicture(item)
                 }
             }
         }

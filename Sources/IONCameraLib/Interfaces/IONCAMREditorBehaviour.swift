@@ -20,11 +20,11 @@ extension IONCAMREditorBehaviour: IONCAMRImageEditorResultsDelegate {
     /// - Parameters:
     ///   - result: Resulting image.
     ///   - error: Error occurred during the edit.
-    func finishEditing(_ result: UIImage?, error: IONCAMRError?) {
+    func finishEditing(_ result: UIImage?, error: IONCAMRError?) async {
         if let image = result {
-            self.delegate?.didReturn(self, with: .success(.picture(image)))
+            await self.delegate?.didReturn(self, with: .success(.picture(image)))
         } else {
-            self.delegate?.didReturn(self, with: .failure(.editPictureIssue))
+            await self.delegate?.didReturn(self, with: .failure(.editPictureIssue))
         }
     }
     
@@ -35,16 +35,16 @@ extension IONCAMREditorBehaviour: IONCAMRImageEditorResultsDelegate {
 }
 
 protocol IONCAMRImageEditorResultsDelegate: AnyObject {
-    func finishEditing(_ result: UIImage?, error: IONCAMRError?)
+    func finishEditing(_ result: UIImage?, error: IONCAMRError?) async
     func didCancelEdit()
 }
 
 extension IONCAMRImageEditorResultsDelegate {
-    func finishEditing(with result: UIImage) {
-        self.finishEditing(result, error: nil)
+    func finishEditing(with result: UIImage) async {
+        await self.finishEditing(result, error: nil)
     }
     
-    func finishEditing(with error: IONCAMRError) {
-        self.finishEditing(nil, error: error)
+    func finishEditing(with error: IONCAMRError) async {
+        await self.finishEditing(nil, error: error)
     }
 }

@@ -78,11 +78,11 @@ extension IONCAMRGalleryBehaviour: IONCAMRPhotoLibraryViewDelegate {
         }
     }
     
-    func didPickPicture(_ item: IONCAMRResultItem?) {
+    func didPickPicture(_ item: IONCAMRResultItem?) async {
         if let item = item {
-            self.delegate?.didReturn(self, with: .success(item))
+            await self.delegate?.didReturn(self, with: .success(item))
         } else {
-            self.delegate?.didReturn(self, with: .failure(.choosePictureIssue))
+            await self.delegate?.didReturn(self, with: .failure(.choosePictureIssue))
         }
     }
     

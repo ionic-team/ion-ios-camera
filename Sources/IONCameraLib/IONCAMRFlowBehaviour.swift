@@ -169,9 +169,9 @@ extension IONCAMRFlowBehaviour: IONCAMRCancelResultsDelegate {
 }
 
 extension IONCAMRFlowBehaviour: IONCAMRResultsDelegate {
-    func didReturn(_ object: AnyObject, with result: Result<IONCAMRResultItem, IONCAMRError>) {
+    func didReturn(_ object: AnyObject, with result: Result<IONCAMRResultItem, IONCAMRError>) async {
         if object === self.picker {
-            self.pickerDidReturn(result)
+            await self.pickerDidReturn(result)
         } else if object === self.editorBehaviour {
             self.editorDidReturn(result)
         } else if object === self.galleryBehaviour {
@@ -292,7 +292,7 @@ private extension IONCAMRFlowBehaviour {
     
     /// Method triggered when the user could finish, with or without success, the picker behaviour.
     /// - Parameter result: Returned object to who implements this object. It returns a base64 encoding text if successful or an error otherwise.
-    func pickerDidReturn(_ result: Result<IONCAMRResultItem, IONCAMRError>) {
+    func pickerDidReturn(_ result: Result<IONCAMRResultItem, IONCAMRError>) async {
         func didFailed(withError error: IONCAMRError) {
             self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
         }
@@ -309,17 +309,15 @@ private extension IONCAMRFlowBehaviour {
         case .success(let item):
             switch item {
             case .picture(let image):
-                Task {
-                    do {
-                        guard let mediaResult = try await self.imagePickerDidReturn(image) else {
-                            canDismiss = false
-                            self.editPhoto(image)
-                            return
-                        }
-                        self.delegate?.didSucceed(with: mediaResult)
-                    } catch {
-                        didFailed(withError: .takePictureIssue)
+                do {
+                    guard let mediaResult = try await self.imagePickerDidReturn(image) else {
+                        canDismiss = false
+                        self.editPhoto(image)
+                        return
                     }
+                    self.delegate?.didSucceed(with: mediaResult)
+                } catch {
+                    didFailed(withError: .takePictureIssue)
                 }
             case .video(let url):
                 self.videoPickerDidReturn(url) { [weak self] mediaResult in
