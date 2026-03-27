@@ -9,7 +9,7 @@ private enum IONCAMRMetadataError: Error {
 final class IONCAMRMediaResultGenerator: IONCAMRMetadataGetterDelegate {
     func getVideoMetadata(from url: URL) async throws -> IONCAMRMetadata {
         let asset = AVAsset(url: url)
-        
+
         let durationProperty: CMTime
         let trackArray: [AVAssetTrack]
         if #available(iOS 15, *) {
@@ -19,37 +19,34 @@ final class IONCAMRMediaResultGenerator: IONCAMRMetadataGetterDelegate {
             durationProperty = asset.duration
             trackArray = asset.tracks(withMediaType: .video)
         }
-        
+
         guard let track = trackArray.first else { throw IONCAMRMetadataError.noVideoTrack }
         guard let urlMetadata = url.metadata else { throw IONCAMRMetadataError.urlConversionError }
-        
-        let naturalSize: CGSize
-        if #available(iOS 15, *) {
-            naturalSize = try await track.load(.naturalSize)
+
+        let naturalSize: CGSize = if #available(iOS 15, *) {
+            try await track.load(.naturalSize)
         } else {
-            naturalSize = track.naturalSize
+            track.naturalSize
         }
         let duration = Int(CMTimeGetSeconds(durationProperty).rounded())
         let format = url.pathExtension.lowercased()
         let creationDate = urlMetadata.date
         let size = urlMetadata.fileSize
         let resolution = naturalSize.resolution
-        
-        let result = IONCAMRMetadata(size: size, duration: duration, format: format, resolution: resolution, creationDate: creationDate)
-        return result
+
+        return IONCAMRMetadata(size: size, duration: duration, format: format, resolution: resolution, creationDate: creationDate)
     }
-    
+
     func getImageMetadata(from image: UIImage, and url: URL) throws -> IONCAMRMetadata {
         guard let urlMetadata = url.metadata else { throw IONCAMRMetadataError.urlConversionError }
-        
+
         let naturalSize = image.size
         let format = url.pathExtension.lowercased()
         let creationDate = urlMetadata.date
         let size = urlMetadata.fileSize
         let resolution = naturalSize.resolution
-        
-        let result = IONCAMRMetadata(size: size, format: format, resolution: resolution, creationDate: creationDate)
-        return result
+
+        return IONCAMRMetadata(size: size, format: format, resolution: resolution, creationDate: creationDate)
     }
 }
 
@@ -73,7 +70,7 @@ extension IONCAMRMediaResultGenerator: IONCAMRThumbnailGeneratorDelegate {
             }
         }
     }
-    
+
     func getBase64String(from image: UIImage, with originalSize: IONCAMRSize?, and originalQuality: Int?) -> String? {
         let size = originalSize ?? IONCAMRTakePhotoOptions.defaultSquare
         let quality = originalQuality ?? IONCAMRTakePhotoOptions.ThumbnailDefaultConfigurations.quality
@@ -90,5 +87,11 @@ extension IONCAMRMediaResultGenerator: IONCAMRImageFetcherDelegate {
 }
 
 extension IONCAMRMediaResultGenerator: IONCAMRURLGeneratorDelegate {
-    func url(for imageData: Data, withEncodingType encodingType: IONCAMREncodingType?) -> URL? { try? imageData.createImageTemporaryPath(with: encodingType?.description) }
+    func url(
+        for imageData: Data,
+        withEncodingType encodingType: IONCAMREncodingType?
+    )
+        -> URL? {
+        try? imageData.createImageTemporaryPath(with: encodingType?.description)
+    }
 }

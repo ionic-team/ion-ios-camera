@@ -3,36 +3,38 @@ import UIKit
 final class IONCAMRCameraManager: NSObject {
     private weak var delegate: IONCAMRCallbackDelegate?
     private let flow: IONCAMRFlowDelegate
-    
+
     init(delegate: IONCAMRCallbackDelegate, flow: IONCAMRFlowDelegate) {
         self.delegate = delegate
         self.flow = flow
         super.init()
         self.flow.delegate = self
     }
-    
+
     convenience init(delegate: IONCAMRCallbackDelegate, viewController: UIViewController) {
         let coordinator = IONCAMRCoordinator(rootViewController: viewController)
         let flowBehaviour = IONCAMRFlowBehaviour(coordinator: coordinator)
-        
+
         self.init(delegate: delegate, flow: flowBehaviour)
     }
 }
 
 extension IONCAMRCameraManager: IONCAMRCameraActionDelegate {
     func takePhoto(with options: IONCAMRTakePhotoOptions) {
-        self.flow.takePhoto(with: options)
+        flow.takePhoto(with: options)
     }
-    
+
     func recordVideo(with options: IONCAMRRecordVideoOptions) {
-        self.flow.recordVideo(with: options)
+        flow.recordVideo(with: options)
     }
-    
+
     func cleanTemporaryFiles() {
-        self.flow.cleanTemporaryFiles()
+        flow.cleanTemporaryFiles()
     }
 }
 
 extension IONCAMRCameraManager: IONCAMRFlowResultsHandler {
-    var responseDelegate: IONCAMRCallbackDelegate? { return delegate }
+    var responseDelegate: IONCAMRCallbackDelegate? {
+        delegate
+    }
 }

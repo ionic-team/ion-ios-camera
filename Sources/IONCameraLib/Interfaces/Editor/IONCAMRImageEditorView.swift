@@ -8,24 +8,25 @@ struct IONCAMRImageEditorView: View {
     @State var image: UIImage
     /// Indicates if the device is in Portrait or Landspace mode.
     @State var isPortrait: Bool
-    
+
     /// The original image's width dimension
     @State private var imageWidth: CGFloat = 0.0
     /// The original image's height dimension
     @State private var imageHeight: CGFloat = 0.0
     /// The original image's location and dimensions.
     @State private var imageRect: CGRect = .zero
-    
+
     /// The offset to perform the crop on the image.
     @State private var croppingOffset: CGSize = .zero
     /// The width magnification value to perform the crop on the image.
     @State private var croppingWidthMagnification: CGFloat = 1.0
     /// The height magnification value to perform the crop on the image.
     @State private var croppingHeightMagnification: CGFloat = 1.0
-    
-    /// `IONCAMRCropView`'s ID. Its goal is to indicate that changes need to be propagated some changes are performed by the user (p.e., device or image rotation, mirroring, ...).
+
+    /// `IONCAMRCropView`'s ID. Its goal is to indicate that changes need to be propagated some changes are performed by the user (p.e., device or
+    /// image rotation, mirroring, ...).
     @State private var viewID = 0
-    
+
     var body: some View {
         ZStack {
             Color.black.edgesIgnoringSafeArea(.all)
@@ -34,7 +35,7 @@ struct IONCAMRImageEditorView: View {
                 if !isPortrait {
                     bar
                 }
-                
+
                 DynamicStack(showHorizontalStack: !isPortrait) {
                     Spacer()
                     Image(uiImage: image)
@@ -46,7 +47,7 @@ struct IONCAMRImageEditorView: View {
                                 imageHeight = geo.size.height
                                 imageRect = geo.frame(in: .global)
                             }
-                            
+
                             return AnyView(IONCAMRCropView(
                                 imageWidth: imageWidth,
                                 imageHeight: imageHeight,
@@ -55,8 +56,8 @@ struct IONCAMRImageEditorView: View {
                                 finalWidthMagnification: $croppingWidthMagnification,
                                 finalHeightMagnification: $croppingHeightMagnification
                             ).id(viewID))
-                        })                        
-                    
+                        })
+
                     Spacer()
                     DynamicStack(showHorizontalStack: isPortrait, spacing: 50.0) {
                         Button {
@@ -66,7 +67,7 @@ struct IONCAMRImageEditorView: View {
                         } label: {
                             IONCAMRAssets.bundleImage(IONCAMRAssets.ImageEditor.flip)
                         }
-                        
+
                         Button {
                             image = image.rotate(radians: CGFloat.pi / -2.0)
                             croppingOffset = .zero
@@ -78,7 +79,7 @@ struct IONCAMRImageEditorView: View {
                         }
                     }
                 }
-                
+
                 // If device is in Portrait, the bar is shown on the bottom.
                 if isPortrait {
                     bar
@@ -95,20 +96,20 @@ struct IONCAMRImageEditorView: View {
             viewID += 1
         }
     }
-    
+
     var bar: some View {
         HStack {
             Button {
-                self.delegate?.didCancelEdit()
+                delegate?.didCancelEdit()
             } label: {
                 Text("Cancel")
             }
-            
+
             Spacer()
-            
+
             Button {
                 guard let cgImage = image.cgImage else {
-                    delegate?.finishEditing(with: .editPictureIssue)    // it wasn't possible to retrieve the image, so an error is returned.
+                    delegate?.finishEditing(with: .editPictureIssue) // it wasn't possible to retrieve the image, so an error is returned.
                     return
                 }
                 let scaler = CGSize(width: CGFloat(cgImage.width) / imageWidth, height: CGFloat(cgImage.height) / imageHeight)
@@ -119,12 +120,12 @@ struct IONCAMRImageEditorView: View {
                     width: dim.width * croppingWidthMagnification,
                     height: dim.height * croppingHeightMagnification
                 )
-                
+
                 if let cImage = cgImage.cropping(to: cropRect) {
                     let croppedImage = UIImage(cgImage: cImage)
-                    delegate?.finishEditing(with: croppedImage)         // the resulting cropped image is returned.
+                    delegate?.finishEditing(with: croppedImage) // the resulting cropped image is returned.
                 } else {
-                    delegate?.finishEditing(with: .editPictureIssue)    // it wasn't possible to retrieve the image, so an error is returned.
+                    delegate?.finishEditing(with: .editPictureIssue) // it wasn't possible to retrieve the image, so an error is returned.
                 }
             } label: {
                 Text("Done")
@@ -136,11 +137,11 @@ struct IONCAMRImageEditorView: View {
     }
 }
 
-private extension UIImage {
+extension UIImage {
     /// Rotates the image with the passed radians.
     /// - Parameter radians: The radians value to rotate the image.
     /// - Returns: The rotated image.
-    func rotate(radians: CGFloat) -> UIImage {
+    fileprivate func rotate(radians: CGFloat) -> UIImage {
         let rotatedSize = CGRect(origin: .zero, size: size)
             .applying(CGAffineTransform(rotationAngle: CGFloat(radians)))
             .integral.size
@@ -150,26 +151,29 @@ private extension UIImage {
         let origin = CGPoint(x: rotatedSize.width / 2.0, y: rotatedSize.height / 2.0)
         context.translateBy(x: origin.x, y: origin.y)
         context.rotate(by: radians)
-        self.draw(in: CGRect(x: -origin.y, y: -origin.x, width: size.width, height: size.height))
+        draw(in: CGRect(x: -origin.y, y: -origin.x, width: size.width, height: size.height))
         let rotatedImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
 
         return rotatedImage ?? self
     }
-    
+
     /// Flips the image horizontally.
     /// - Returns: The flipped image.
-    func flippedHorizontally() -> UIImage {
-        guard let cgImage = cgImage else { return self }
-        
+    fileprivate func flippedHorizontally() -> UIImage {
+        guard let cgImage else { return self }
+
         UIGraphicsBeginImageContextWithOptions(size, false, scale)
-        let context = UIGraphicsGetCurrentContext()!
+        guard let context = UIGraphicsGetCurrentContext() else {
+            UIGraphicsEndImageContext()
+            return self
+        }
         context.translateBy(x: size.width, y: size.height)
         context.scaleBy(x: -scale, y: -scale)
         context.draw(cgImage, in: CGRect(origin: .zero, size: size))
         let newImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        
+
         return newImage ?? self
     }
 }
@@ -182,7 +186,7 @@ private struct DynamicStack<Content: View>: View {
     var spacing: CGFloat?
     /// The content to display on the `HStack` or `VStack`.
     @ViewBuilder var content: () -> Content
-    
+
     var body: some View {
         if showHorizontalStack {
             HStack(spacing: spacing, content: content)
