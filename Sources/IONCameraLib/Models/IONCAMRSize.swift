@@ -8,7 +8,7 @@ public struct IONCAMRSize: Decodable {
     let width: Int
     /// Height for the image.
     let height: Int
-    
+
     /// Constructor
     /// - Parameters:
     ///   - width: Width to set.

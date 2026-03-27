@@ -2,7 +2,7 @@ protocol IONCAMRDefaultOptionsDelegate: AnyObject {
     var returnMetadata: Bool { get set }
 }
 
-protocol IONCAMRSaveToGalleryOptionsDelegate: IONCAMRDefaultOptionsDelegate { 
+protocol IONCAMRSaveToGalleryOptionsDelegate: IONCAMRDefaultOptionsDelegate {
     var saveToGallery: Bool { get set }
 }
 

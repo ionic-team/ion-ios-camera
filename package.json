@@ -11,6 +11,7 @@
   },
   "private": true,
   "scripts": {
+    "lint": "swiftformat Sources Tests && swiftlint --fix",
     "semantic-release": "semantic-release"
   },
   "devDependencies": {

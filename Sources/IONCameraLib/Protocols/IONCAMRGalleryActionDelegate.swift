@@ -4,8 +4,8 @@ public protocol IONCAMRGalleryActionDelegate: AnyObject {
     func chooseFromGallery(with options: IONCAMRGalleryOptions)
 }
 
-public extension IONCAMRGalleryActionDelegate {
-    func choosePicture(_ allowEdit: Bool) {
+extension IONCAMRGalleryActionDelegate {
+    public func choosePicture(_ allowEdit: Bool) {
         let options = IONCAMRGalleryOptions(
             mediaType: .picture,
             allowEdit: allowEdit,
@@ -13,6 +13,6 @@ public extension IONCAMRGalleryActionDelegate {
             andThumbnailAsData: false,
             returnMetadata: false
         )
-        self.chooseFromGallery(with: options)
+        chooseFromGallery(with: options)
     }
 }

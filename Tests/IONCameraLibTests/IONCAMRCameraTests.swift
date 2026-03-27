@@ -1,5 +1,5 @@
-import XCTest
 @testable import IONCameraLib
+import XCTest
 
 extension IONCAMRMediaResult: Decodable {
     public init(from decoder: Decoder) throws {
@@ -64,28 +64,28 @@ final class IONCAMRCameraTests: XCTestCase {
 
     // MARK: - Take Picture Tests
 
-    func test_whenUserPressesTakePictureButton_andCancels_returnError() {
+    func test_whenUserPressesTakePictureButton_andCancels_returnError() throws {
         mockFlow.triggeredCancelTakePicture = true
 
-        sut.takePhoto(with: IONCAMRPictureOptionsConfigurations.jpegEncodingType!)
+        try sut.takePhoto(with: XCTUnwrap(IONCAMRPictureOptionsConfigurations.jpegEncodingType))
 
         XCTAssertNil(mockDelegate.singleResult)
         XCTAssertEqual(mockDelegate.error, IONCAMRError.takePictureCancel)
     }
 
-    func test_whenUserPressesTakePictureButton_andSomethingWrongHappens_returnError() {
+    func test_whenUserPressesTakePictureButton_andSomethingWrongHappens_returnError() throws {
         mockFlow.triggeredTakePicture = true
         mockFlow.error = .takePictureIssue
 
-        sut.takePhoto(with: IONCAMRPictureOptionsConfigurations.jpegEncodingType!)
+        try sut.takePhoto(with: XCTUnwrap(IONCAMRPictureOptionsConfigurations.jpegEncodingType))
 
         XCTAssertNil(mockDelegate.singleResult)
         XCTAssertEqual(mockDelegate.error, mockFlow.error)
     }
 
-    func test_whenUserPressesTakePictureButton_withSuccess_returnJPEGsBase64String() {
+    func test_whenUserPressesTakePictureButton_withSuccess_returnJPEGsBase64String() throws {
         mockFlow.triggeredTakePicture = true
-        let pictureOptions = IONCAMRPictureOptionsConfigurations.jpegEncodingType!
+        let pictureOptions = try XCTUnwrap(IONCAMRPictureOptionsConfigurations.jpegEncodingType)
 
         sut.takePhoto(with: pictureOptions)
 
@@ -93,9 +93,9 @@ final class IONCAMRCameraTests: XCTestCase {
         XCTAssertNil(mockDelegate.error)
     }
 
-    func test_whenUserPressesTakePictureButton_withSuccess_returnPNGsBase64String() {
+    func test_whenUserPressesTakePictureButton_withSuccess_returnPNGsBase64String() throws {
         mockFlow.triggeredTakePicture = true
-        let pictureOptions = IONCAMRPictureOptionsConfigurations.pngEncodingType!
+        let pictureOptions = try XCTUnwrap(IONCAMRPictureOptionsConfigurations.pngEncodingType)
 
         sut.takePhoto(with: pictureOptions)
 
@@ -249,7 +249,13 @@ final class IONCAMRCameraTests: XCTestCase {
     func test_whenUserPressesChooseMultimediaButton_andCancels_returnError() {
         mockFlow.triggeredCancelChooseMultimedia = true
 
-        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(mediaType: .both, allowEdit: true, allowMultipleSelection: true, andThumbnailAsData: false, returnMetadata: false))
+        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(
+            mediaType: .both,
+            allowEdit: true,
+            allowMultipleSelection: true,
+            andThumbnailAsData: false,
+            returnMetadata: false
+        ))
 
         XCTAssertNil(mockDelegate.arrayResult)
         XCTAssertEqual(mockDelegate.error, IONCAMRError.chooseMultimediaCancel)
@@ -259,7 +265,13 @@ final class IONCAMRCameraTests: XCTestCase {
         mockFlow.triggeredChooseMultimedia = true
         mockFlow.error = .chooseMultimediaIssue
 
-        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(mediaType: .both, allowEdit: true, allowMultipleSelection: true, andThumbnailAsData: false, returnMetadata: false))
+        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(
+            mediaType: .both,
+            allowEdit: true,
+            allowMultipleSelection: true,
+            andThumbnailAsData: false,
+            returnMetadata: false
+        ))
 
         XCTAssertNil(mockDelegate.arrayResult)
         XCTAssertEqual(mockDelegate.error, mockFlow.error)
@@ -268,7 +280,13 @@ final class IONCAMRCameraTests: XCTestCase {
     func test_whenUserPressesChooseMultimediaButton_withSuccess_andBothFilesArePictures_returnPictures() {
         mockFlow.triggeredChooseMultimedia = true
 
-        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(mediaType: .picture, allowEdit: true, allowMultipleSelection: true, andThumbnailAsData: false, returnMetadata: false))
+        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(
+            mediaType: .picture,
+            allowEdit: true,
+            allowMultipleSelection: true,
+            andThumbnailAsData: false,
+            returnMetadata: false
+        ))
 
         XCTAssertEqual(mockDelegate.arrayResult?.isEmpty, false)
         XCTAssertNil(mockDelegate.error)
@@ -277,16 +295,31 @@ final class IONCAMRCameraTests: XCTestCase {
     func test_whenUserPressesChooseMultimediaButton_withSuccess_andBothFilesArePicture_andReturnMetadaIsTrue_returnPicturesWithMetadata() {
         mockFlow.triggeredChooseMultimedia = true
 
-        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(mediaType: .picture, allowEdit: true, allowMultipleSelection: true, andThumbnailAsData: false, returnMetadata: true))
+        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(
+            mediaType: .picture,
+            allowEdit: true,
+            allowMultipleSelection: true,
+            andThumbnailAsData: false,
+            returnMetadata: true
+        ))
 
-        XCTAssertEqual(mockDelegate.arrayResult, [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata, IONCAMRPictureMock.osLogoRotated.toMediaResultWithMetadata])
+        XCTAssertEqual(
+            mockDelegate.arrayResult,
+            [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata, IONCAMRPictureMock.osLogoRotated.toMediaResultWithMetadata]
+        )
         XCTAssertNil(mockDelegate.error)
     }
 
     func test_whenUserPressesChooseMultimediaButton_withSuccess_andBothFilesAreVideo_returnVideos() {
         mockFlow.triggeredChooseMultimedia = true
 
-        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(mediaType: .video, allowEdit: true, allowMultipleSelection: true, andThumbnailAsData: false, returnMetadata: false))
+        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(
+            mediaType: .video,
+            allowEdit: true,
+            allowMultipleSelection: true,
+            andThumbnailAsData: false,
+            returnMetadata: false
+        ))
 
         XCTAssertEqual(mockDelegate.arrayResult?.isEmpty, false)
         XCTAssertNil(mockDelegate.error)
@@ -295,27 +328,52 @@ final class IONCAMRCameraTests: XCTestCase {
     func test_whenUserPressesChooseMultimediaButton_withSuccess_andBothFilesAreVideo_andReturnMetadataIsTrue_returnVideosWithMetadata() {
         mockFlow.triggeredChooseMultimedia = true
 
-        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(mediaType: .video, allowEdit: true, allowMultipleSelection: true, andThumbnailAsData: false, returnMetadata: true))
+        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(
+            mediaType: .video,
+            allowEdit: true,
+            allowMultipleSelection: true,
+            andThumbnailAsData: false,
+            returnMetadata: true
+        ))
 
-        XCTAssertEqual(mockDelegate.arrayResult, [IONCAMRVideoMock.first.toMediaResultWithMetadata, IONCAMRVideoMock.second.toMediaResultWithMetadata])
+        XCTAssertEqual(
+            mockDelegate.arrayResult,
+            [IONCAMRVideoMock.first.toMediaResultWithMetadata, IONCAMRVideoMock.second.toMediaResultWithMetadata]
+        )
         XCTAssertNil(mockDelegate.error)
     }
 
     func test_whenUserPressesChooseMultimediaButton_withSuccess_andFilesArePictureAndVideo_returnPictureAndVideo() {
         mockFlow.triggeredChooseMultimedia = true
 
-        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(mediaType: .both, allowEdit: true, allowMultipleSelection: true, andThumbnailAsData: false, returnMetadata: false))
+        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(
+            mediaType: .both,
+            allowEdit: true,
+            allowMultipleSelection: true,
+            andThumbnailAsData: false,
+            returnMetadata: false
+        ))
 
         XCTAssertEqual(mockDelegate.arrayResult?.isEmpty, false)
         XCTAssertNil(mockDelegate.error)
     }
 
-    func test_whenUserPressesChooseMultimediaButton_withSuccess_andFilesArePictureAndVideo_andReturnMetadataIsTrue_returnPictureAndVideoWithMetadata() {
+    func test_whenUserPressesChooseMultimediaButton_withSuccess_andFilesArePictureAndVideo_andReturnMetadataIsTrue_returnPictureAndVideoWithMetadata(
+    ) {
         mockFlow.triggeredChooseMultimedia = true
 
-        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(mediaType: .both, allowEdit: true, allowMultipleSelection: true, andThumbnailAsData: false, returnMetadata: true))
+        gallerySut.chooseFromGallery(with: IONCAMRGalleryOptions(
+            mediaType: .both,
+            allowEdit: true,
+            allowMultipleSelection: true,
+            andThumbnailAsData: false,
+            returnMetadata: true
+        ))
 
-        XCTAssertEqual(mockDelegate.arrayResult, [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata, IONCAMRVideoMock.first.toMediaResultWithMetadata])
+        XCTAssertEqual(
+            mockDelegate.arrayResult,
+            [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata, IONCAMRVideoMock.first.toMediaResultWithMetadata]
+        )
         XCTAssertNil(mockDelegate.error)
     }
 
@@ -324,7 +382,7 @@ final class IONCAMRCameraTests: XCTestCase {
     func test_whenUserPressesPlayVideoButton_butVideoCantBePlayed_returnError() async {
         mockVideoPlayer.isVideoPlayable = false
 
-        await assertThrowsAsyncError(try await videoSut.playVideo(IONCAMRVideoMock.first.url))
+        try await assertThrowsAsyncError(videoSut.playVideo(IONCAMRVideoMock.first.url))
     }
 
     func test_whenUserPressesPlayVideoButton_withSuccess_videoIsPlayed() async throws {
@@ -334,9 +392,9 @@ final class IONCAMRCameraTests: XCTestCase {
     }
 }
 
-private extension IONCAMRCameraTests {
-    func assertThrowsAsyncError<T>(
-        _ expression: @autoclosure () async throws -> T,
+extension IONCAMRCameraTests {
+    private func assertThrowsAsyncError(
+        _ expression: @autoclosure () async throws -> some Any,
         _ message: @autoclosure () -> String = "",
         file: StaticString = #filePath,
         line: UInt = #line,
