@@ -380,7 +380,11 @@ private extension IONCAMRFlowBehaviour {
                         let result = try await imageEditorDidReturn(image)
                         self.delegate?.didSucceed(with: result)
                     } catch {
-                        didFailed()
+                        if let ionError = error as? IONCAMRError {
+                            didFailed(with: ionError)
+                        } else {
+                            didFailed()
+                        }
                     }
                 }
             }
