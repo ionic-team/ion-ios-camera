@@ -8,7 +8,7 @@ struct IONCAMRCropThickEdgesView: View {
     var width: CGFloat
     /// Base height to draw the lines with.
     var height: CGFloat
-    
+
     var body: some View {
         // Top
         IONCAMRCropThickView(
@@ -29,7 +29,7 @@ struct IONCAMRCropThickEdgesView: View {
             height: height,
             side: .init(vertical: .top, horizontal: .right)
         )
-        
+
         // Mid
         IONCAMRCropThickView(
             offset: offset,
@@ -43,7 +43,7 @@ struct IONCAMRCropThickEdgesView: View {
             height: height,
             side: .init(vertical: .mid, horizontal: .right)
         )
-        
+
         // Bottom
         IONCAMRCropThickView(
             offset: offset,

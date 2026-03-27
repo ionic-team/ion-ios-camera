@@ -1,18 +1,20 @@
 import AVFoundation
-import UIKit
 import Photos
+import UIKit
 
-/// Object responsible to trigger the user interface and handle all user interactions required to validate if the device is ready for the Camera actions.
+/// Object responsible to trigger the user interface and handle all user interactions required to validate if the device is ready for the Camera
+/// actions.
 final class IONCAMRPermissionsBehaviour: IONCAMRPermissionsDelegate {
     var coordinator: IONCAMRCoordinator
-    
+
     /// Constructor method.
     /// - Parameter coordinator: User interface flow coordinator.
     init(coordinator: IONCAMRCoordinator) {
         self.coordinator = coordinator
     }
-    
-    /// Checks if the device has authorisation to access its camera. On the first time, it requests the user for access, displaying an alert if not granted.
+
+    /// Checks if the device has authorisation to access its camera. On the first time, it requests the user for access, displaying an alert if not
+    /// granted.
     /// - Parameter handler: Closure that indicates if permissions were granted or not.
     func checkForCamera(_ handler: @escaping (Bool) -> Void) {
         guard AVCaptureDevice.authorizationStatus(for: .video) != .authorized else { return handler(true) }
@@ -23,7 +25,7 @@ final class IONCAMRPermissionsBehaviour: IONCAMRPermissionsDelegate {
             handler(granted)
         }
     }
-    
+
     func checkForPhotoLibrary(_ handler: @escaping (Bool) -> Void) {
         func isAuthorised(_ authorisationStatus: PHAuthorizationStatus) -> Bool {
             authorisationStatus == .limited || authorisationStatus == .authorized
@@ -44,9 +46,9 @@ final class IONCAMRPermissionsBehaviour: IONCAMRPermissionsDelegate {
     }
 }
 
-private extension IONCAMRPermissionsBehaviour {
+extension IONCAMRPermissionsBehaviour {
     /// Displays the alert controller when the camera access authorisation was not granted.
-    func showAlertViewController(with title: String, and message: String) {
+    private func showAlertViewController(with title: String, and message: String) {
         DispatchQueue.main.async {
             let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
             let okAction = UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .default) { _ in
@@ -60,28 +62,28 @@ private extension IONCAMRPermissionsBehaviour {
             }
             alertController.addAction(okAction)
             alertController.addAction(settingsAction)
-            
+
             self.coordinator.present(alertController)
         }
     }
-    
-    func noAccessToCameraAlertViewController() {
+
+    private func noAccessToCameraAlertViewController() {
         let title = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? ""
         let message = NSLocalizedString(
             "Access to the camera has been prohibited. Please enable it in the Settings app to continue.",
             comment: ""
         )
-        
-        self.showAlertViewController(with: title, and: message)
+
+        showAlertViewController(with: title, and: message)
     }
-    
-    func noAccessToPhotoLibraryAlertViewController() {
+
+    private func noAccessToPhotoLibraryAlertViewController() {
         let title = Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? ""
         let message = NSLocalizedString(
             "Access to the photos has been prohibited. Please enable it in the Settings app to continue.",
             comment: ""
         )
-        
-        self.showAlertViewController(with: title, and: message)
+
+        showAlertViewController(with: title, and: message)
     }
 }

@@ -8,6 +8,7 @@ on:
 
 env:
   XCODE_VERSION: '26.2'
+  IOS_VERSION: '26.2'
 
 jobs:
   test:
@@ -24,23 +25,25 @@ jobs:
     - name: Build & Test iOS
       run: |
         xcodebuild -scheme IONCameraLib \
-          -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' \
+          -destination 'platform=iOS Simulator,name=iPhone 17,OS=${{ env.IOS_VERSION }}' \
           build test
 
   lint:
     name: SwiftLint
     runs-on: macOS-latest
-    
+
     steps:
     - name: Checkout
       uses: actions/checkout@v5
-      
-    - name: SwiftLint
+
+    - name: Install SwiftLint
       run: |
         if ! command -v swiftlint &> /dev/null; then
           brew install swiftlint
-        fi        
-        swiftlint --strict
+        fi
+
+    - name: SwiftLint
+      run: swiftlint --strict
 
   validate-podspec:
     name: Validate Podspec

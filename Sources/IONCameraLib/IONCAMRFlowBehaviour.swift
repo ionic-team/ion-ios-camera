@@ -2,7 +2,6 @@ import Photos
 import UIKit
 
 final class IONCAMRFlowBehaviour: NSObject, IONCAMRFlowDelegate {
-    
     /// Responsible for handling and enabling the image picker behaviour.
     private let picker: IONCAMRPickerDelegate
     /// Responsible for handling and enabling the editing picker behaviour.
@@ -15,15 +14,15 @@ final class IONCAMRFlowBehaviour: NSObject, IONCAMRFlowDelegate {
     private let metadataGetter: IONCAMRMetadataGetterDelegate
     private let imageFetcher: IONCAMRImageFetcherDelegate
     private let urlGenerator: IONCAMRURLGeneratorDelegate
-    
+
     /// Handles the result of interacting with the flow interface.
     weak var delegate: IONCAMRFlowResultsDelegate?
     /// Object responsible for managing the user interface screens and respective flow.
     var coordinator: IONCAMRCoordinator
     var temporaryURLArray: [URL] = []
-    
+
     private var options: IONCAMRDefaultOptionsDelegate?
-    
+
     /// Constructor method.
     /// - Parameters:
     ///   - picker: Handles the picker behaviour.
@@ -51,19 +50,19 @@ final class IONCAMRFlowBehaviour: NSObject, IONCAMRFlowDelegate {
         self.imageFetcher = imageFetcher
         self.urlGenerator = urlGenerator
         super.init()
-        
+
         self.picker.delegate = self
         self.editorBehaviour.delegate = self
         self.galleryBehaviour.delegate = self
     }
-    
+
     convenience init(coordinator: IONCAMRCoordinator) {
         let pickerBehaviour = IONCAMRPickerBehaviour()
         let editorBehaviour = IONCAMREditorBehaviour()
         let mediaResultGenerator = IONCAMRMediaResultGenerator()
         let galleryBehaviour = IONCAMRGalleryBehaviour(metadataGetter: mediaResultGenerator)
         let permissionsBehaviour = IONCAMRPermissionsBehaviour(coordinator: coordinator)
-        
+
         self.init(
             picker: pickerBehaviour,
             editorBehaviour: editorBehaviour,
@@ -76,144 +75,151 @@ final class IONCAMRFlowBehaviour: NSObject, IONCAMRFlowDelegate {
             coordinator: coordinator
         )
     }
-    
+
     func takePhoto(with options: IONCAMRTakePhotoOptions) {
         captureMedia(with: options)
     }
-    
+
     func recordVideo(with options: IONCAMRRecordVideoOptions) {
         captureMedia(with: options)
     }
-    
+
     private func captureMedia(with mediaOptions: IONCAMRMediaOptions) {
-        self.permissionsBehaviour.checkForCamera { [weak self] authorised in
-            guard let self = self else { return }
+        permissionsBehaviour.checkForCamera { [weak self] authorised in
+            guard let self else { return }
             guard authorised else {
-                self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: .cameraAccess)
+                delegate?.didFailed(type: IONCAMRMediaResult.self, with: .cameraAccess)
                 return
             }
-            
-            guard self.picker.isCameraAvailable() else {
-                self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: .cameraAvailability)
+
+            guard picker.isCameraAvailable() else {
+                delegate?.didFailed(type: IONCAMRMediaResult.self, with: .cameraAvailability)
                 return
             }
-            
-            self.options = mediaOptions
-            self.picker.captureMedia(with: mediaOptions) { [weak self] viewController in
+
+            options = mediaOptions
+            picker.captureMedia(with: mediaOptions) { [weak self] viewController in
                 self?.present(viewController)
             }
         }
     }
-    
+
     func editPhoto(_ image: UIImage) {
-        self.editorBehaviour.editPicture(image) { [weak self] viewController in
+        editorBehaviour.editPicture(image) { [weak self] viewController in
             self?.present(viewController)
         }
     }
-    
+
     func editPhoto(with options: IONCAMRPhotoEditOptions) {
-        guard let image = self.imageFetcher.retrieveImage(from: options.uri) else {
-            self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: .fetchImageFromURLFailed)
+        guard let image = imageFetcher.retrieveImage(from: options.uri) else {
+            delegate?.didFailed(type: IONCAMRMediaResult.self, with: .fetchImageFromURLFailed)
             return
         }
-        
+
         self.options = options
-        self.editorBehaviour.editPicture(image) { [weak self] viewController in
+        editorBehaviour.editPicture(image) { [weak self] viewController in
             self?.present(viewController)
         }
     }
-    
+
     func chooseFromGallery(with options: IONCAMRGalleryOptions) {
-        self.permissionsBehaviour.checkForPhotoLibrary { [weak self] authorised in
-            guard let self = self else { return }
-            
+        permissionsBehaviour.checkForPhotoLibrary { [weak self] authorised in
+            guard let self else { return }
+
             guard authorised else {
                 // the type is indifferent as the flow will be the same
-                self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: .photoLibraryAccess)
+                delegate?.didFailed(type: IONCAMRMediaResult.self, with: .photoLibraryAccess)
                 return
             }
-            
+
             self.options = options
-            self.galleryBehaviour.chooseFromGallery(with: options) { [weak self] viewController in
+            galleryBehaviour.chooseFromGallery(with: options) { [weak self] viewController in
                 self?.present(viewController)
             }
         }
     }
-    
+
     func cleanTemporaryFiles() {
-        self.temporaryURLArray.forEach { try? $0.deleteTemporaryPath() }
-        self.temporaryURLArray.removeAll()
+        temporaryURLArray.forEach { try? $0.deleteTemporaryPath() }
+        temporaryURLArray.removeAll()
     }
 }
 
 extension IONCAMRFlowBehaviour: IONCAMRCancelResultsDelegate {
     func didCancel(_ object: AnyObject) {
-        if object === self.picker, let mediaOptions = self.options as? IONCAMREditMediaTypeOptionsDelegate {
+        if object === picker, let mediaOptions = options as? IONCAMREditMediaTypeOptionsDelegate {
             switch mediaOptions.mediaType {
             case .picture:
-                self.delegate?.didCancel(.takePictureCancel)
+                delegate?.didCancel(.takePictureCancel)
             case .video:
-                self.delegate?.didCancel(.captureVideoCancel)
+                delegate?.didCancel(.captureVideoCancel)
             case .both:
-                self.delegate?.didCancel(.chooseMultimediaCancel)
-            default: break  // not supposed to get here
+                delegate?.didCancel(.chooseMultimediaCancel)
+            default: break // not supposed to get here
             }
-        } else if object === self.editorBehaviour {
-            self.delegate?.didCancel(.editPictureCancel)
-        } else if object === self.galleryBehaviour {
-            self.delegate?.didCancel(.choosePictureCancel)
+        } else if object === editorBehaviour {
+            delegate?.didCancel(.editPictureCancel)
+        } else if object === galleryBehaviour {
+            delegate?.didCancel(.choosePictureCancel)
         }
-        self.coordinator.dismiss()
-        self.options = nil
+        coordinator.dismiss()
+        options = nil
     }
 }
 
 extension IONCAMRFlowBehaviour: IONCAMRResultsDelegate {
     func didReturn(_ object: AnyObject, with result: Result<IONCAMRResultItem, IONCAMRError>) {
-        if object === self.picker {
-            self.pickerDidReturn(result)
-        } else if object === self.editorBehaviour {
-            self.editorDidReturn(result)
-        } else if object === self.galleryBehaviour {
-            self.galleryDidReturnSingle(result)
+        if object === picker {
+            pickerDidReturn(result)
+        } else if object === editorBehaviour {
+            editorDidReturn(result)
+        } else if object === galleryBehaviour {
+            galleryDidReturnSingle(result)
         }
     }
 }
 
 extension IONCAMRFlowBehaviour: IONCAMRMultipleResultsDelegate {
     func didReturn(_ result: Result<[IONCAMRMediaResult], IONCAMRError>) {
-        self.galleryDidReturnMultiple(result)
+        galleryDidReturnMultiple(result)
     }
 }
 
-private extension IONCAMRFlowBehaviour {
+extension IONCAMRFlowBehaviour {
     /// Push a new view controller into the navigation stack, through the `coordinator` object.
     /// - Parameter viewController: View Controller to push.
-    func present(_ viewController: UIViewController) {
+    private func present(_ viewController: UIViewController) {
         DispatchQueue.main.async {
             self.coordinator.present(viewController)
         }
     }
-    
+
     /// Enum containing error related with image transformation.
-    enum IONCAMRMultimediaError: Error {
+    fileprivate enum IONCAMRMultimediaError: Error {
         case mediaOptionsConversion, mediaResultCreation, stringConversion, thumbnailGeneratorIssue, treatmentIssue
     }
-    
-    func convertToMediaResult(_ image: UIImage, with options: IONCAMRTakePhotoOptions? = nil, separateReturnTypeBasedOn returnComplexVersion: Bool, and returnMetadata: Bool, savedToGallery: Bool? = nil) throws -> IONCAMRMediaResult {
+
+    private func convertToMediaResult(
+        _ image: UIImage,
+        with options: IONCAMRTakePhotoOptions? = nil,
+        separateReturnTypeBasedOn returnComplexVersion: Bool,
+        and returnMetadata: Bool,
+        savedToGallery: Bool? = nil
+    ) throws
+        -> IONCAMRMediaResult {
         guard let imageResult = image.toData(with: options) else { throw IONCAMRMultimediaError.treatmentIssue }
-        
+
         let result: IONCAMRMediaResult
         if returnComplexVersion {
-            guard let imageURL = self.urlGenerator.url(for: imageResult, withEncodingType: options?.encodingType),
-                  let imageThumbnail = self.thumbnailGenerator.getBase64String(from: image, with: options?.size, and: options?.quality)
+            guard let imageURL = urlGenerator.url(for: imageResult, withEncodingType: options?.encodingType),
+                  let imageThumbnail = thumbnailGenerator.getBase64String(from: image, with: options?.size, and: options?.quality)
             else { throw IONCAMRMultimediaError.mediaResultCreation }
 
-            self.temporaryURLArray += [imageURL]
+            temporaryURLArray += [imageURL]
 
             var metadata: IONCAMRMetadata?
             if returnMetadata {
-                metadata = try? self.metadataGetter.getImageMetadata(from: image, and: imageURL)
+                metadata = try? metadataGetter.getImageMetadata(from: image, and: imageURL)
             }
 
             result = IONCAMRMediaResult(pictureWith: imageURL.absoluteString, imageThumbnail, and: metadata, saved: savedToGallery)
@@ -223,40 +229,46 @@ private extension IONCAMRFlowBehaviour {
 
         return result
     }
-    
+
     /// Apply all the user defined transformations to the resulting image.
     /// - Parameters:
     ///   - image: Image to treat.
     ///   - options: User defined options with the transformations to apply to the image.
-    func treat(_ image: UIImage, with options: IONCAMRTakePhotoOptions) async throws -> IONCAMRMediaResult {
+    private func treat(_ image: UIImage, with options: IONCAMRTakePhotoOptions) async throws -> IONCAMRMediaResult {
         var savedToGallery = false
         if options.saveToGallery {
-            savedToGallery = await self.galleryBehaviour.saveToGallery(image)
+            savedToGallery = await galleryBehaviour.saveToGallery(image)
         }
-        return try self.convertToMediaResult(image, with: options, separateReturnTypeBasedOn: true, and: options.returnMetadata, savedToGallery: savedToGallery)
+        return try convertToMediaResult(
+            image,
+            with: options,
+            separateReturnTypeBasedOn: true,
+            and: options.returnMetadata,
+            savedToGallery: savedToGallery
+        )
     }
-    
+
     /// Return type allows us to return a single `IONCAMRMediaResult` (for `ChoosePictureGallery`) or an array of it (for `ChooseFromGallery`).
-    func treat(_ image: UIImage, with options: IONCAMRGalleryOptions) throws -> any Encodable {
-        let result = try self.convertToMediaResult(image, separateReturnTypeBasedOn: options.thumbnailAsData, and: options.returnMetadata)
-        
+    private func treat(_ image: UIImage, with options: IONCAMRGalleryOptions) throws -> any Encodable {
+        let result = try convertToMediaResult(image, separateReturnTypeBasedOn: options.thumbnailAsData, and: options.returnMetadata)
+
         return options.thumbnailAsData ? [result] : result
     }
-    
-    func treat(_ url: URL, with options: IONCAMRRecordVideoOptions, _ completion: @escaping (IONCAMRMediaResult?) -> Void) {
+
+    private func treat(_ url: URL, with options: IONCAMRRecordVideoOptions, _ completion: @escaping (IONCAMRMediaResult?) -> Void) {
         // Only add to temporaryURLArray if video is not persistent
         if !options.isPersistent {
-            self.temporaryURLArray += [url]
+            temporaryURLArray += [url]
         }
-        
+
         if options.saveToGallery {
             Task { await self.galleryBehaviour.saveToGallery(url) }
         }
-        
-        self.thumbnailGenerator.getImage(from: url) { image in
-            guard let image = image, let data = image.defaultVideoThumbnailData
+
+        thumbnailGenerator.getImage(from: url) { image in
+            guard let image, let data = image.defaultVideoThumbnailData
             else { return completion(nil) }
-           
+
             if options.returnMetadata {
                 Task { [url] in
                     let metadata = try? await self.metadataGetter.getVideoMetadata(from: url)
@@ -272,29 +284,30 @@ private extension IONCAMRFlowBehaviour {
 }
 
 // MARK: Picker Related Extension
-private extension IONCAMRFlowBehaviour {
-    func imagePickerDidReturn(_ image: UIImage) async throws -> IONCAMRMediaResult? {
+
+extension IONCAMRFlowBehaviour {
+    private func imagePickerDidReturn(_ image: UIImage) async throws -> IONCAMRMediaResult? {
         var result: IONCAMRMediaResult?
-        
-        guard let pictureOptions = self.options as? IONCAMRTakePhotoOptions else { throw IONCAMRMultimediaError.mediaOptionsConversion }
+
+        guard let pictureOptions = options as? IONCAMRTakePhotoOptions else { throw IONCAMRMultimediaError.mediaOptionsConversion }
         if !pictureOptions.allowEdit {
-            guard let treatedImage = try? await self.treat(image, with: pictureOptions) else { throw IONCAMRMultimediaError.treatmentIssue }
+            guard let treatedImage = try? await treat(image, with: pictureOptions) else { throw IONCAMRMultimediaError.treatmentIssue }
             result = treatedImage
         }
-        
+
         return result
     }
-    
-    func videoPickerDidReturn(_ url: URL, _ completion: @escaping (IONCAMRMediaResult?) -> Void) {
-        guard let videoOptions = self.options as? IONCAMRRecordVideoOptions else { return completion(nil) }
-        self.treat(url, with: videoOptions, completion)
+
+    private func videoPickerDidReturn(_ url: URL, _ completion: @escaping (IONCAMRMediaResult?) -> Void) {
+        guard let videoOptions = options as? IONCAMRRecordVideoOptions else { return completion(nil) }
+        treat(url, with: videoOptions, completion)
     }
-    
+
     /// Method triggered when the user could finish, with or without success, the picker behaviour.
     /// - Parameter result: Returned object to who implements this object. It returns a base64 encoding text if successful or an error otherwise.
-    func pickerDidReturn(_ result: Result<IONCAMRResultItem, IONCAMRError>) {
+    private func pickerDidReturn(_ result: Result<IONCAMRResultItem, IONCAMRError>) {
         func didFailed(withError error: IONCAMRError) {
-            self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
+            delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
         }
 
         defer { self.coordinator.dismiss() }
@@ -317,53 +330,54 @@ private extension IONCAMRFlowBehaviour {
                     }
                 }
             case .video(let url):
-                self.videoPickerDidReturn(url) { [weak self] mediaResult in
+                videoPickerDidReturn(url) { [weak self] mediaResult in
                     self?.options = nil
-                    guard let mediaResult = mediaResult else { return didFailed(withError: .captureVideoIssue) }
+                    guard let mediaResult else { return didFailed(withError: .captureVideoIssue) }
                     self?.delegate?.didSucceed(with: mediaResult)
                 }
             }
         case .failure(let error):
-            self.options = nil
+            options = nil
             didFailed(withError: error)
         }
     }
 }
 
 // MARK: - Editor Related Extension
-private extension IONCAMRFlowBehaviour {
-    func imageEditorDidReturn(_ image: UIImage) async throws -> any Encodable {
-        if self.coordinator.isSecondStep {
-            if let pictureOptions = self.options as? IONCAMRTakePhotoOptions {
-                return try await self.treat(image, with: pictureOptions)
+
+extension IONCAMRFlowBehaviour {
+    private func imageEditorDidReturn(_ image: UIImage) async throws -> any Encodable {
+        if coordinator.isSecondStep {
+            if let pictureOptions = options as? IONCAMRTakePhotoOptions {
+                return try await treat(image, with: pictureOptions)
             }
-            if let galleryOptions = self.options as? IONCAMRGalleryOptions {
-                return try self.treat(image, with: galleryOptions)
+            if let galleryOptions = options as? IONCAMRGalleryOptions {
+                return try treat(image, with: galleryOptions)
             }
 
             throw IONCAMRMultimediaError.treatmentIssue
         }
 
-        var separator: Bool = false
-        var returnMetadata: Bool = false
+        var separator = false
+        var returnMetadata = false
         var savedToGallery = false
-        if let options = self.options as? IONCAMRSaveToGalleryOptionsDelegate {
+        if let options = options as? IONCAMRSaveToGalleryOptionsDelegate {
             separator = true
             returnMetadata = options.returnMetadata
 
             if options.saveToGallery {
-                savedToGallery = await self.galleryBehaviour.saveToGallery(image)
+                savedToGallery = await galleryBehaviour.saveToGallery(image)
             }
         }
 
-        return try self.convertToMediaResult(image, separateReturnTypeBasedOn: separator, and: returnMetadata, savedToGallery: savedToGallery)
+        return try convertToMediaResult(image, separateReturnTypeBasedOn: separator, and: returnMetadata, savedToGallery: savedToGallery)
     }
-    
+
     /// Method triggered when the user could finish, with or without success, the editor behaviour.
     /// - Parameter result: Returned object to who implements this object. It returns a base64 encoding text if successful or an error otherwise.
-    func editorDidReturn(_ result: Result<IONCAMRResultItem, IONCAMRError>) {
+    private func editorDidReturn(_ result: Result<IONCAMRResultItem, IONCAMRError>) {
         func didFailed(with error: IONCAMRError = .editPictureIssue) {
-            self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
+            delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
         }
 
         defer { self.coordinator.dismiss() }
@@ -383,19 +397,20 @@ private extension IONCAMRFlowBehaviour {
                 }
             }
         case .failure(let error):
-            self.options = nil
+            options = nil
             didFailed(with: error)
         }
     }
 }
 
 // MARK: - Gallery Related Extension
-private extension IONCAMRFlowBehaviour {
-    func galleryDidReturnSingle(_ result: Result<IONCAMRResultItem, IONCAMRError>) {
+
+extension IONCAMRFlowBehaviour {
+    private func galleryDidReturnSingle(_ result: Result<IONCAMRResultItem, IONCAMRError>) {
         func didFailed(with error: IONCAMRError = .choosePictureIssue) {
-            self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
+            delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
         }
-        
+
         var canDismiss = true
         defer {
             if canDismiss {
@@ -403,31 +418,31 @@ private extension IONCAMRFlowBehaviour {
                 self.options = nil
             }
         }
-        
+
         switch result {
         case .success(let item):
             if case .picture(let image) = item {
-                guard let options = self.options as? IONCAMREditMediaTypeOptionsDelegate else { return didFailed() }
+                guard let options = options as? IONCAMREditMediaTypeOptionsDelegate else { return didFailed() }
 
                 if !options.allowEdit {
                     guard let result = image.toData()?.base64EncodedString() else { return didFailed() }
                     let mediaResult = IONCAMRMediaResult(pictureWith: result)
-                    self.delegate?.didSucceed(with: mediaResult)
+                    delegate?.didSucceed(with: mediaResult)
                 } else {
                     canDismiss = false
-                    self.editPhoto(image)
+                    editPhoto(image)
                 }
             }
         case .failure(let error):
             didFailed(with: error)
         }
     }
-    
-    func galleryDidReturnMultiple(_ result: Result<[IONCAMRMediaResult], IONCAMRError>) {
+
+    private func galleryDidReturnMultiple(_ result: Result<[IONCAMRMediaResult], IONCAMRError>) {
         func didFailed(with error: IONCAMRError = .chooseMultimediaIssue) {
-            self.delegate?.didFailed(type: [IONCAMRMediaResult].self, with: error)
+            delegate?.didFailed(type: [IONCAMRMediaResult].self, with: error)
         }
-        
+
         var canDismiss = true
         defer {
             if canDismiss {
@@ -435,23 +450,22 @@ private extension IONCAMRFlowBehaviour {
                 self.options = nil
             }
         }
-        
+
         switch result {
         case .success(let items):
-            guard let options = self.options as? IONCAMRGalleryOptions else { return didFailed() }
+            guard let options = options as? IONCAMRGalleryOptions else { return didFailed() }
 
             if options.allowEdit, options.mediaType == .picture, !options.allowMultipleSelection {
-                guard let mediaResult = items.first, let image = self.imageFetcher.retrieveImage(from: mediaResult.uri)?.fixOrientation()
+                guard let mediaResult = items.first, let image = imageFetcher.retrieveImage(from: mediaResult.uri)?.fixOrientation()
                 else { return didFailed(with: .fetchImageFromURLFailed) }
-                      
+
                 canDismiss = false
-                self.editPhoto(image)
+                editPhoto(image)
             } else {
-                self.delegate?.didSucceed(with: items)
+                delegate?.didSucceed(with: items)
             }
         case .failure(let error):
             didFailed(with: error)
         }
-
     }
 }

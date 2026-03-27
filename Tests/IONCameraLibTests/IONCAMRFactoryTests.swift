@@ -1,5 +1,5 @@
-import XCTest
 @testable import IONCameraLib
+import XCTest
 
 final class IONCAMRFactoryTests: XCTestCase {
     func test_whenCreateWrapperIsTriggered_CreatesIONCAMRCameraObject() {

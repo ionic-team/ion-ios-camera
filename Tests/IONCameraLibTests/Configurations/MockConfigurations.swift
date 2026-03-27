@@ -1,7 +1,7 @@
-import UIKit
 @testable import IONCameraLib
+import UIKit
 
-struct IONCAMRPictureOptionsConfigurations {
+enum IONCAMRPictureOptionsConfigurations {
     static let jpegEncodingType = try? IONCAMRTakePhotoOptions(
         quality: 100,
         correctOrientation: true,
@@ -121,11 +121,12 @@ struct IONCAMRPictureOptionsConfigurations {
         returnMetadata: true
     )
     static let allowEditAndSaveToPhotoAlbum = try? IONCAMRTakePhotoOptions(
-        quality: 100, correctOrientation: true, encodingType: .jpeg, saveToGallery: true, cameraDirection: .back, allowEdit: true, returnMetadata: false
+        quality: 100, correctOrientation: true, encodingType: .jpeg, saveToGallery: true, cameraDirection: .back, allowEdit: true,
+        returnMetadata: false
     )
 }
 
-struct IONCAMRRecordVideoOptionsConfigurations {
+enum IONCAMRRecordVideoOptionsConfigurations {
     static let video = IONCAMRRecordVideoOptions(saveToGallery: false, returnMetadata: false, isPersistent: true)
     static let saveToPhotosAlbum = IONCAMRRecordVideoOptions(saveToGallery: true, returnMetadata: false, isPersistent: true)
     static let withMetadata = IONCAMRRecordVideoOptions(saveToGallery: false, returnMetadata: true, isPersistent: true)
@@ -133,23 +134,25 @@ struct IONCAMRRecordVideoOptionsConfigurations {
     static let saveToPhotosAlbumTemporary = IONCAMRRecordVideoOptions(saveToGallery: true, returnMetadata: false, isPersistent: false)
 }
 
-struct IONCAMREditOptionsConfigurations {
+enum IONCAMREditOptionsConfigurations {
     static func noSaveNorMetadata(uri: String = "") -> IONCAMRPhotoEditOptions {
         IONCAMRPhotoEditOptions(uri: uri, saveToGallery: false, returnMetadata: false)
     }
+
     static func saveWithoutMetadata(uri: String = "") -> IONCAMRPhotoEditOptions {
         IONCAMRPhotoEditOptions(uri: uri, saveToGallery: true, returnMetadata: false)
     }
+
     static func metadataWithoutSave(uri: String = "") -> IONCAMRPhotoEditOptions {
         IONCAMRPhotoEditOptions(uri: uri, saveToGallery: false, returnMetadata: true)
     }
 }
 
-struct IONCAMRSizeConfigurations {
+enum IONCAMRSizeConfigurations {
     static let sizeSet = try? IONCAMRSize(width: 50, height: 150)
 }
 
-struct UIViewControllerConfigurations {
+enum UIViewControllerConfigurations {
     static let `default` = UIViewController()
     static let takeMedia = UIViewController()
     static let editPicture = UIViewController()
@@ -188,11 +191,16 @@ class IONCAMRPictureMock {
         metadata: IONCAMRMetadataOptions.photoMetadata
     )
 
-    var toMediaResult: IONCAMRMediaResult { .init(pictureWith: self.url.absoluteString, self.thumbnail) }
-    var toMediaResultWithMetadata: IONCAMRMediaResult { .init(pictureWith: self.url.absoluteString, self.thumbnail, and: self.metadata) }
+    var toMediaResult: IONCAMRMediaResult {
+        .init(pictureWith: url.absoluteString, thumbnail)
+    }
+
+    var toMediaResultWithMetadata: IONCAMRMediaResult {
+        .init(pictureWith: url.absoluteString, thumbnail, and: metadata)
+    }
 }
 
-struct IONCAMRMetadataOptions {
+enum IONCAMRMetadataOptions {
     static let videoMetadata = IONCAMRMetadata(size: 1200, duration: 20, format: "mp4", resolution: "1920x1080", creationDate: Date())
     static let photoMetadata = IONCAMRMetadata(size: 120, format: "jpeg", resolution: "1920x1080", creationDate: Date())
 }
@@ -213,8 +221,13 @@ struct IONCAMRVideoMock {
         metadata: IONCAMRMetadataOptions.videoMetadata
     )
 
-    var toMediaResult: IONCAMRMediaResult { .init(videoWith: self.url.absoluteString, self.thumbnail) }
-    var toMediaResultWithMetadata: IONCAMRMediaResult { .init(videoWith: self.url.absoluteString, self.thumbnail, and: self.metadata) }
+    var toMediaResult: IONCAMRMediaResult {
+        .init(videoWith: url.absoluteString, thumbnail)
+    }
+
+    var toMediaResultWithMetadata: IONCAMRMediaResult {
+        .init(videoWith: url.absoluteString, thumbnail, and: metadata)
+    }
 }
 
 class IONCAMRCallbackMock: IONCAMRCallbackDelegate {
@@ -227,24 +240,24 @@ class IONCAMRCallbackMock: IONCAMRCallbackDelegate {
     }
 
     func callback(result: IONCAMRMediaResult) {
-        self.singleResult = result
+        singleResult = result
     }
 
     func callback(result: [IONCAMRMediaResult]) {
-        self.arrayResult = result
+        arrayResult = result
     }
 }
 
 class IONCAMRPermissionsBehaviourMock: IONCAMRPermissionsDelegate {
     var coordinator: IONCAMRCoordinator = IONCAMRCoordinatorMock(rootViewController: UIViewControllerConfigurations.default)
-    var authorised: Bool = true
+    var authorised = true
 
     func checkForCamera(_ handler: @escaping (Bool) -> Void) {
-        handler(self.authorised)
+        handler(authorised)
     }
 
     func checkForPhotoLibrary(_ handler: @escaping (Bool) -> Void) {
-        handler(self.authorised)
+        handler(authorised)
     }
 }
 
@@ -262,131 +275,129 @@ class IONCAMRFlowBehaviourMock: IONCAMRFlowDelegate {
     var coordinator: IONCAMRCoordinator = IONCAMRCoordinatorMock(rootViewController: UIViewControllerConfigurations.default)
     var delegate: IONCAMRFlowResultsDelegate?
     var temporaryURLArray: [URL] = []
-    var triggeredTakePicture: Bool = false
-    var triggeredCancelTakePicture: Bool = false
+    var triggeredTakePicture = false
+    var triggeredCancelTakePicture = false
 
-    var triggeredChoosePicture: Bool = false
-    var triggeredCancelChoosePicture: Bool = false
+    var triggeredChoosePicture = false
+    var triggeredCancelChoosePicture = false
 
-    var triggeredCaptureVideo: Bool = false
-    var triggeredCancelVideo: Bool = false
+    var triggeredCaptureVideo = false
+    var triggeredCancelVideo = false
 
-    var triggeredChooseMultimedia: Bool = false
-    var triggeredCancelChooseMultimedia: Bool = false
+    var triggeredChooseMultimedia = false
+    var triggeredCancelChooseMultimedia = false
 
-    var triggeredEdit: Bool = true
+    var triggeredEdit = true
     var error: IONCAMRError?
 
     func takePhoto(with options: IONCAMRTakePhotoOptions) {
-        if self.triggeredCancelTakePicture {
-            self.delegate?.didCancel(.takePictureCancel)
-        } else if self.triggeredTakePicture {
-            if let error = error {
-                self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
+        if triggeredCancelTakePicture {
+            delegate?.didCancel(.takePictureCancel)
+        } else if triggeredTakePicture {
+            if let error {
+                delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
             } else {
                 let mediaResult = IONCAMRMediaResult(pictureWith: IONCAMRPictureMock.osLogo.image.toData(with: options)!.base64EncodedString())
-                self.delegate?.didSucceed(with: mediaResult)
+                delegate?.didSucceed(with: mediaResult)
             }
         }
     }
 
     func recordVideo(with options: IONCAMRRecordVideoOptions) {
-        if self.triggeredCancelVideo {
-            self.delegate?.didCancel(.captureVideoCancel)
-        } else if self.triggeredCaptureVideo {
-            if let error = error {
-                self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
+        if triggeredCancelVideo {
+            delegate?.didCancel(.captureVideoCancel)
+        } else if triggeredCaptureVideo {
+            if let error {
+                delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
             } else {
                 let video = IONCAMRVideoMock.first
-                self.temporaryURLArray += [video.url]
+                temporaryURLArray += [video.url]
                 let mediaResult = options.returnMetadata ? video.toMediaResultWithMetadata : video.toMediaResult
-                self.delegate?.didSucceed(with: mediaResult)
+                delegate?.didSucceed(with: mediaResult)
             }
         }
     }
 
     func editPhoto(_ image: UIImage) {
-        if self.triggeredEdit {
-            if let error = self.error {
-                self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
+        if triggeredEdit {
+            if let error {
+                delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
             } else {
                 let mediaResult = IONCAMRMediaResult(pictureWith: IONCAMRPictureMock.osLogoBlue.image.toData()!.base64EncodedString())
-                self.delegate?.didSucceed(with: mediaResult)
+                delegate?.didSucceed(with: mediaResult)
             }
         } else {
-            self.delegate?.didCancel(.editPictureCancel)
+            delegate?.didCancel(.editPictureCancel)
         }
     }
 
     func editPhoto(with options: IONCAMRPhotoEditOptions) {
-        if self.triggeredEdit {
-            if let error = self.error {
-                self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
+        if triggeredEdit {
+            if let error {
+                delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
             } else {
                 let pictureToReturn = IONCAMRPictureMock.osLogoBlue
-                self.delegate?.didSucceed(with: options.returnMetadata ? pictureToReturn.toMediaResultWithMetadata : pictureToReturn.toMediaResult)
+                delegate?.didSucceed(with: options.returnMetadata ? pictureToReturn.toMediaResultWithMetadata : pictureToReturn.toMediaResult)
             }
         } else {
-            self.delegate?.didCancel(.editPictureCancel)
+            delegate?.didCancel(.editPictureCancel)
         }
     }
 
     func chooseFromGallery(with options: IONCAMRGalleryOptions) {
-        if self.triggeredCancelChoosePicture {
-            self.delegate?.didCancel(.choosePictureCancel)
-        } else if self.triggeredCancelChooseMultimedia {
-            self.delegate?.didCancel(.chooseMultimediaCancel)
-        } else if self.triggeredChoosePicture {
-            if let error = self.error {
-                self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
+        if triggeredCancelChoosePicture {
+            delegate?.didCancel(.choosePictureCancel)
+        } else if triggeredCancelChooseMultimedia {
+            delegate?.didCancel(.chooseMultimediaCancel)
+        } else if triggeredChoosePicture {
+            if let error {
+                delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
             } else {
                 let mediaResult = IONCAMRMediaResult(pictureWith: IONCAMRPictureMock.osLogo.image.toData()!.base64EncodedString())
-                self.delegate?.didSucceed(with: mediaResult)
+                delegate?.didSucceed(with: mediaResult)
             }
-        } else if self.triggeredChooseMultimedia {
-            if let error = self.error {
-                self.delegate?.didFailed(type: [IONCAMRMediaResult].self, with: error)
+        } else if triggeredChooseMultimedia {
+            if let error {
+                delegate?.didFailed(type: [IONCAMRMediaResult].self, with: error)
             } else {
-                let mediaArray: [IONCAMRMediaResult]
-                switch options.mediaType {
+                let mediaArray: [IONCAMRMediaResult] = switch options.mediaType {
                 case .picture:
                     if options.returnMetadata {
-                        mediaArray = [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata, IONCAMRPictureMock.osLogoRotated.toMediaResultWithMetadata]
+                        [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata, IONCAMRPictureMock.osLogoRotated.toMediaResultWithMetadata]
                     } else {
-                        mediaArray = [IONCAMRPictureMock.osLogo.toMediaResult, IONCAMRPictureMock.osLogoRotated.toMediaResult]
+                        [IONCAMRPictureMock.osLogo.toMediaResult, IONCAMRPictureMock.osLogoRotated.toMediaResult]
                     }
                 case .video:
                     if options.returnMetadata {
-                        mediaArray = [IONCAMRVideoMock.first.toMediaResultWithMetadata, IONCAMRVideoMock.second.toMediaResultWithMetadata]
+                        [IONCAMRVideoMock.first.toMediaResultWithMetadata, IONCAMRVideoMock.second.toMediaResultWithMetadata]
                     } else {
-                        mediaArray = [IONCAMRVideoMock.first.toMediaResultWithMetadata, IONCAMRVideoMock.second.toMediaResultWithMetadata]
+                        [IONCAMRVideoMock.first.toMediaResultWithMetadata, IONCAMRVideoMock.second.toMediaResultWithMetadata]
                     }
                 case .both:
                     if options.returnMetadata {
-                        mediaArray = [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata, IONCAMRVideoMock.first.toMediaResultWithMetadata]
+                        [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata, IONCAMRVideoMock.first.toMediaResultWithMetadata]
                     } else {
-                        mediaArray = [IONCAMRPictureMock.osLogo.toMediaResult, IONCAMRVideoMock.first.toMediaResult]
+                        [IONCAMRPictureMock.osLogo.toMediaResult, IONCAMRVideoMock.first.toMediaResult]
                     }
-
-                default: mediaArray = []
+                default: []
                 }
 
-                self.delegate?.didSucceed(with: mediaArray)
+                delegate?.didSucceed(with: mediaArray)
             }
         }
     }
 
     func cleanTemporaryFiles() {
-        self.temporaryURLArray.removeAll()
+        temporaryURLArray.removeAll()
     }
 }
 
 class IONCAMRPickerBehaviourMock: IONCAMRPickerDelegate {
     weak var delegate: IONCAMRPickerResultsDelegate?
-    var cameraAvailable: Bool = true
+    var cameraAvailable = true
 
     func isCameraAvailable() -> Bool {
-        self.cameraAvailable
+        cameraAvailable
     }
 
     func captureMedia(with options: IONCAMRMediaOptions, _ handler: @escaping (UIViewController) -> Void) {
@@ -394,188 +405,185 @@ class IONCAMRPickerBehaviourMock: IONCAMRPickerDelegate {
     }
 
     // MARK: Take Picture Handlers
+
     func takePictureHandler(with success: Bool = true, and error: IONCAMRError? = nil) {
         if success {
-            if let error = error {
-                self.delegate?.didReturn(self, with: .failure(error))
+            if let error {
+                delegate?.didReturn(self, with: .failure(error))
             } else {
-                self.delegate?.didReturn(self, with: .success(.picture(IONCAMRPictureMock.osLogo.image)))
+                delegate?.didReturn(self, with: .success(.picture(IONCAMRPictureMock.osLogo.image)))
             }
         } else {
-            self.delegate?.didCancel(self)
+            delegate?.didCancel(self)
         }
     }
 
     func didCancelTakePicture() {
-        self.takePictureHandler(with: false, and: nil)
+        takePictureHandler(with: false, and: nil)
     }
 
     func didEndTakePictureHandler(with error: IONCAMRError) {
-        self.takePictureHandler(with: true, and: error)
+        takePictureHandler(with: true, and: error)
     }
 
     func didEndSuccessfullyTakePictureHandler() {
-        self.takePictureHandler(with: true, and: nil)
+        takePictureHandler(with: true, and: nil)
     }
 
     // MARK: Capture Video Handlers
+
     func captureVideoHandler(with success: Bool = true, and error: IONCAMRError? = nil) {
         if success {
-            if let error = error {
-                self.delegate?.didReturn(self, with: .failure(error))
+            if let error {
+                delegate?.didReturn(self, with: .failure(error))
             } else {
-                self.delegate?.didReturn(self, with: .success(.video(IONCAMRVideoMock.first.url)))
+                delegate?.didReturn(self, with: .success(.video(IONCAMRVideoMock.first.url)))
             }
         } else {
-            self.delegate?.didCancel(self)
+            delegate?.didCancel(self)
         }
     }
 
     func didCancelCaptureVideo() {
-        self.captureVideoHandler(with: false, and: nil)
+        captureVideoHandler(with: false, and: nil)
     }
 
     func didEndCaptureVideoHandler(with error: IONCAMRError) {
-        self.captureVideoHandler(with: true, and: error)
+        captureVideoHandler(with: true, and: error)
     }
 
     func didEndSuccessfullyCaptureVideoHandler() {
-        self.captureVideoHandler(with: true, and: nil)
+        captureVideoHandler(with: true, and: nil)
     }
 }
 
 class IONCAMRGalleryBehaviourMock: IONCAMRGalleryDelegate {
     func saveToGallery(_ image: UIImage) async -> Bool {
-        self.isSaved = true
+        isSaved = true
         return true
     }
-    
+
     func saveToGallery(_ fileURL: URL) async -> Bool {
-        self.isSaved = true
+        isSaved = true
         return true
     }
-    
+
     weak var delegate: IONCAMRGalleryResultsDelegate?
-    var pleaseSave: Bool = true
-    var isSaved: Bool = false
-    var photoLibraryAvailable: Bool = true
-    var returnMetadata: Bool = false
+    var pleaseSave = true
+    var isSaved = false
+    var photoLibraryAvailable = true
+    var returnMetadata = false
 
     func saveToGallery(_ image: UIImage) {
-        self.isSaved = true
+        isSaved = true
     }
 
     func saveToGallery(_ fileURL: URL) {
-        self.isSaved = true
+        isSaved = true
     }
 
     func chooseFromGallery(with options: IONCAMRGalleryOptions, _ handler: @escaping (UIViewController) -> Void) {
-        self.returnMetadata = options.returnMetadata
+        returnMetadata = options.returnMetadata
         handler(UIViewControllerConfigurations.chooseFromGallery)
     }
 
     private func choosePictureHandler(with success: Bool, and error: IONCAMRError?) {
         if success {
-            if let error = error {
-                self.delegate?.didReturn(self, with: .failure(error))
+            if let error {
+                delegate?.didReturn(self, with: .failure(error))
             } else {
-                self.delegate?.didReturn(self, with: .success(.picture(IONCAMRPictureMock.osLogo.image)))
+                delegate?.didReturn(self, with: .success(.picture(IONCAMRPictureMock.osLogo.image)))
             }
         } else {
-            self.delegate?.didCancel(self)
+            delegate?.didCancel(self)
         }
     }
 
     func didCancelChoosePicture() {
-        self.choosePictureHandler(with: false, and: nil)
+        choosePictureHandler(with: false, and: nil)
     }
 
     func didEndChoosePictureHandler(with error: IONCAMRError) {
-        self.choosePictureHandler(with: true, and: error)
+        choosePictureHandler(with: true, and: error)
     }
 
     func didEndSuccessfullyChoosePictureHandler() {
-        self.choosePictureHandler(with: true, and: nil)
+        choosePictureHandler(with: true, and: nil)
     }
 
     private func chooseMultimediaHandler(withSuccess success: Bool, error: IONCAMRError?, andResult result: [IONCAMRMediaResult]?) {
         if success {
-            if let error = error {
-                self.delegate?.didReturn(.failure(error))
-            } else if let result = result {
-                self.delegate?.didReturn(.success(result))
+            if let error {
+                delegate?.didReturn(.failure(error))
+            } else if let result {
+                delegate?.didReturn(.success(result))
             }
         } else {
-            self.delegate?.didCancel(self)
+            delegate?.didCancel(self)
         }
     }
 
     func didCancelChooseMultimedia() {
-        self.chooseMultimediaHandler(withSuccess: false, error: nil, andResult: nil)
+        chooseMultimediaHandler(withSuccess: false, error: nil, andResult: nil)
     }
 
     func didEndChooseMultimediaHandler(with error: IONCAMRError) {
-        self.chooseMultimediaHandler(withSuccess: true, error: error, andResult: nil)
+        chooseMultimediaHandler(withSuccess: true, error: error, andResult: nil)
     }
 
     func didEndSuccessfullyChooseSinglePictureHandler() {
-        let result: [IONCAMRMediaResult]
-        if self.returnMetadata {
-            result = [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata]
+        let result: [IONCAMRMediaResult] = if returnMetadata {
+            [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata]
         } else {
-            result = [IONCAMRPictureMock.osLogo.toMediaResult]
+            [IONCAMRPictureMock.osLogo.toMediaResult]
         }
-        self.chooseMultimediaHandler(withSuccess: true, error: nil, andResult: result)
+        chooseMultimediaHandler(withSuccess: true, error: nil, andResult: result)
     }
 
     func didEndSuccessfullyChooseMultiplePicturesHandler() {
-        let result: [IONCAMRMediaResult]
-        if self.returnMetadata {
-            result = [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata, IONCAMRPictureMock.osLogoRotated.toMediaResultWithMetadata]
+        let result: [IONCAMRMediaResult] = if returnMetadata {
+            [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata, IONCAMRPictureMock.osLogoRotated.toMediaResultWithMetadata]
         } else {
-            result = [IONCAMRPictureMock.osLogo.toMediaResult, IONCAMRPictureMock.osLogoRotated.toMediaResult]
+            [IONCAMRPictureMock.osLogo.toMediaResult, IONCAMRPictureMock.osLogoRotated.toMediaResult]
         }
-        self.chooseMultimediaHandler(withSuccess: true, error: nil, andResult: result)
+        chooseMultimediaHandler(withSuccess: true, error: nil, andResult: result)
     }
 
     func didEndSuccessfullyChooseSingleVideoHandler() {
-        let result: [IONCAMRMediaResult]
-        if self.returnMetadata {
-            result = [IONCAMRVideoMock.first.toMediaResultWithMetadata]
+        let result: [IONCAMRMediaResult] = if returnMetadata {
+            [IONCAMRVideoMock.first.toMediaResultWithMetadata]
         } else {
-            result = [IONCAMRVideoMock.first.toMediaResult]
+            [IONCAMRVideoMock.first.toMediaResult]
         }
-        self.chooseMultimediaHandler(withSuccess: true, error: nil, andResult: result)
+        chooseMultimediaHandler(withSuccess: true, error: nil, andResult: result)
     }
 
     func didEndSuccessfullyChooseMultipleVideosHandler() {
-        let result: [IONCAMRMediaResult]
-        if self.returnMetadata {
-            result = [IONCAMRVideoMock.first.toMediaResultWithMetadata, IONCAMRVideoMock.second.toMediaResultWithMetadata]
+        let result: [IONCAMRMediaResult] = if returnMetadata {
+            [IONCAMRVideoMock.first.toMediaResultWithMetadata, IONCAMRVideoMock.second.toMediaResultWithMetadata]
         } else {
-            result = [IONCAMRVideoMock.first.toMediaResult, IONCAMRVideoMock.second.toMediaResult]
+            [IONCAMRVideoMock.first.toMediaResult, IONCAMRVideoMock.second.toMediaResult]
         }
-        self.chooseMultimediaHandler(withSuccess: true, error: nil, andResult: result)
+        chooseMultimediaHandler(withSuccess: true, error: nil, andResult: result)
     }
 
     func didEndSuccessfullyChoosePictureAndVideoHandler() {
-        let result: [IONCAMRMediaResult]
-        if self.returnMetadata {
-            result = [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata, IONCAMRVideoMock.first.toMediaResultWithMetadata]
+        let result: [IONCAMRMediaResult] = if returnMetadata {
+            [IONCAMRPictureMock.osLogo.toMediaResultWithMetadata, IONCAMRVideoMock.first.toMediaResultWithMetadata]
         } else {
-            result = [IONCAMRPictureMock.osLogo.toMediaResult, IONCAMRVideoMock.first.toMediaResult]
+            [IONCAMRPictureMock.osLogo.toMediaResult, IONCAMRVideoMock.first.toMediaResult]
         }
-        self.chooseMultimediaHandler(withSuccess: true, error: nil, andResult: result)
+        chooseMultimediaHandler(withSuccess: true, error: nil, andResult: result)
     }
 
     func didEndSuccessfullyWithNoPicturesSelectedHandler() {
-        self.chooseMultimediaHandler(withSuccess: true, error: nil, andResult: [])
+        chooseMultimediaHandler(withSuccess: true, error: nil, andResult: [])
     }
 }
 
 class IONCAMREditorBehaviourMock: IONCAMREditorDelegate {
     weak var delegate: IONCAMREditorResultsDelegate?
-    var hasBeenEdited: Bool = false
+    var hasBeenEdited = false
 
     func editPicture(_ image: UIImage, _ handler: @escaping (UIViewController) -> Void) {
         hasBeenEdited = true
@@ -584,33 +592,36 @@ class IONCAMREditorBehaviourMock: IONCAMREditorDelegate {
 
     func editPictureHandler(with success: Bool, and error: IONCAMRError?) {
         if success {
-            if let error = error {
-                self.delegate?.didReturn(self, with: .failure(error))
+            if let error {
+                delegate?.didReturn(self, with: .failure(error))
             } else {
-                self.delegate?.didReturn(self, with: .success(.picture(IONCAMRPictureMock.osLogoBlue.image)))
+                delegate?.didReturn(self, with: .success(.picture(IONCAMRPictureMock.osLogoBlue.image)))
             }
         } else {
-            self.delegate?.didCancel(self)
+            delegate?.didCancel(self)
         }
     }
 
     func didCancelEditPicture() {
-        self.editPictureHandler(with: false, and: nil)
+        editPictureHandler(with: false, and: nil)
     }
 
     func didEndEditPictureHandler(with error: IONCAMRError) {
-        self.editPictureHandler(with: true, and: error)
+        editPictureHandler(with: true, and: error)
     }
 
     func didEndSuccessfullyEditPictureHandler() {
-        self.editPictureHandler(with: true, and: nil)
+        editPictureHandler(with: true, and: nil)
     }
 }
 
 class IONCAMRCoordinatorMock: IONCAMRCoordinator {
-    var hasTwoSteps: Bool = false
+    var hasTwoSteps = false
 
-    override var isSecondStep: Bool { self.hasTwoSteps }
+    override var isSecondStep: Bool {
+        hasTwoSteps
+    }
+
     override func present(_ viewController: UIViewController) {}
     override func dismiss() {}
 }
@@ -619,7 +630,7 @@ class MirrorObject {
     let mirror: Mirror
 
     init(reflecting: Any) {
-        mirror = Mirror(reflecting: reflecting)
+        self.mirror = Mirror(reflecting: reflecting)
     }
 
     func extract<T>(variableName: StaticString = #function) -> T? {
@@ -627,7 +638,7 @@ class MirrorObject {
     }
 
     private func extract<T>(variableName: StaticString, mirror: Mirror?) -> T? {
-        guard let mirror = mirror else {
+        guard let mirror else {
             return nil
         }
 
@@ -653,7 +664,7 @@ final class IONCAMRCoordinatorMirror: MirrorObject {
     }
 
     var screenViewController: UIViewController? {
-        self.currentlyPresentedViewControllerArray?.last ?? self.rootViewController
+        currentlyPresentedViewControllerArray?.last ?? rootViewController
     }
 }
 
@@ -667,8 +678,13 @@ final class IONCAMRThumbnailGeneratorMock: IONCAMRThumbnailGeneratorDelegate {
         ]
     }
 
-    func getImage(from videoURL: URL, _ completion: @escaping (UIImage?) -> Void) { completion(thumbnail) }
-    func getBase64String(from image: UIImage, with size: IONCAMRSize?, and quality: Int?) -> String? { imageMap[image] }
+    func getImage(from videoURL: URL, _ completion: @escaping (UIImage?) -> Void) {
+        completion(thumbnail)
+    }
+
+    func getBase64String(from image: UIImage, with size: IONCAMRSize?, and quality: Int?) -> String? {
+        imageMap[image]
+    }
 }
 
 final class IONCAMRPlayerBehaviourMock: IONCAMRPlayerDelegate {
@@ -679,7 +695,7 @@ final class IONCAMRPlayerBehaviourMock: IONCAMRPlayerDelegate {
     var isVideoPlayable = true
 
     func playVideo(_ url: URL) async throws {
-        if self.isVideoPlayable {
+        if isVideoPlayable {
             print("Video playing...")
         } else {
             throw MockBehaviourError.videoCantBePlayed
@@ -688,7 +704,7 @@ final class IONCAMRPlayerBehaviourMock: IONCAMRPlayerDelegate {
 }
 
 final class IONCAMRImageFetcherBehaviourMock: IONCAMRImageFetcherDelegate {
-    var callShouldSucceed: Bool = true
+    var callShouldSucceed = true
     var urlMap: [String: UIImage] {
         [
             IONCAMRPictureMock.osLogo.url.absoluteString: IONCAMRPictureMock.osLogo.image,
@@ -697,7 +713,9 @@ final class IONCAMRImageFetcherBehaviourMock: IONCAMRImageFetcherDelegate {
         ]
     }
 
-    func retrieveImage(from urlString: String) -> UIImage? { callShouldSucceed ? urlMap[urlString] : nil }
+    func retrieveImage(from urlString: String) -> UIImage? {
+        callShouldSucceed ? urlMap[urlString] : nil
+    }
 }
 
 final class IONCAMRURLGeneratorMock: IONCAMRURLGeneratorDelegate {

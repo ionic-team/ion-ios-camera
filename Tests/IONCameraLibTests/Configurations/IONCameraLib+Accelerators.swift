@@ -5,10 +5,16 @@ extension IONCAMRFlowBehaviour {
         let options = IONCAMRGalleryOptions(
             mediaType: .picture, allowEdit: allowEdit, allowMultipleSelection: false, andThumbnailAsData: false, returnMetadata: false
         )
-        self.chooseFromGallery(with: options)
+        chooseFromGallery(with: options)
     }
 
-    func chooseMultimedia(type mediaType: IONCAMRMediaType, allowEdit: Bool = false, allowMultipleSelection: Bool, returnMetadata: Bool, andThumbnailAsData: Bool = false) {
+    func chooseMultimedia(
+        type mediaType: IONCAMRMediaType,
+        allowEdit: Bool = false,
+        allowMultipleSelection: Bool,
+        returnMetadata: Bool,
+        andThumbnailAsData: Bool = false
+    ) {
         let options = IONCAMRGalleryOptions(
             mediaType: mediaType,
             allowEdit: allowEdit,
@@ -16,7 +22,7 @@ extension IONCAMRFlowBehaviour {
             andThumbnailAsData: andThumbnailAsData,
             returnMetadata: returnMetadata
         )
-        self.chooseFromGallery(with: options)
+        chooseFromGallery(with: options)
     }
 }
 
@@ -29,7 +35,7 @@ extension IONCAMRMediaResult: Equatable {
 extension IONCAMRMetadata: Equatable {
     public static func == (lhs: IONCAMRMetadata, rhs: IONCAMRMetadata) -> Bool {
         lhs.size == rhs.size && lhs.resolution == rhs.resolution
-        && lhs.format == rhs.format
-        && lhs.duration == rhs.duration
+            && lhs.format == rhs.format
+            && lhs.duration == rhs.duration
     }
 }

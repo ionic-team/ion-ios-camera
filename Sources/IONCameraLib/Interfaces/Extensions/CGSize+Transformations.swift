@@ -7,7 +7,7 @@ extension CGSize {
     init(size: IONCAMRSize) {
         self.init(width: size.width, height: size.height)
     }
-    
+
     init(resolution: Int) throws {
         let size = try IONCAMRSize(width: resolution, height: resolution)
         self.init(size: size)
@@ -16,10 +16,10 @@ extension CGSize {
 
 extension CGSize {
     var resolution: String {
-        if self.height < self.width {
-            return "\(Int(self.width))x\(Int(self.height))"
+        if height < width {
+            "\(Int(width))x\(Int(height))"
         } else {
-            return "\(Int(self.height))x\(Int(self.width))"
+            "\(Int(height))x\(Int(width))"
         }
     }
 }

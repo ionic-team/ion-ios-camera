@@ -1,10 +1,10 @@
 import UIKit
 
 protocol IONCAMREditorDelegate: AnyObject {
-    typealias IONCAMREditorResultsDelegate = IONCAMRResultsDelegate & IONCAMRCancelResultsDelegate
+    typealias IONCAMREditorResultsDelegate = IONCAMRCancelResultsDelegate & IONCAMRResultsDelegate
     /// Handles the result of interacting with the editor interface.
     var delegate: IONCAMREditorResultsDelegate? { get set }
-    
+
     /// Triggers the user interface that manages the editing a picture feature.
     /// - Parameters:
     ///   - image: Image to edit.
