@@ -173,7 +173,7 @@ extension IONCAMRFlowBehaviour: IONCAMRResultsDelegate {
         if object === self.picker {
             await self.pickerDidReturn(result)
         } else if object === self.editorBehaviour {
-            self.editorDidReturn(result)
+            await self.editorDidReturn(result)
         } else if object === self.galleryBehaviour {
             self.galleryDidReturnSingle(result)
         }
@@ -362,7 +362,7 @@ private extension IONCAMRFlowBehaviour {
     
     /// Method triggered when the user could finish, with or without success, the editor behaviour.
     /// - Parameter result: Returned object to who implements this object. It returns a base64 encoding text if successful or an error otherwise.
-    func editorDidReturn(_ result: Result<IONCAMRResultItem, IONCAMRError>) {
+    func editorDidReturn(_ result: Result<IONCAMRResultItem, IONCAMRError>) async {
         func didFailed(with error: IONCAMRError = .editPictureIssue) {
             self.delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
         }
@@ -375,16 +375,14 @@ private extension IONCAMRFlowBehaviour {
         switch result {
         case .success(let item):
             if case .picture(let image) = item {
-                Task {
-                    do {
-                        let result = try await imageEditorDidReturn(image)
-                        self.delegate?.didSucceed(with: result)
-                    } catch {
-                        if let ionError = error as? IONCAMRError {
-                            didFailed(with: ionError)
-                        } else {
-                            didFailed()
-                        }
+                do {
+                    let result = try await imageEditorDidReturn(image)
+                    self.delegate?.didSucceed(with: result)
+                } catch {
+                    if let ionError = error as? IONCAMRError {
+                        didFailed(with: ionError)
+                    } else {
+                        didFailed()
                     }
                 }
             }
