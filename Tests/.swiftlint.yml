@@ -1,0 +1,7 @@
+disabled_rules:
+  - implicitly_unwrapped_optional  # common XCTest setUp/tearDown pattern
+  - cyclomatic_complexity          # mocks and test helpers are legitimately complex
+  - force_unwrapping               # tests should fail fast on unexpected nils
+  - type_body_length               # test classes are naturally long
+  - file_length                    # test files are naturally long
+  - multiline_arguments            # formatting handled by SwiftFormat

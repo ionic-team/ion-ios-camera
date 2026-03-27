@@ -4,35 +4,39 @@ import SwiftUI
 struct IONCAMRPhotoLibraryView: View {
     /// Photo library will ask for permission to ask the user for Photo access, and will provide the photos as well.
     @EnvironmentObject var photoLibraryService: IONCAMRPhotoLibraryService
-    
+
     var allowMultipleSelection: Bool
-    var limit: Int = 0
-    
+    var limit = 0
+
     @State var selectedAssetArray = [PHAsset]()
-    @State var showActionSheet: Bool = false
-    @State var showLimitedPicker: Bool = false
-    
+    @State var showActionSheet = false
+    @State var showLimitedPicker = false
+
     var body: some View {
         VStack {
-            if !self.photoLibraryService.hasAccessToFullAlbum {
+            if !photoLibraryService.hasAccessToFullAlbum {
                 Button {
-                    self.showActionSheet = true
+                    showActionSheet = true
                 } label: {
                     // swiftlint:disable:next line_length
-                    (Text("You've given \(Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "") access to only a selected number of media. ")
+                    (
+                        Text(
+                            "You've given \(Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "") access to only a selected number of media. "
+                        )
                         .foregroundColor(.gray)
-                     + Text("Manage"))
+                        + Text("Manage")
+                    )
                     .padding()
                     .multilineTextAlignment(.leading)
                     .font(.subheadline)
                 }
                 .frame(maxWidth: .infinity)
                 .background(Color(.systemGray6))
-                .actionSheet(isPresented: self.$showActionSheet, content: {
+                .actionSheet(isPresented: $showActionSheet, content: {
                     ActionSheet(title: Text("Please select your option"), buttons: [
                         .default(Text("Change multimedia selection")) {
-                            self.showLimitedPicker = true
-                            self.selectedAssetArray = []
+                            showLimitedPicker = true
+                            selectedAssetArray = []
                         },
                         .default(Text("Change settings")) {
                             if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -40,22 +44,25 @@ struct IONCAMRPhotoLibraryView: View {
                             }
                         },
                         .cancel {
-                            self.showActionSheet = false
-                        }])
+                            showActionSheet = false
+                        }
+                    ])
                 })
-                
-                LimitedPicker(isPresented: self.$showLimitedPicker)
+
+                LimitedPicker(isPresented: $showLimitedPicker)
                     .frame(width: 0, height: 0)
             }
-            
-            if self.photoLibraryService.results.isEmpty {
+
+            if photoLibraryService.results.isEmpty {
                 VStack(spacing: 16) {
                     Spacer()
                     Text("No Content")
                         .font(.title)
                     // swiftlint:disable:next line_length
-                    Text("Currently, \(Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "") doesn't have access to any media.")
-                        .font(.body)
+                    Text(
+                        "Currently, \(Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String ?? "") doesn't have access to any media."
+                    )
+                    .font(.body)
                     Spacer()
                 }
                 .padding()
@@ -65,30 +72,33 @@ struct IONCAMRPhotoLibraryView: View {
                 ScrollViewReader { value in
                     ScrollView {
                         LazyVGrid(
-                            /// We'll set a 3-column row with an adaptive width of 100 for each grid item, and give it a spacing of 1 pixel in between columns and in between rows
+                            // We'll set a 3-column row with an adaptive width of 100 for each grid item, and give it a spacing of 1 pixel in between
+                            // columns and in between rows
                             columns: Array(repeating: .init(.adaptive(minimum: 100), spacing: 1), count: 3),
                             spacing: 1
                         ) {
-                            /// We'll go through the photo references fetched by the photo gallery and give a photo asset ID into the PhotoThumbnailView so it knows what image to load and show into the grid
-                            ForEach(self.photoLibraryService.results, id: \.self) { asset in
+                            // We'll go through the photo references fetched by the photo gallery and give a photo asset ID into the
+                            // PhotoThumbnailView so it knows what image to load and show into the grid
+                            ForEach(photoLibraryService.results, id: \.self) { asset in
                                 ZStack(alignment: .bottomTrailing) {
-                                    /// Wrap the PhotoThumbnailView into a button so we can tap on it without overlapping the tap area of each photo, as photos have their aspect ratios, and may go out of bounds of the square view.
+                                    // Wrap the PhotoThumbnailView into a button so we can tap on it without overlapping the tap area of each photo,
+                                    // as photos have their aspect ratios, and may go out of bounds of the square view.
                                     Button {
-                                        if let assetIndex = self.selectedAssetArray.firstIndex(of: asset) {
-                                            self.selectedAssetArray.remove(at: assetIndex)
-                                        } else if self.allowMultipleSelection {
-                                            if self.limit == 0 || self.selectedAssetArray.count < self.limit {
-                                                self.selectedAssetArray.append(asset)
+                                        if let assetIndex = selectedAssetArray.firstIndex(of: asset) {
+                                            selectedAssetArray.remove(at: assetIndex)
+                                        } else if allowMultipleSelection {
+                                            if limit == 0 || selectedAssetArray.count < limit {
+                                                selectedAssetArray.append(asset)
                                             }
                                         } else {
-                                            self.selectedAssetArray = [asset]
+                                            selectedAssetArray = [asset]
                                         }
                                     } label: {
                                         IONCAMRPhotoThumbnailView(assetLocalId: asset.localIdentifier, showVideoIcon: asset.mediaType == .video)
-                                            .opacity(self.selectedAssetArray.contains(asset) ? 0.5 : 1)
+                                            .opacity(selectedAssetArray.contains(asset) ? 0.5 : 1)
                                     }
-                                    
-                                    if self.selectedAssetArray.contains(asset) {
+
+                                    if selectedAssetArray.contains(asset) {
                                         Image(systemName: "checkmark.circle")
                                             .resizable()
                                             .frame(width: 25, height: 25)
@@ -101,7 +111,7 @@ struct IONCAMRPhotoLibraryView: View {
                             }
                         }
                         .onAppear {
-                            value.scrollTo(self.photoLibraryService.results.startElement, anchor: .bottom)
+                            value.scrollTo(photoLibraryService.results.startElement, anchor: .bottom)
                         }
                     }
                 }
@@ -110,39 +120,39 @@ struct IONCAMRPhotoLibraryView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
                 Button {
-                    self.photoLibraryService.didCancelPicking()
+                    photoLibraryService.didCancelPicking()
                 } label: {
                     Text("Cancel")
                 }
             }
             ToolbarItem(placement: .navigationBarTrailing) {
                 Button {
-                    self.photoLibraryService.didFinishPicking(self.selectedAssetArray)
+                    photoLibraryService.didFinishPicking(selectedAssetArray)
                 } label: {
                     Text("Done")
                         .bold()
                 }
-                .disabled(self.selectedAssetArray.isEmpty)
+                .disabled(selectedAssetArray.isEmpty)
             }
         }
         .onAppear {
-            self.photoLibraryService.fetchAllPhotos()
+            photoLibraryService.fetchAllPhotos()
         }
     }
 }
 
 struct LimitedPicker: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
-    
+
     func makeUIViewController(context: Context) -> UIViewController {
         UIViewController()
     }
-    
+
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
-        if self.isPresented {
+        if isPresented {
             PHPhotoLibrary.shared().presentLimitedLibraryPicker(from: uiViewController)
             DispatchQueue.main.async {
-                self.isPresented = false
+                isPresented = false
             }
         }
     }

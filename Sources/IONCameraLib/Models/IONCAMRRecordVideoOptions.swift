@@ -28,7 +28,7 @@ public class IONCAMRRecordVideoOptions: IONCAMRMediaOptions, Decodable {
 }
 
 extension IONCAMRRecordVideoOptions {
-    struct ThumbnailDefaultConfigurations {
+    enum ThumbnailDefaultConfigurations {
         static let quality = 1.0
         static let resolution = 480
     }

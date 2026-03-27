@@ -1,6 +1,6 @@
+@testable import IONCameraLib
 import UniformTypeIdentifiers
 import XCTest
-@testable import IONCameraLib
 
 final class IONCAMRMediaOptionsTests: XCTestCase {
     func test_whenQualitySetWithValueUnderZero_returnNil() {
