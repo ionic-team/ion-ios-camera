@@ -10,8 +10,15 @@ public class IONCAMRMediaOptions: IONCAMREditMediaTypeOptionsDelegate, IONCAMRSa
     var allowEdit: Bool
     /// Presentation style to use when showing the camera interface. Default is `.fullscreen`.
     var presentationStyle: IONCAMRPresentationStyle = .fullscreen
-    
-    init(mediaType: IONCAMRMediaType, saveToGallery: Bool, returnMetadata: Bool, direction: IONCAMRDirection, allowEdit: Bool, presentationStyle: IONCAMRPresentationStyle = .fullscreen) {
+
+    init(
+        mediaType: IONCAMRMediaType,
+        saveToGallery: Bool,
+        returnMetadata: Bool,
+        direction: IONCAMRDirection,
+        allowEdit: Bool,
+        presentationStyle: IONCAMRPresentationStyle = .fullscreen
+    ) {
         self.mediaType = mediaType
         self.saveToGallery = saveToGallery
         self.returnMetadata = returnMetadata

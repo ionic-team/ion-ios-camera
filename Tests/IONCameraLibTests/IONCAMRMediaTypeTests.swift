@@ -1,5 +1,5 @@
+@testable import IONCameraLib
 import XCTest
-@testable import OSCameraLib
 
 final class IONCAMRMediaTypeTests: XCTestCase {
     func test_whenAPictureIsPassed_createIONCAMRMediaTypePictureObject() throws {

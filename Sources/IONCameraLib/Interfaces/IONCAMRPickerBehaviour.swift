@@ -5,13 +5,13 @@ final class IONCAMRPickerBehaviour: NSObject, IONCAMRPickerDelegate {
     weak var delegate: IONCAMRPickerResultsDelegate?
     /// User defined options to apply to the picker and picture objects.
     private var mediaOptions: IONCAMRMediaOptions?
-    
+
     /// Verifies if camera is available for usage.
     /// - Returns: The camera's availability
     func isCameraAvailable() -> Bool {
         UIImagePickerController.isSourceTypeAvailable(.camera)
     }
-    
+
     func captureMedia(with mediaOptions: IONCAMRMediaOptions, _ handler: @escaping (UIViewController) -> Void) {
         self.mediaOptions = mediaOptions
         DispatchQueue.main.async {
@@ -30,48 +30,48 @@ final class IONCAMRPickerBehaviour: NSObject, IONCAMRPickerDelegate {
 /// Extension that handles the responses obtained through the Image Picker user interaction.
 extension IONCAMRPickerBehaviour: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-        guard let mediaType = self.mediaOptions?.mediaType else {
-            self.delegate?.didReturn(self, with: .failure(.generalIssue))
+        guard let mediaType = mediaOptions?.mediaType else {
+            delegate?.didReturn(self, with: .failure(.generalIssue))
             return
         }
-        
+
         let result: Result<IONCAMRResultItem, IONCAMRError>
         switch mediaType {
         case .picture:
             let image = info[.originalImage] as? UIImage
-            result = self.fetchToReturn(image)
+            result = fetchToReturn(image)
                 .flatMap { .success(.picture($0)) }
                 .flatMapError { .failure($0) }
-            self.delegate?.didReturn(self, with: result)
+            delegate?.didReturn(self, with: result)
         case .video:
             let videoURL = info[.mediaURL] as? URL
-            result = self.fetchToReturn(videoURL)
+            result = fetchToReturn(videoURL)
                 .flatMap { .success(.video($0)) }
                 .flatMapError { .failure($0) }
-            self.delegate?.didReturn(self, with: result)
-        default: break  // not supposed to get here
+            delegate?.didReturn(self, with: result)
+        default: break // not supposed to get here
         }
     }
-    
+
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        self.delegate?.didCancel(self)
+        delegate?.didCancel(self)
     }
 }
 
-private extension IONCAMRPickerBehaviour {
-    func fetchToReturn(_ picture: UIImage?) -> Result<UIImage, IONCAMRError> {
+extension IONCAMRPickerBehaviour {
+    private func fetchToReturn(_ picture: UIImage?) -> Result<UIImage, IONCAMRError> {
         guard let originalImage = picture,
-              let pictureOptions = self.mediaOptions as? IONCAMRTakePhotoOptions,
+              let pictureOptions = mediaOptions as? IONCAMRTakePhotoOptions,
               let image = originalImage.fix(with: pictureOptions)
         else { return .failure(.takePictureIssue) }
-        
+
         return .success(image)
     }
-    
-    func fetchToReturn(_ videoURL: URL?) -> Result<URL, IONCAMRError> {
-        guard let videoURL = videoURL else { return .failure(.captureVideoIssue) }
 
-        let isPersistent = (self.mediaOptions as? IONCAMRRecordVideoOptions)?.isPersistent ?? true
+    private func fetchToReturn(_ videoURL: URL?) -> Result<URL, IONCAMRError> {
+        guard let videoURL else { return .failure(.captureVideoIssue) }
+
+        let isPersistent = (mediaOptions as? IONCAMRRecordVideoOptions)?.isPersistent ?? true
 
         let url: URL
         if isPersistent {

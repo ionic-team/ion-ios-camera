@@ -8,9 +8,10 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
     public let thumbnailAsData: Bool
     /// Indicates if the media's metadata should be returned
     public var returnMetadata: Bool
-    /// Indicates the maximum number of media items that can be selected when allowMultipleSelection is true. Ignored if allowMultipleSelection is false. 0 means no limit.
+    /// Indicates the maximum number of media items that can be selected when allowMultipleSelection is true. Ignored if allowMultipleSelection is
+    /// false. 0 means no limit.
     public let limit: Int
-    
+
     init(mediaType: IONCAMRMediaType, allowEdit: Bool, allowMultipleSelection: Bool, andThumbnailAsData: Bool, returnMetadata: Bool, limit: Int = 0) {
         self.mediaType = mediaType
         self.allowEdit = allowEdit
@@ -29,7 +30,14 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
         let thumbnailAsData = try container.decodeIfPresent(Bool.self, forKey: .thumbnailAsData) ?? true
         let returnMetadata = try container.decodeIfPresent(Bool.self, forKey: .includeMetadata) ?? false
         let limit = try container.decodeIfPresent(Int.self, forKey: .limit) ?? 0
-        self.init(mediaType: mediaType, allowEdit: allowEdit, allowMultipleSelection: allowMultipleSelection, andThumbnailAsData: thumbnailAsData, returnMetadata: returnMetadata, limit: limit)
+        self.init(
+            mediaType: mediaType,
+            allowEdit: allowEdit,
+            allowMultipleSelection: allowMultipleSelection,
+            andThumbnailAsData: thumbnailAsData,
+            returnMetadata: returnMetadata,
+            limit: limit
+        )
     }
 
     private enum CodingKeys: String, CodingKey {

@@ -11,10 +11,10 @@ protocol IONCAMRFlowResultsDelegate: AnyObject {
 extension IONCAMRFlowResultsDelegate {
     func didFailed(type: any Encodable.Type, with error: IONCAMRError) {
         let result: Result<any Encodable, IONCAMRError> = .failure(error)
-        self.didReturn(result)
+        didReturn(result)
     }
-    
+
     func didSucceed(with result: any Encodable) {
-        self.didReturn(.success(result))
+        didReturn(.success(result))
     }
 }

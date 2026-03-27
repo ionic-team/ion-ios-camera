@@ -1,6 +1,6 @@
+@testable import IONCameraLib
 import UniformTypeIdentifiers
 import XCTest
-@testable import OSCameraLib
 
 final class IONCAMRMediaOptionsTests: XCTestCase {
     func test_whenQualitySetWithValueUnderZero_returnNil() {
@@ -26,14 +26,14 @@ final class IONCAMRMediaOptionsTests: XCTestCase {
         let pictureOptions = IONCAMRPictureOptionsConfigurations.backCamera
 
         XCTAssertEqual(pictureOptions?.mediaType, .picture)
-        XCTAssertEqual(pictureOptions?.cameraDevice, .rear)
+        XCTAssertEqual(pictureOptions?.direction, .back)
     }
 
     func test_whenCameraIsSetToFront_useUIImagePickerControllerCameraDeviceFront() {
         let pictureOptions = IONCAMRPictureOptionsConfigurations.frontCamera
 
         XCTAssertEqual(pictureOptions?.mediaType, .picture)
-        XCTAssertEqual(pictureOptions?.cameraDevice, .front)
+        XCTAssertEqual(pictureOptions?.direction, .front)
     }
 
     func test_whenSettingPictureOptions_uiImagePickerControllerMediaTypesShouldReturnImage() {

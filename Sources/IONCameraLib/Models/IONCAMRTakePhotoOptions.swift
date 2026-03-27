@@ -17,19 +17,19 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
         case quality, width, height, correctOrientation, encodingType, saveToGallery, cameraDirection, allowEdit, includeMetadata, presentationStyle
     }
 
-    required public convenience init(from decoder: Decoder) throws {
+    public required convenience init(from decoder: Decoder) throws {
         func throwError(field: String) -> IONCAMRTakePhotoOptionsError {
             IONCAMRTakePhotoOptionsError.invalid(field: field)
         }
-        
+
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        
+
         let quality = try container.decodeIfPresent(Int.self, forKey: .quality) ?? 90
         if quality < 0 || quality > 100 { throw throwError(field: "quality") }
-        var size: IONCAMRSize? = nil
+        var size: IONCAMRSize?
         let width = try container.decodeIfPresent(Int.self, forKey: .width)
         let height = try container.decodeIfPresent(Int.self, forKey: .height)
-        if let width = width, let height = height {
+        if let width, let height {
             size = try IONCAMRSize(width: width, height: height)
         }
         let correctOrientation = try container.decodeIfPresent(Bool.self, forKey: .correctOrientation) ?? false
@@ -78,21 +78,23 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
         self.correctOrientation = correctOrientation
         self.encodingType = encodingType
         super.init(
-            mediaType: .picture, 
-            saveToGallery: saveToGallery, 
-            returnMetadata: returnMetadata, 
-            direction: cameraDirection, 
-            allowEdit: allowEdit, 
+            mediaType: .picture,
+            saveToGallery: saveToGallery,
+            returnMetadata: returnMetadata,
+            direction: cameraDirection,
+            allowEdit: allowEdit,
             presentationStyle: presentationStyle
         )
     }
 }
 
 extension IONCAMRTakePhotoOptions {
-    struct ThumbnailDefaultConfigurations {
+    enum ThumbnailDefaultConfigurations {
         static let quality = 1
         static let resolution = 1080
     }
 
-    static var defaultSquare: IONCAMRSize? { try? .initSquare(with: ThumbnailDefaultConfigurations.resolution) }
+    static var defaultSquare: IONCAMRSize? {
+        try? .initSquare(with: ThumbnailDefaultConfigurations.resolution)
+    }
 }
