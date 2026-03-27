@@ -24,7 +24,6 @@ public enum IONCAMRError: Int, CustomNSError, LocalizedError {
     case photoLibraryAccess = 5
     case imageNotFound = 11
     case choosePictureIssue = 12
-    case choosePictureCancel = 18
 
     // MARK: - Capture Video Errors
 
@@ -33,19 +32,20 @@ public enum IONCAMRError: Int, CustomNSError, LocalizedError {
 
     // MARK: - Choose Multimedia Errors
 
-    case videoNotFound = 26
-    case chooseMultimediaIssue = 19
-    case chooseMultimediaCancel = 21
-    case fetchImageFromURLFailed = 29
+    case videoNotFound = 25
+    case chooseMultimediaIssue = 18
+    case chooseMultimediaCancel = 20
+    case fetchImageFromURLFailed = 28
 
     // MARK: - Play Video Errors
 
-    case playVideoIssue = 24
+    case playVideoIssue = 23
+    case playVideoFileNotFound = 27
 
     // MARK: - General Errors
 
-    case invalidEncodeResultMedia = 20
-    case generalIssue = 27
+    case invalidEncodeResultMedia = 19
+    case generalIssue = 26
 
     /// Textual description
     public var errorDescription: String? {
@@ -72,8 +72,6 @@ public enum IONCAMRError: Int, CustomNSError, LocalizedError {
             "Couldn't get image from the gallery."
         case .choosePictureIssue:
             "Couldn't process image."
-        case .choosePictureCancel:
-            "Couldn't choose picture because the process was canceled."
         case .captureVideoIssue:
             "Couldn't record video."
         case .captureVideoCancel:
@@ -88,6 +86,8 @@ public enum IONCAMRError: Int, CustomNSError, LocalizedError {
             "Couldn't retrieve image from the URI."
         case .playVideoIssue:
             "Couldn't play video."
+        case .playVideoFileNotFound:
+            "The selected file doesn't exist."
         case .invalidEncodeResultMedia:
             "Couldn't encode the media result."
         case .generalIssue:

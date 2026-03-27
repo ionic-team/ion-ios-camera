@@ -258,7 +258,7 @@ extension ViewController: IONCAMRCallbackDelegate {
             case .photoLibraryAccess:
                 // Handle gallery permission issues
                 showPhotoLibraryPermissionAlert()
-            case .takePictureCancel, .editPictureCancel, .choosePictureCancel:
+            case .takePictureCancel, .editPictureCancel, .chooseMultimediaCancel:
                 // Handle user cancellations
                 print("Operation was cancelled by user")
             case .invalidImageData:
