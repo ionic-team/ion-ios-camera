@@ -35,7 +35,9 @@ class IONCAMRCoordinator {
     
     /// Dismisses the currently presented view controllers. In case of a multiple step screen, all are dismissed.
     func dismiss() {
-        self.rootViewController.dismiss(animated: true)
-        self.currentlyPresentedViewControllerArray.removeAll()
+        Task { @MainActor in
+            self.rootViewController.dismiss(animated: true)
+            self.currentlyPresentedViewControllerArray.removeAll()
+        }
     }
 }
