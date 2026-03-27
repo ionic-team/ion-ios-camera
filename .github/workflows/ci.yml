@@ -28,19 +28,27 @@ jobs:
           build test
 
   lint:
-    name: SwiftLint
+    name: SwiftLint & SwiftFormat
     runs-on: macOS-latest
-    
+
     steps:
     - name: Checkout
       uses: actions/checkout@v5
-      
-    - name: SwiftLint
+
+    - name: Install tools
       run: |
         if ! command -v swiftlint &> /dev/null; then
           brew install swiftlint
-        fi        
-        swiftlint --strict
+        fi
+        if ! command -v swiftformat &> /dev/null; then
+          brew install swiftformat
+        fi
+
+    - name: SwiftLint
+      run: swiftlint --strict
+
+    - name: SwiftFormat
+      run: swiftformat Sources Tests --lint
 
   validate-podspec:
     name: Validate Podspec
