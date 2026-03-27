@@ -11,7 +11,7 @@ protocol IONCAMRMultipleResultsDelegate: AnyObject {
 }
 
 protocol IONCAMRResultsDelegate: AnyObject {
-    func didReturn(_ object: AnyObject, with result: Result<IONCAMRResultItem, IONCAMRError>)
+    func didReturn(_ object: AnyObject, with result: Result<IONCAMRResultItem, IONCAMRError>) async
 }
 
 enum IONCAMRResultItem {

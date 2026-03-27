@@ -3,47 +3,47 @@ import Foundation
 /// All plugin errors that can be thrown
 public enum IONCAMRError: Int, CustomNSError, LocalizedError {
     // MARK: - Permissions Errors
-    
+
     case cameraAccess = 3
     case cameraAvailability = 7
-    
+
     // MARK: - Take Pictures Errors
-    
+
     case takePictureCancel = 6
     case takePictureIssue = 10
     case takePictureArguments = 14
-    
+
     // MARK: - Edit Picture Errors
-    
+
     case invalidImageData = 8
     case editPictureIssue = 9
     case editPictureCancel = 13
-    
+
     // MARK: - Choose Picture Errors
-    
+
     case photoLibraryAccess = 5
     case imageNotFound = 11
     case choosePictureIssue = 12
     case choosePictureCancel = 18
-    
+
     // MARK: - Capture Video Errors
-    
+
     case captureVideoIssue = 16
     case captureVideoCancel = 17
-    
+
     // MARK: - Choose Multimedia Errors
-    
+
     case videoNotFound = 26
     case chooseMultimediaIssue = 19
     case chooseMultimediaCancel = 21
     case fetchImageFromURLFailed = 29
-    
+
     // MARK: - Play Video Errors
-    
+
     case playVideoIssue = 24
-    
+
     // MARK: - General Errors
-    
+
     case invalidEncodeResultMedia = 20
     case generalIssue = 27
 

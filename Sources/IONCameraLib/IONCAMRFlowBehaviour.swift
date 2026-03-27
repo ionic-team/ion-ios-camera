@@ -168,11 +168,11 @@ extension IONCAMRFlowBehaviour: IONCAMRCancelResultsDelegate {
 }
 
 extension IONCAMRFlowBehaviour: IONCAMRResultsDelegate {
-    func didReturn(_ object: AnyObject, with result: Result<IONCAMRResultItem, IONCAMRError>) {
+    func didReturn(_ object: AnyObject, with result: Result<IONCAMRResultItem, IONCAMRError>) async {
         if object === picker {
-            pickerDidReturn(result)
+            await pickerDidReturn(result)
         } else if object === editorBehaviour {
-            editorDidReturn(result)
+            await editorDidReturn(result)
         } else if object === galleryBehaviour {
             galleryDidReturnSingle(result)
         }
@@ -305,29 +305,32 @@ extension IONCAMRFlowBehaviour {
 
     /// Method triggered when the user could finish, with or without success, the picker behaviour.
     /// - Parameter result: Returned object to who implements this object. It returns a base64 encoding text if successful or an error otherwise.
-    private func pickerDidReturn(_ result: Result<IONCAMRResultItem, IONCAMRError>) {
+    func pickerDidReturn(_ result: Result<IONCAMRResultItem, IONCAMRError>) async {
         func didFailed(withError error: IONCAMRError) {
             delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
         }
 
-        defer { self.coordinator.dismiss() }
+        var canDismiss = true
+        defer {
+            if canDismiss {
+                self.coordinator.dismiss()
+                self.options = nil
+            }
+        }
 
         switch result {
         case .success(let item):
             switch item {
             case .picture(let image):
-                Task {
-                    do {
-                        guard let mediaResult = try await self.imagePickerDidReturn(image) else {
-                            self.editPhoto(image)
-                            return
-                        }
-                        self.options = nil
-                        self.delegate?.didSucceed(with: mediaResult)
-                    } catch {
-                        self.options = nil
-                        didFailed(withError: .takePictureIssue)
+                do {
+                    guard let mediaResult = try await imagePickerDidReturn(image) else {
+                        canDismiss = false
+                        editPhoto(image)
+                        return
                     }
+                    delegate?.didSucceed(with: mediaResult)
+                } catch {
+                    didFailed(withError: .takePictureIssue)
                 }
             case .video(let url):
                 videoPickerDidReturn(url) { [weak self] mediaResult in
@@ -375,7 +378,7 @@ extension IONCAMRFlowBehaviour {
 
     /// Method triggered when the user could finish, with or without success, the editor behaviour.
     /// - Parameter result: Returned object to who implements this object. It returns a base64 encoding text if successful or an error otherwise.
-    private func editorDidReturn(_ result: Result<IONCAMRResultItem, IONCAMRError>) {
+    func editorDidReturn(_ result: Result<IONCAMRResultItem, IONCAMRError>) async {
         func didFailed(with error: IONCAMRError = .editPictureIssue) {
             delegate?.didFailed(type: IONCAMRMediaResult.self, with: error)
         }
@@ -385,13 +388,13 @@ extension IONCAMRFlowBehaviour {
         switch result {
         case .success(let item):
             if case .picture(let image) = item {
-                Task {
-                    do {
-                        let result = try await imageEditorDidReturn(image)
-                        self.options = nil
-                        self.delegate?.didSucceed(with: result)
-                    } catch {
-                        self.options = nil
+                do {
+                    let result = try await imageEditorDidReturn(image)
+                    delegate?.didSucceed(with: result)
+                } catch {
+                    if let ionError = error as? IONCAMRError {
+                        didFailed(with: ionError)
+                    } else {
                         didFailed()
                     }
                 }

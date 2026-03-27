@@ -30,26 +30,28 @@ final class IONCAMRPickerBehaviour: NSObject, IONCAMRPickerDelegate {
 /// Extension that handles the responses obtained through the Image Picker user interaction.
 extension IONCAMRPickerBehaviour: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-        guard let mediaType = mediaOptions?.mediaType else {
-            delegate?.didReturn(self, with: .failure(.generalIssue))
-            return
-        }
+        Task {
+            guard let mediaType = self.mediaOptions?.mediaType else {
+                await self.delegate?.didReturn(self, with: .failure(.generalIssue))
+                return
+            }
 
-        let result: Result<IONCAMRResultItem, IONCAMRError>
-        switch mediaType {
-        case .picture:
-            let image = info[.originalImage] as? UIImage
-            result = fetchToReturn(image)
-                .flatMap { .success(.picture($0)) }
-                .flatMapError { .failure($0) }
-            delegate?.didReturn(self, with: result)
-        case .video:
-            let videoURL = info[.mediaURL] as? URL
-            result = fetchToReturn(videoURL)
-                .flatMap { .success(.video($0)) }
-                .flatMapError { .failure($0) }
-            delegate?.didReturn(self, with: result)
-        default: break // not supposed to get here
+            let result: Result<IONCAMRResultItem, IONCAMRError>
+            switch mediaType {
+            case .picture:
+                let image = info[.originalImage] as? UIImage
+                result = self.fetchToReturn(image)
+                    .flatMap { .success(.picture($0)) }
+                    .flatMapError { .failure($0) }
+                await self.delegate?.didReturn(self, with: result)
+            case .video:
+                let videoURL = info[.mediaURL] as? URL
+                result = self.fetchToReturn(videoURL)
+                    .flatMap { .success(.video($0)) }
+                    .flatMapError { .failure($0) }
+                await self.delegate?.didReturn(self, with: result)
+            default: break // not supposed to get here
+            }
         }
     }
 

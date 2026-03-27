@@ -409,9 +409,9 @@ class IONCAMRPickerBehaviourMock: IONCAMRPickerDelegate {
     func takePictureHandler(with success: Bool = true, and error: IONCAMRError? = nil) {
         if success {
             if let error {
-                delegate?.didReturn(self, with: .failure(error))
+                Task { await delegate?.didReturn(self, with: .failure(error)) }
             } else {
-                delegate?.didReturn(self, with: .success(.picture(IONCAMRPictureMock.osLogo.image)))
+                Task { await self.delegate?.didReturn(self, with: .success(.picture(IONCAMRPictureMock.osLogo.image))) }
             }
         } else {
             delegate?.didCancel(self)
@@ -435,9 +435,9 @@ class IONCAMRPickerBehaviourMock: IONCAMRPickerDelegate {
     func captureVideoHandler(with success: Bool = true, and error: IONCAMRError? = nil) {
         if success {
             if let error {
-                delegate?.didReturn(self, with: .failure(error))
+                Task { await delegate?.didReturn(self, with: .failure(error)) }
             } else {
-                delegate?.didReturn(self, with: .success(.video(IONCAMRVideoMock.first.url)))
+                Task { await self.delegate?.didReturn(self, with: .success(.video(IONCAMRVideoMock.first.url))) }
             }
         } else {
             delegate?.didCancel(self)
@@ -490,9 +490,9 @@ class IONCAMRGalleryBehaviourMock: IONCAMRGalleryDelegate {
     private func choosePictureHandler(with success: Bool, and error: IONCAMRError?) {
         if success {
             if let error {
-                delegate?.didReturn(self, with: .failure(error))
+                Task { await delegate?.didReturn(self, with: .failure(error)) }
             } else {
-                delegate?.didReturn(self, with: .success(.picture(IONCAMRPictureMock.osLogo.image)))
+                Task { await self.delegate?.didReturn(self, with: .success(.picture(IONCAMRPictureMock.osLogo.image))) }
             }
         } else {
             delegate?.didCancel(self)
@@ -593,9 +593,9 @@ class IONCAMREditorBehaviourMock: IONCAMREditorDelegate {
     func editPictureHandler(with success: Bool, and error: IONCAMRError?) {
         if success {
             if let error {
-                delegate?.didReturn(self, with: .failure(error))
+                Task { await delegate?.didReturn(self, with: .failure(error)) }
             } else {
-                delegate?.didReturn(self, with: .success(.picture(IONCAMRPictureMock.osLogoBlue.image)))
+                Task { await self.delegate?.didReturn(self, with: .success(.picture(IONCAMRPictureMock.osLogoBlue.image))) }
             }
         } else {
             delegate?.didCancel(self)
