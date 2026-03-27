@@ -3,7 +3,7 @@ import UIKit
 
 final class IONCAMREditorBehaviour: NSObject, IONCAMREditorDelegate {
     weak var delegate: IONCAMREditorResultsDelegate?
-    
+
     func editPicture(_ image: UIImage, _ handler: @escaping (UIViewController) -> Void) {
         DispatchQueue.main.async {
             let isPortrait = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation.isPortrait ?? false
@@ -11,7 +11,7 @@ final class IONCAMREditorBehaviour: NSObject, IONCAMREditorDelegate {
             let viewController = UIHostingController(rootView: imageEditorView)
             viewController.modalPresentationStyle = .fullScreen
             handler(viewController)
-        }        
+        }
     }
 }
 
@@ -27,10 +27,10 @@ extension IONCAMREditorBehaviour: IONCAMRImageEditorResultsDelegate {
             await self.delegate?.didReturn(self, with: .failure(.editPictureIssue))
         }
     }
-    
+
     /// Method triggered when the screen's interaction ended with the user cancelling it.
     func didCancelEdit() {
-        self.delegate?.didCancel(self)
+        delegate?.didCancel(self)
     }
 }
 

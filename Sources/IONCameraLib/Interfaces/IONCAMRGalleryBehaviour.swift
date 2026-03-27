@@ -4,16 +4,16 @@ import UIKit
 
 final class IONCAMRGalleryBehaviour: NSObject, IONCAMRGalleryDelegate {
     weak var delegate: IONCAMRGalleryResultsDelegate?
-    
-    var thumbnailAsData: Bool = false
-    var returnMetadata: Bool = false
-    
+
+    var thumbnailAsData = false
+    var returnMetadata = false
+
     var metadataGetter: IONCAMRMetadataGetterDelegate
-    
+
     init(metadataGetter: IONCAMRMetadataGetterDelegate) {
         self.metadataGetter = metadataGetter
     }
-    
+
     func saveToGallery(_ image: UIImage) async -> Bool {
         await withCheckedContinuation { continuation in
             PHPhotoLibrary.shared().performChanges {
@@ -23,7 +23,7 @@ final class IONCAMRGalleryBehaviour: NSObject, IONCAMRGalleryDelegate {
             }
         }
     }
-    
+
     func saveToGallery(_ fileURL: URL) async -> Bool {
         await withCheckedContinuation { continuation in
             PHPhotoLibrary.shared().performChanges {
@@ -33,15 +33,15 @@ final class IONCAMRGalleryBehaviour: NSObject, IONCAMRGalleryDelegate {
             }
         }
     }
-    
+
     func chooseFromGallery(with options: IONCAMRGalleryOptions, _ handler: @escaping (UIViewController) -> Void) {
-        self.thumbnailAsData = options.thumbnailAsData
-        self.returnMetadata = options.returnMetadata
+        thumbnailAsData = options.thumbnailAsData
+        returnMetadata = options.returnMetadata
         DispatchQueue.main.async {
             let viewController = self.displayPhotoLibraryView(
-                mediaTypes: options.mediaType.phAssetArray, 
-                allowMultipleSelection: options.allowMultipleSelection, 
-                limit: options.limit, 
+                mediaTypes: options.mediaType.phAssetArray,
+                allowMultipleSelection: options.allowMultipleSelection,
+                limit: options.limit,
                 thumbnailAsData: options.thumbnailAsData
             )
 
@@ -51,18 +51,25 @@ final class IONCAMRGalleryBehaviour: NSObject, IONCAMRGalleryDelegate {
 }
 
 extension IONCAMRGalleryBehaviour {
-    func displayPhotoLibraryView(mediaTypes: [PHAssetMediaType], allowMultipleSelection: Bool, limit: Int = 0, thumbnailAsData: Bool) -> UIViewController {
+    func displayPhotoLibraryView(
+        mediaTypes: [PHAssetMediaType],
+        allowMultipleSelection: Bool,
+        limit: Int = 0,
+        thumbnailAsData: Bool
+    )
+        -> UIViewController {
         let photoLibraryService = IONCAMRPhotoLibraryService(
             delegate: self,
-            metadataGetter: self.metadataGetter,
+            metadataGetter: metadataGetter,
             mediaTypeArray: mediaTypes,
             thumbnailAsData: thumbnailAsData,
-            returnMetadata: self.returnMetadata
+            returnMetadata: returnMetadata
         )
-        let photoLibraryView = IONCAMRPhotoLibraryView(allowMultipleSelection: allowMultipleSelection, limit: limit).environmentObject(photoLibraryService)
+        let photoLibraryView = IONCAMRPhotoLibraryView(allowMultipleSelection: allowMultipleSelection, limit: limit)
+            .environmentObject(photoLibraryService)
         let viewController = UIHostingController(rootView: photoLibraryView)
         viewController.navigationItem.title = "Photo Library"
-        
+
         let navController = UINavigationController(rootViewController: viewController)
         navController.modalPresentationStyle = .fullScreen
         return navController
@@ -71,10 +78,10 @@ extension IONCAMRGalleryBehaviour {
 
 extension IONCAMRGalleryBehaviour: IONCAMRPhotoLibraryViewDelegate {
     func didPickMultimedia(_ mediaResultArray: [IONCAMRMediaResult]?) {
-        if let mediaResultArray = mediaResultArray {
-            self.delegate?.didReturn(.success(mediaResultArray))
+        if let mediaResultArray {
+            delegate?.didReturn(.success(mediaResultArray))
         } else {
-            self.delegate?.didReturn(.failure(.chooseMultimediaIssue))
+            delegate?.didReturn(.failure(.chooseMultimediaIssue))
         }
     }
     
@@ -85,8 +92,8 @@ extension IONCAMRGalleryBehaviour: IONCAMRPhotoLibraryViewDelegate {
             await self.delegate?.didReturn(self, with: .failure(.choosePictureIssue))
         }
     }
-    
+
     func didCancel() {
-        self.delegate?.didCancel(self)
+        delegate?.didCancel(self)
     }
 }

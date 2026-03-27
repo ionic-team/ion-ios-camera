@@ -1,5 +1,5 @@
+@testable import IONCameraLib
 import XCTest
-@testable import OSCameraLib
 
 /// This was introduced on May 18th 2023 on the scope of https://outsystemsrd.atlassian.net/browse/RMET-2494.
 /// Despite the name, it doesn't contain the whole `Choose from Gallery` client action tests
@@ -30,7 +30,8 @@ final class IONCAMRFlowChooseFromGalleryTests: XCTestCase {
             metadataGetter: IONCAMRMetadataGetterMock(),
             imageFetcher: imageFetcher,
             urlGenerator: urlGenerator,
-            coordinator: coordinator)
+            coordinator: coordinator
+        )
         sut.delegate = resultsDelegate
 
         coordinator.hasTwoSteps = true
@@ -68,7 +69,8 @@ final class IONCAMRFlowChooseFromGalleryTests: XCTestCase {
         XCTAssertNil(resultsDelegate.error)
     }
 
-    func test_chooseFromGallery_withAllowEditSetToTrue_whenMediaTypeSetToPicture_andAllowMultipleSelectionSetToFalse_whenNoPictureIsReturned_returnError() {
+    func test_chooseFromGallery_withAllowEditSetToTrue_whenMediaTypeSetToPicture_andAllowMultipleSelectionSetToFalse_whenNoPictureIsReturned_returnError(
+    ) {
         sut.chooseMultimedia(
             type: .picture, allowEdit: true, allowMultipleSelection: false, returnMetadata: false, andThumbnailAsData: true
         )
@@ -79,7 +81,8 @@ final class IONCAMRFlowChooseFromGalleryTests: XCTestCase {
         XCTAssertEqual(resultsDelegate.error, .fetchImageFromURLFailed)
     }
 
-    func test_chooseFromGallery_withAllowEditSetToTrue_whenMediaTypeSetToPicture_andAllowMultipleSelectionSetToFalse_whenMediaResultURIDoesntContainAnImage_returnError() {
+    func test_chooseFromGallery_withAllowEditSetToTrue_whenMediaTypeSetToPicture_andAllowMultipleSelectionSetToFalse_whenMediaResultURIDoesntContainAnImage_returnError(
+    ) {
         sut.chooseMultimedia(
             type: .picture, allowEdit: true, allowMultipleSelection: false, returnMetadata: false, andThumbnailAsData: true
         )
@@ -91,7 +94,8 @@ final class IONCAMRFlowChooseFromGalleryTests: XCTestCase {
         XCTAssertEqual(resultsDelegate.error, .fetchImageFromURLFailed)
     }
 
-    func test_chooseFromGallery_withAllowEditSetToTrue_whenMediaTypeSetToPicture_andAllowMultipleSelectionSetToFalse_returnEditedPicture() {
+    func test_chooseFromGallery_withAllowEditSetToTrue_whenMediaTypeSetToPicture_andAllowMultipleSelectionSetToFalse_returnEditedPicture(
+    ) async throws {
         sut.chooseMultimedia(
             type: .picture, allowEdit: true, allowMultipleSelection: false, returnMetadata: false, andThumbnailAsData: true
         )
@@ -99,14 +103,16 @@ final class IONCAMRFlowChooseFromGalleryTests: XCTestCase {
         urlGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
         galleryBehaviour.didEndSuccessfullyChooseSinglePictureHandler()
         editorBehaviour.didEndSuccessfullyEditPictureHandler()
+        await resultsDelegate.waitForResult()
 
         XCTAssertTrue(editorBehaviour.hasBeenEdited)
         XCTAssertNil(resultsDelegate.error)
         XCTAssertEqual(resultsDelegate.resultArray, [IONCAMRPictureMock.osLogoBlue.toMediaResult])
-        XCTAssertEqual(sut.temporaryURLArray.map(\.absoluteString), [resultsDelegate.resultArray!.first!.uri])
+        XCTAssertEqual(sut.temporaryURLArray.map(\.absoluteString), try [XCTUnwrap(resultsDelegate.resultArray?.first?.uri)])
     }
 
-    func test_chooseFromGallery_withAllowEditSetToTrue_whenMediaTypeSetToPicture_andAllowMultipleSelectionSetToFalse_andReturnMetadataSetToTrue_returnEditedPicture() {
+    func test_chooseFromGallery_withAllowEditSetToTrue_whenMediaTypeSetToPicture_andAllowMultipleSelectionSetToFalse_andReturnMetadataSetToTrue_returnEditedPicture(
+    ) async throws {
         urlGenerator.urlToReturn = IONCAMRPictureMock.osLogoBlue.url
 
         sut.chooseMultimedia(
@@ -114,10 +120,11 @@ final class IONCAMRFlowChooseFromGalleryTests: XCTestCase {
         )
         galleryBehaviour.didEndSuccessfullyChooseSinglePictureHandler()
         editorBehaviour.didEndSuccessfullyEditPictureHandler()
+        await resultsDelegate.waitForResult()
 
         XCTAssertTrue(editorBehaviour.hasBeenEdited)
         XCTAssertNil(resultsDelegate.error)
         XCTAssertEqual(resultsDelegate.resultArray, [IONCAMRPictureMock.osLogoBlue.toMediaResultWithMetadata])
-        XCTAssertEqual(sut.temporaryURLArray.map(\.absoluteString), [resultsDelegate.resultArray!.first!.uri])
+        XCTAssertEqual(sut.temporaryURLArray.map(\.absoluteString), try [XCTUnwrap(resultsDelegate.resultArray?.first?.uri)])
     }
 }

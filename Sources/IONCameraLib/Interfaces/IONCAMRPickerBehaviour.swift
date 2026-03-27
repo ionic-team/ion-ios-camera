@@ -5,13 +5,13 @@ final class IONCAMRPickerBehaviour: NSObject, IONCAMRPickerDelegate {
     weak var delegate: IONCAMRPickerResultsDelegate?
     /// User defined options to apply to the picker and picture objects.
     private var mediaOptions: IONCAMRMediaOptions?
-    
+
     /// Verifies if camera is available for usage.
     /// - Returns: The camera's availability
     func isCameraAvailable() -> Bool {
         UIImagePickerController.isSourceTypeAvailable(.camera)
     }
-    
+
     func captureMedia(with mediaOptions: IONCAMRMediaOptions, _ handler: @escaping (UIViewController) -> Void) {
         self.mediaOptions = mediaOptions
         DispatchQueue.main.async {
@@ -54,26 +54,26 @@ extension IONCAMRPickerBehaviour: UIImagePickerControllerDelegate, UINavigationC
             }
         }
     }
-    
+
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        self.delegate?.didCancel(self)
+        delegate?.didCancel(self)
     }
 }
 
-private extension IONCAMRPickerBehaviour {
-    func fetchToReturn(_ picture: UIImage?) -> Result<UIImage, IONCAMRError> {
+extension IONCAMRPickerBehaviour {
+    private func fetchToReturn(_ picture: UIImage?) -> Result<UIImage, IONCAMRError> {
         guard let originalImage = picture,
-              let pictureOptions = self.mediaOptions as? IONCAMRTakePhotoOptions,
+              let pictureOptions = mediaOptions as? IONCAMRTakePhotoOptions,
               let image = originalImage.fix(with: pictureOptions)
         else { return .failure(.takePictureIssue) }
-        
+
         return .success(image)
     }
-    
-    func fetchToReturn(_ videoURL: URL?) -> Result<URL, IONCAMRError> {
-        guard let videoURL = videoURL else { return .failure(.captureVideoIssue) }
 
-        let isPersistent = (self.mediaOptions as? IONCAMRRecordVideoOptions)?.isPersistent ?? true
+    private func fetchToReturn(_ videoURL: URL?) -> Result<URL, IONCAMRError> {
+        guard let videoURL else { return .failure(.captureVideoIssue) }
+
+        let isPersistent = (mediaOptions as? IONCAMRRecordVideoOptions)?.isPersistent ?? true
 
         let url: URL
         if isPersistent {

@@ -1,0 +1,60 @@
+# SwiftFormat configuration for IONCameraLib
+# Targets iOS 14+ / Swift 5.9+
+
+--swiftversion 5.9
+--minversion 0.54.0
+
+# Indentation
+--indent 4
+--tabwidth 4
+--smarttabs enabled
+--indentcase false
+
+# Line endings
+--linebreaks lf
+
+# Headers
+--header strip
+
+# Line length — matches SwiftLint warning threshold
+--maxwidth 150
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--closingparen balanced
+--wrapreturntype if-multiline
+
+# Imports
+--importgrouping testable-last
+
+# Self — remove redundant self outside init/deinit
+--self init-only
+
+# Trailing items
+--semicolons never
+--commas always
+--trimwhitespace always
+
+# Attributes
+--funcattributes prev-line
+--typeattributes prev-line
+--varattributes same-line
+
+# Closures & functions
+--trailingclosures always
+--nospaceoperators ..<,...
+--operatorfunc spaced
+
+# Braces
+--guardelse auto
+
+# Redundant syntax
+--redundanttype inferred
+--stripunusedargs closure-only
+--patternlet inline
+
+# Organise declarations (protocols, extensions, types)
+--extensionacl on-declarations
+
+# Disable rules that conflict with SwiftLint opt-in rules
+--disable blankLinesAtStartOfScope

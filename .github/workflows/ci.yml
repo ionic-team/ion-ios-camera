@@ -8,12 +8,13 @@ on:
 
 env:
   XCODE_VERSION: '26.2'
+  IOS_VERSION: '26.2'
 
 jobs:
   test:
     name: Build & Test
-    runs-on: macOS-latest
-        
+    runs-on: macos-15
+
     steps:
     - name: Checkout
       uses: actions/checkout@v5
@@ -21,26 +22,32 @@ jobs:
     - name: Setup Xcode
       run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
 
+    - name: Install xcbeautify
+      run: brew install xcbeautify
+
     - name: Build & Test iOS
       run: |
+        set -o pipefail
         xcodebuild -scheme IONCameraLib \
-          -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.0' \
-          build test
+          -destination 'platform=iOS Simulator,name=iPhone 17,OS=${{ env.IOS_VERSION }}' \
+          build test | xcbeautify
 
   lint:
     name: SwiftLint
     runs-on: macOS-latest
-    
+
     steps:
     - name: Checkout
       uses: actions/checkout@v5
-      
-    - name: SwiftLint
+
+    - name: Install SwiftLint
       run: |
         if ! command -v swiftlint &> /dev/null; then
           brew install swiftlint
-        fi        
-        swiftlint --strict
+        fi
+
+    - name: SwiftLint
+      run: swiftlint --strict
 
   validate-podspec:
     name: Validate Podspec
