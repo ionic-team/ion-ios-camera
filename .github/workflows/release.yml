@@ -5,15 +5,18 @@ on:
 
 env:
   XCODE_VERSION: '26.2'
+  IOS_VERSION: '26.2'
   NODE_VERSION: '24'
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
   test:
     name: Test Before Release
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -23,8 +26,15 @@ jobs:
       - name: Setup Xcode
         run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
 
-      - name: Run Tests
-        run: swift test
+      - name: Install xcbeautify
+        run: brew install xcbeautify
+
+      - name: Build & Test iOS
+        run: |
+          set -o pipefail
+          xcodebuild -scheme IONCameraLib \
+            -destination 'platform=iOS Simulator,name=iPhone 17,OS=${{ env.IOS_VERSION }}' \
+            build test | xcbeautify
 
       - name: Validate Podspec
         run: |
@@ -33,7 +43,7 @@ jobs:
 
   release:
     name: Release
-    runs-on: macos-latest
+    runs-on: macos-15
     needs: test
     steps:
       - name: Checkout

@@ -13,8 +13,8 @@ env:
 jobs:
   test:
     name: Build & Test
-    runs-on: macOS-latest
-        
+    runs-on: macos-15
+
     steps:
     - name: Checkout
       uses: actions/checkout@v5
@@ -22,11 +22,15 @@ jobs:
     - name: Setup Xcode
       run: sudo xcode-select -s /Applications/Xcode_${{ env.XCODE_VERSION }}.app/Contents/Developer
 
+    - name: Install xcbeautify
+      run: brew install xcbeautify
+
     - name: Build & Test iOS
       run: |
+        set -o pipefail
         xcodebuild -scheme IONCameraLib \
           -destination 'platform=iOS Simulator,name=iPhone 17,OS=${{ env.IOS_VERSION }}' \
-          build test
+          build test | xcbeautify
 
   lint:
     name: SwiftLint
