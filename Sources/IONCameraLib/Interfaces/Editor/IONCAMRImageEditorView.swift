@@ -110,7 +110,7 @@ struct IONCAMRImageEditorView: View {
             Button {
                 Task {
                     guard let cgImage = image.cgImage else {
-                        await delegate?.finishEditing(with: .editPictureIssue)    // it wasn't possible to retrieve the image, so an error is returned.
+                        await delegate?.finishEditing(with: .editPictureIssue) // it wasn't possible to retrieve the image, so an error is returned.
                         return
                     }
                     let scaler = CGSize(width: CGFloat(cgImage.width) / imageWidth, height: CGFloat(cgImage.height) / imageHeight)
@@ -121,12 +121,12 @@ struct IONCAMRImageEditorView: View {
                         width: dim.width * croppingWidthMagnification,
                         height: dim.height * croppingHeightMagnification
                     )
-                    
+
                     if let cImage = cgImage.cropping(to: cropRect) {
                         let croppedImage = UIImage(cgImage: cImage)
-                        await delegate?.finishEditing(with: croppedImage)         // the resulting cropped image is returned.
+                        await delegate?.finishEditing(with: croppedImage) // the resulting cropped image is returned.
                     } else {
-                        await delegate?.finishEditing(with: .editPictureIssue)    // it wasn't possible to retrieve the image, so an error is returned.
+                        await delegate?.finishEditing(with: .editPictureIssue) // it wasn't possible to retrieve the image, so an error is returned.
                     }
                 }
             } label: {

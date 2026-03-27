@@ -169,12 +169,12 @@ extension IONCAMRFlowBehaviour: IONCAMRCancelResultsDelegate {
 
 extension IONCAMRFlowBehaviour: IONCAMRResultsDelegate {
     func didReturn(_ object: AnyObject, with result: Result<IONCAMRResultItem, IONCAMRError>) async {
-        if object === self.picker {
-            await self.pickerDidReturn(result)
-        } else if object === self.editorBehaviour {
-            await self.editorDidReturn(result)
-        } else if object === self.galleryBehaviour {
-            self.galleryDidReturnSingle(result)
+        if object === picker {
+            await pickerDidReturn(result)
+        } else if object === editorBehaviour {
+            await editorDidReturn(result)
+        } else if object === galleryBehaviour {
+            galleryDidReturnSingle(result)
         }
     }
 }
@@ -323,12 +323,12 @@ extension IONCAMRFlowBehaviour {
             switch item {
             case .picture(let image):
                 do {
-                    guard let mediaResult = try await self.imagePickerDidReturn(image) else {
+                    guard let mediaResult = try await imagePickerDidReturn(image) else {
                         canDismiss = false
-                        self.editPhoto(image)
+                        editPhoto(image)
                         return
                     }
-                    self.delegate?.didSucceed(with: mediaResult)
+                    delegate?.didSucceed(with: mediaResult)
                 } catch {
                     didFailed(withError: .takePictureIssue)
                 }
@@ -390,7 +390,7 @@ extension IONCAMRFlowBehaviour {
             if case .picture(let image) = item {
                 do {
                     let result = try await imageEditorDidReturn(image)
-                    self.delegate?.didSucceed(with: result)
+                    delegate?.didSucceed(with: result)
                 } catch {
                     if let ionError = error as? IONCAMRError {
                         didFailed(with: ionError)

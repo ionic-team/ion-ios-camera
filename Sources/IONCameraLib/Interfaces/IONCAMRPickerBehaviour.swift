@@ -35,7 +35,7 @@ extension IONCAMRPickerBehaviour: UIImagePickerControllerDelegate, UINavigationC
                 await self.delegate?.didReturn(self, with: .failure(.generalIssue))
                 return
             }
-            
+
             let result: Result<IONCAMRResultItem, IONCAMRError>
             switch mediaType {
             case .picture:
@@ -50,7 +50,7 @@ extension IONCAMRPickerBehaviour: UIImagePickerControllerDelegate, UINavigationC
                     .flatMap { .success(.video($0)) }
                     .flatMapError { .failure($0) }
                 await self.delegate?.didReturn(self, with: result)
-            default: break  // not supposed to get here
+            default: break // not supposed to get here
             }
         }
     }
