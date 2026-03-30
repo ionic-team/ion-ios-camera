@@ -382,7 +382,9 @@ final class IONCAMRCameraTests: XCTestCase {
     func test_whenUserPressesPlayVideoButton_butVideoCantBePlayed_returnError() async {
         mockVideoPlayer.isVideoPlayable = false
 
-        try await assertThrowsAsyncError(await videoSut.playVideo(IONCAMRVideoMock.first.url))
+        await assertThrowsAsyncError {
+            try await videoSut.playVideo(IONCAMRVideoMock.first.url)
+        }
     }
 
     func test_whenUserPressesPlayVideoButton_withSuccess_videoIsPlayed() async throws {
@@ -394,7 +396,7 @@ final class IONCAMRCameraTests: XCTestCase {
 
 extension IONCAMRCameraTests {
     private func assertThrowsAsyncError(
-        _ expression: @autoclosure () async throws -> some Any,
+        _ expression: () async throws -> some Any,
         _ message: @autoclosure () -> String = "",
         file: StaticString = #filePath,
         line: UInt = #line,
