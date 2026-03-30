@@ -262,7 +262,10 @@ extension IONCAMRFlowBehaviour {
         }
 
         Task {
-            let saved = await self.galleryBehaviour.saveToGallery(url)
+            var saved = false
+            if options.saveToGallery {
+                saved = await self.galleryBehaviour.saveToGallery(url)
+            }
             thumbnailGenerator.getImage(from: url) { image in
                 guard let image, let data = image.defaultVideoThumbnailData
                 else { return completion(nil) }
