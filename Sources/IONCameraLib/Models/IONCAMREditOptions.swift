@@ -16,11 +16,11 @@ public class IONCAMRPhotoEditOptions: IONCAMRSaveToGalleryOptionsDelegate, Decod
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let uri = try container.decode(String.self, forKey: .uri)
         let saveToGallery = try container.decodeIfPresent(Bool.self, forKey: .saveToGallery) ?? false
-        let returnMetadata = try container.decodeIfPresent(Bool.self, forKey: .returnMetadata) ?? false
+        let returnMetadata = try container.decodeIfPresent(Bool.self, forKey: .includeMetadata) ?? false
         self.init(uri: uri, saveToGallery: saveToGallery, returnMetadata: returnMetadata)
     }
 
     private enum CodingKeys: String, CodingKey {
-        case uri, saveToGallery, returnMetadata
+        case uri, saveToGallery, includeMetadata
     }
 }
