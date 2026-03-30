@@ -160,7 +160,7 @@ extension IONCAMRFlowBehaviour: IONCAMRCancelResultsDelegate {
         } else if object === editorBehaviour {
             delegate?.didCancel(.editPictureCancel)
         } else if object === galleryBehaviour {
-            delegate?.didCancel(.choosePictureCancel)
+            delegate?.didCancel(.chooseMultimediaCancel)
         }
         coordinator.dismiss()
         options = nil
