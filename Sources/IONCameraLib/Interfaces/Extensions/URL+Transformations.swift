@@ -21,9 +21,9 @@ extension URL {
             try FileManager.default.createDirectory(at: videosDir, withIntermediateDirectories: true)
         }
 
-        let timestamp = NSInteger(Date().timeIntervalSince1970)
+        let timestampMillis = Int64(Date().timeIntervalSince1970 * 1000)
         let permanentURL = videosDir
-            .appendingPathComponent("video_\(timestamp)")
+            .appendingPathComponent("video_\(timestampMillis)")
             .appendingPathExtension(pathExtension)
 
         try FileManager.default.copyItem(at: self, to: permanentURL)
@@ -47,10 +47,10 @@ extension URL {
     }
 
     static func tempFilePath(for mediaType: IONCAMRMediaType, with pathExtension: String) -> URL {
-        let timestamp = NSInteger(Date().timeIntervalSince1970)
+        let timestampMillis = Int64(Date().timeIntervalSince1970 * 1000)
         return URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
             .standardizedFileURL
-            .appendingPathComponent("\(mediaType.description)_\(timestamp)")
+            .appendingPathComponent("\(mediaType.description)_\(timestampMillis)")
             .appendingPathExtension(pathExtension)
     }
 }
