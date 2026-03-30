@@ -23,8 +23,8 @@ extension IONCAMRMediaResult {
         self.init(type: .picture, uri: "", thumbnail: data, saved: saved)
     }
 
-    init(videoWith uri: String, _ thumbnail: String, and metadata: IONCAMRMetadata? = nil) {
-        self.init(type: .video, uri: uri, thumbnail: thumbnail, metadata: metadata)
+    init(videoWith uri: String, _ thumbnail: String, and metadata: IONCAMRMetadata? = nil, saved: Bool? = nil) {
+        self.init(type: .video, uri: uri, thumbnail: thumbnail, metadata: metadata, saved: saved)
     }
 }
 
