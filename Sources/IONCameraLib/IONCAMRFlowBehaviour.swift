@@ -261,23 +261,25 @@ extension IONCAMRFlowBehaviour {
             temporaryURLArray += [url]
         }
 
-        if options.saveToGallery {
-            Task { await self.galleryBehaviour.saveToGallery(url) }
-        }
+        Task {
+            var saved = false
+            if options.saveToGallery {
+                saved = await self.galleryBehaviour.saveToGallery(url)
+            }
+            thumbnailGenerator.getImage(from: url) { image in
+                guard let image, let data = image.defaultVideoThumbnailData
+                else { return completion(nil) }
 
-        thumbnailGenerator.getImage(from: url) { image in
-            guard let image, let data = image.defaultVideoThumbnailData
-            else { return completion(nil) }
-
-            if options.returnMetadata {
-                Task { [url] in
-                    let metadata = try? await self.metadataGetter.getVideoMetadata(from: url)
-                    let result = IONCAMRMediaResult(videoWith: url.absoluteString, data, and: metadata)
+                if options.returnMetadata {
+                    Task {
+                        let metadata = try? await self.metadataGetter.getVideoMetadata(from: url)
+                        let result = IONCAMRMediaResult(videoWith: url.absoluteString, data, and: metadata, saved: saved)
+                        completion(result)
+                    }
+                } else {
+                    let result = IONCAMRMediaResult(videoWith: url.absoluteString, data, saved: saved)
                     completion(result)
                 }
-            } else {
-                let result = IONCAMRMediaResult(videoWith: url.absoluteString, data)
-                completion(result)
             }
         }
     }
