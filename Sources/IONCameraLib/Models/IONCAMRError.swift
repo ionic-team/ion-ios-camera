@@ -86,7 +86,7 @@ public enum IONCAMRError: Int, CustomNSError, LocalizedError {
             "Couldn't retrieve image from the URI."
         case .playVideoIssue:
             "Couldn't play video."
-        case .playVideoFileNotFound:
+        case .fileNotFound:
             "The selected file doesn't exist."
         case .invalidEncodeResultMedia:
             "Couldn't encode the media result."
