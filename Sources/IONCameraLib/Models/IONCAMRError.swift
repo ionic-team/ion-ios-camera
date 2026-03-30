@@ -40,12 +40,12 @@ public enum IONCAMRError: Int, CustomNSError, LocalizedError {
     // MARK: - Play Video Errors
 
     case playVideoIssue = 23
-    case playVideoFileNotFound = 27
 
     // MARK: - General Errors
 
     case invalidEncodeResultMedia = 19
     case generalIssue = 26
+    case fileNotFound = 27
 
     /// Textual description
     public var errorDescription: String? {
