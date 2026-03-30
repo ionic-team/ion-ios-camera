@@ -170,7 +170,7 @@ final class IONCAMRCameraTests: XCTestCase {
         gallerySut.choosePicture(false)
 
         XCTAssertNil(mockDelegate.singleResult)
-        XCTAssertEqual(mockDelegate.error, IONCAMRError.choosePictureCancel)
+        XCTAssertEqual(mockDelegate.error, IONCAMRError.chooseMultimediaCancel)
     }
 
     func test_whenUserPressesChoosePictureButton_andSomethingWrongHappens_returnError() {

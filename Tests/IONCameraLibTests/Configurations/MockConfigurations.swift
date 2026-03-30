@@ -346,7 +346,7 @@ class IONCAMRFlowBehaviourMock: IONCAMRFlowDelegate {
 
     func chooseFromGallery(with options: IONCAMRGalleryOptions) {
         if triggeredCancelChoosePicture {
-            delegate?.didCancel(.choosePictureCancel)
+            delegate?.didCancel(.chooseMultimediaCancel)
         } else if triggeredCancelChooseMultimedia {
             delegate?.didCancel(.chooseMultimediaCancel)
         } else if triggeredChoosePicture {

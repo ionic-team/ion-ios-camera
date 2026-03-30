@@ -60,7 +60,7 @@ final class IONCAMRPlayerBehaviour: NSObject, IONCAMRPlayerDelegate {
 
         // Verify the reconstructed path exists
         guard FileManager.default.fileExists(atPath: reconstructedURL.path) else {
-            throw IONCAMRError.playVideoIssue
+            throw IONCAMRError.fileNotFound
         }
 
         return reconstructedURL
