@@ -14,7 +14,7 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
     let encodingType: IONCAMREncodingType
 
     private enum CodingKeys: String, CodingKey {
-        case quality, width, height, correctOrientation, encodingType, saveToGallery, cameraDirection, editable, includeMetadata, presentationStyle
+        case quality, targetWidth, targetHeight, correctOrientation, encodingType, saveToGallery, cameraDirection, editable, includeMetadata, presentationStyle
     }
 
     public required convenience init(from decoder: Decoder) throws {
@@ -27,8 +27,8 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
         let quality = try container.decodeIfPresent(Int.self, forKey: .quality) ?? 90
         if quality < 0 || quality > 100 { throw throwError(field: "quality") }
         var size: IONCAMRSize?
-        let width = try container.decodeIfPresent(Int.self, forKey: .width)
-        let height = try container.decodeIfPresent(Int.self, forKey: .height)
+        let width = try container.decodeIfPresent(Int.self, forKey: .targetWidth)
+        let height = try container.decodeIfPresent(Int.self, forKey: .targetHeight)
         if let width, let height {
             size = try IONCAMRSize(width: width, height: height)
         }
