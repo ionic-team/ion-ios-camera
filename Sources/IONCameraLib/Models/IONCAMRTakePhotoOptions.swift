@@ -14,7 +14,7 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
     let encodingType: IONCAMREncodingType
 
     private enum CodingKeys: String, CodingKey {
-        case quality, width, height, correctOrientation, encodingType, saveToGallery, cameraDirection, allowEdit, includeMetadata, presentationStyle
+        case quality, width, height, correctOrientation, encodingType, saveToGallery, cameraDirection, editable, includeMetadata, presentationStyle
     }
 
     public required convenience init(from decoder: Decoder) throws {
@@ -36,7 +36,13 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
         let encodingType = try container.decodeIfPresent(IONCAMREncodingType.self, forKey: .encodingType) ?? .jpeg
         let saveToGallery = try container.decodeIfPresent(Bool.self, forKey: .saveToGallery) ?? false
         let cameraDirection = try container.decodeIfPresent(IONCAMRDirection.self, forKey: .cameraDirection) ?? .back
-        let allowEdit = try container.decodeIfPresent(Bool.self, forKey: .allowEdit) ?? false
+
+        var allowEdit = false
+        if let editable = try container.decodeIfPresent(String.self, forKey: .editable) {
+            let editableLower = editable.lowercased()
+            allowEdit = (editableLower == "in-app" || editableLower == "external")
+        }
+
         let includeMetadata = try container.decodeIfPresent(Bool.self, forKey: .includeMetadata) ?? false
         let presentationStyle = try container.decodeIfPresent(IONCAMRPresentationStyle.self, forKey: .presentationStyle) ?? .fullscreen
 

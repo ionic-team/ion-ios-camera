@@ -25,7 +25,13 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let mediaTypeRaw = try container.decodeIfPresent(Int.self, forKey: .mediaType) ?? 0
         let mediaType = try IONCAMRMediaType(from: mediaTypeRaw)
-        let allowEdit = try container.decodeIfPresent(Bool.self, forKey: .allowEdit) ?? false
+
+        var allowEdit = false
+        if let editable = try container.decodeIfPresent(String.self, forKey: .editable) {
+            let editableLower = editable.lowercased()
+            allowEdit = (editableLower == "in-app" || editableLower == "external")
+        }
+
         let allowMultipleSelection = try container.decodeIfPresent(Bool.self, forKey: .allowMultipleSelection) ?? false
         let thumbnailAsData = try container.decodeIfPresent(Bool.self, forKey: .thumbnailAsData) ?? true
         let returnMetadata = try container.decodeIfPresent(Bool.self, forKey: .includeMetadata) ?? false
@@ -41,6 +47,6 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
     }
 
     private enum CodingKeys: String, CodingKey {
-        case mediaType, allowEdit, allowMultipleSelection, thumbnailAsData, includeMetadata, limit
+        case mediaType, editable, allowMultipleSelection, thumbnailAsData, includeMetadata, limit
     }
 }
