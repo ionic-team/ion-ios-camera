@@ -202,7 +202,7 @@ class IONCAMRPictureMock {
 
 enum IONCAMRMetadataOptions {
     static let videoMetadata = IONCAMRMetadata(size: 1200, duration: 20, format: "mp4", resolution: "1920x1080", creationDate: Date())
-    static let photoMetadata = IONCAMRMetadata(size: 120, format: "jpeg", resolution: "1920x1080", creationDate: Date())
+    static let photoMetadata = IONCAMRMetadata(size: 120, format: "jpg", resolution: "1920x1080", creationDate: Date())
 }
 
 struct IONCAMRVideoMock {

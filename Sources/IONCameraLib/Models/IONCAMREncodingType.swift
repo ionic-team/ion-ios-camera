@@ -5,7 +5,7 @@ public enum IONCAMREncodingType: Int, Decodable, CustomStringConvertible {
 
     public var description: String {
         switch self {
-        case .jpeg: "jpeg"
+        case .jpeg: "jpg"
         case .png: "png"
         }
     }
