@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/ionic-team/ion-ios-camera/compare/1.0.1...1.0.2) (2026-04-20)
+
+
+### Bug Fixes
+
+* **spm:** revert IONCameraLibShim — unsafeFlags are blocked in remote SPM dependencies ([f1b24e5](https://github.com/ionic-team/ion-ios-camera/commit/f1b24e53cc46ca44dbb0c5eb9114cfe25c470021))
+
 ## [1.0.1](https://github.com/ionic-team/ion-ios-camera/compare/1.0.0...1.0.1) (2026-04-20)
 
 
