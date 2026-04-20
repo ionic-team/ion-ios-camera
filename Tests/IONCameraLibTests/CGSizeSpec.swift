@@ -1,4 +1,4 @@
-@testable import IONCameraLib
+@testable import IONCameraLibCore
 import Nimble
 import Quick
 import UIKit
