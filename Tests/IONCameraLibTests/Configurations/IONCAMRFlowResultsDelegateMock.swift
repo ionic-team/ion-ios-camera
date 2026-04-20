@@ -1,4 +1,4 @@
-@testable import IONCameraLib
+@testable import IONCameraLibCore
 
 class IONCAMRFlowResultsDelegateMock: IONCAMRFlowResultsDelegate {
     var resultArray: [IONCAMRMediaResult]?
