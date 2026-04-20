@@ -1,4 +1,4 @@
-@testable import IONCameraLibCore
+@testable import IONCameraLib
 
 extension IONCAMRFlowBehaviour {
     func choosePicture(allowEdit: Bool) {

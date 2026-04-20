@@ -1,4 +1,4 @@
-@testable import IONCameraLibCore
+@testable import IONCameraLib
 import XCTest
 
 /// This was introduced on May 18th 2023 on the scope of https://outsystemsrd.atlassian.net/browse/RMET-2494.

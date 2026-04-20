@@ -1,4 +1,4 @@
-@testable import IONCameraLibCore
+@testable import IONCameraLib
 import XCTest
 
 final class IONCAMRFactoryTests: XCTestCase {
