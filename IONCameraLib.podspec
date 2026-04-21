@@ -23,10 +23,5 @@ Pod::Spec.new do |spec|
 
   spec.frameworks = "AVFoundation", "AVKit", "UIKit"
 
-  # SwiftUICore is a sub-framework split from SwiftUI in iOS 17. Building with
-  # the iOS 17+ SDK creates a hard link to it, which crashes on iOS 15/16 where
-  # it doesn't exist. Weak-linking makes it optional at load time.
-  spec.user_target_xcconfig = { 'OTHER_LDFLAGS' => '-weak_framework SwiftUICore' }
-
   spec.swift_versions = ['5.7', '5.8', '5.9', '5.10', '5.11']
 end

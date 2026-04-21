@@ -9,6 +9,7 @@ let package = Package(
     products: [
         .library(
             name: "IONCameraLib",
+            type: .dynamic,
             targets: ["IONCameraLib"]
         ),
     ],
