@@ -42,7 +42,8 @@ final class IONCAMRGalleryBehaviour: NSObject, IONCAMRGalleryDelegate {
                 mediaTypes: options.mediaType.phAssetArray,
                 allowMultipleSelection: options.allowMultipleSelection,
                 limit: options.limit,
-                thumbnailAsData: options.thumbnailAsData
+                thumbnailAsData: options.thumbnailAsData,
+                presentationStyle: options.presentationStyle
             )
 
             handler(viewController)
@@ -55,7 +56,8 @@ extension IONCAMRGalleryBehaviour {
         mediaTypes: [PHAssetMediaType],
         allowMultipleSelection: Bool,
         limit: Int = 0,
-        thumbnailAsData: Bool
+        thumbnailAsData: Bool,
+        presentationStyle: IONCAMRPresentationStyle = .fullscreen
     )
         -> UIViewController {
         let photoLibraryService = IONCAMRPhotoLibraryService(
@@ -71,7 +73,7 @@ extension IONCAMRGalleryBehaviour {
         viewController.navigationItem.title = "Photo Library"
 
         let navController = UINavigationController(rootViewController: viewController)
-        navController.modalPresentationStyle = .fullScreen
+        navController.modalPresentationStyle = presentationStyle.uiModalPresentationStyle
         return navController
     }
 }
