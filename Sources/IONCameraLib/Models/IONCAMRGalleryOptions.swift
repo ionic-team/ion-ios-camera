@@ -11,14 +11,25 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
     /// Indicates the maximum number of media items that can be selected when allowMultipleSelection is true. Ignored if allowMultipleSelection is
     /// false. 0 means no limit.
     public let limit: Int
+    /// Presentation style to use when showing the gallery interface. Default is `.fullscreen`.
+    public let presentationStyle: IONCAMRPresentationStyle
 
-    init(mediaType: IONCAMRMediaType, allowEdit: Bool, allowMultipleSelection: Bool, andThumbnailAsData: Bool, returnMetadata: Bool, limit: Int = 0) {
+    init(
+        mediaType: IONCAMRMediaType,
+        allowEdit: Bool,
+        allowMultipleSelection: Bool,
+        andThumbnailAsData: Bool,
+        returnMetadata: Bool,
+        limit: Int = 0,
+        presentationStyle: IONCAMRPresentationStyle = .fullscreen
+    ) {
         self.mediaType = mediaType
         self.allowEdit = allowEdit
         self.allowMultipleSelection = allowMultipleSelection
         self.thumbnailAsData = andThumbnailAsData
         self.returnMetadata = returnMetadata
         self.limit = limit
+        self.presentationStyle = presentationStyle
     }
 
     public required convenience init(from decoder: Decoder) throws {
@@ -36,17 +47,19 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
         let thumbnailAsData = try container.decodeIfPresent(Bool.self, forKey: .thumbnailAsData) ?? true
         let returnMetadata = try container.decodeIfPresent(Bool.self, forKey: .includeMetadata) ?? false
         let limit = try container.decodeIfPresent(Int.self, forKey: .limit) ?? 0
+        let presentationStyle = try container.decodeIfPresent(IONCAMRPresentationStyle.self, forKey: .presentationStyle) ?? .fullscreen
         self.init(
             mediaType: mediaType,
             allowEdit: allowEdit,
             allowMultipleSelection: allowMultipleSelection,
             andThumbnailAsData: thumbnailAsData,
             returnMetadata: returnMetadata,
-            limit: limit
+            limit: limit,
+            presentationStyle: presentationStyle
         )
     }
 
     private enum CodingKeys: String, CodingKey {
-        case mediaType, editable, allowMultipleSelection, thumbnailAsData, includeMetadata, limit
+        case mediaType, editable, allowMultipleSelection, thumbnailAsData, includeMetadata, limit, presentationStyle
     }
 }
