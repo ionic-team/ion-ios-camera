@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/ionic-team/ion-ios-camera/compare/1.0.3...1.0.4) (2026-04-23)
+
+
+### Bug Fixes
+
+* **ios:** apply presentationStyle in chooseFromGallery ([#15](https://github.com/ionic-team/ion-ios-camera/issues/15)) ([05241b8](https://github.com/ionic-team/ion-ios-camera/commit/05241b8235556b535bf6349277a66408ce3bf403))
+
 ## [1.0.3](https://github.com/ionic-team/ion-ios-camera/compare/1.0.2...1.0.3) (2026-04-21)
 
 
