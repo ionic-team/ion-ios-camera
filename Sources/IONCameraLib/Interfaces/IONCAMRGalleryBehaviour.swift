@@ -43,7 +43,8 @@ final class IONCAMRGalleryBehaviour: NSObject, IONCAMRGalleryDelegate {
                 allowMultipleSelection: options.allowMultipleSelection,
                 limit: options.limit,
                 thumbnailAsData: options.thumbnailAsData,
-                presentationStyle: options.presentationStyle
+                presentationStyle: options.presentationStyle,
+                targetSize: options.size
             )
 
             handler(viewController)
@@ -57,7 +58,8 @@ extension IONCAMRGalleryBehaviour {
         allowMultipleSelection: Bool,
         limit: Int = 0,
         thumbnailAsData: Bool,
-        presentationStyle: IONCAMRPresentationStyle = .fullscreen
+        presentationStyle: IONCAMRPresentationStyle = .fullscreen,
+        targetSize: IONCAMRSize? = nil
     )
         -> UIViewController {
         let photoLibraryService = IONCAMRPhotoLibraryService(
@@ -65,7 +67,8 @@ extension IONCAMRGalleryBehaviour {
             metadataGetter: metadataGetter,
             mediaTypeArray: mediaTypes,
             thumbnailAsData: thumbnailAsData,
-            returnMetadata: returnMetadata
+            returnMetadata: returnMetadata,
+            targetSize: targetSize
         )
         let photoLibraryView = IONCAMRPhotoLibraryView(allowMultipleSelection: allowMultipleSelection, limit: limit)
             .environmentObject(photoLibraryService)

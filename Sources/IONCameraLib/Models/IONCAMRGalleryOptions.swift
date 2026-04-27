@@ -13,6 +13,8 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
     public let limit: Int
     /// Presentation style to use when showing the gallery interface. Default is `.fullscreen`.
     public let presentationStyle: IONCAMRPresentationStyle
+    /// Target dimensions for the returned image. Both targetWidth and targetHeight must be provided; if only one is given, this is ignored.
+    public let size: IONCAMRSize?
 
     init(
         mediaType: IONCAMRMediaType,
@@ -21,7 +23,8 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
         andThumbnailAsData: Bool,
         returnMetadata: Bool,
         limit: Int = 0,
-        presentationStyle: IONCAMRPresentationStyle = .fullscreen
+        presentationStyle: IONCAMRPresentationStyle = .fullscreen,
+        size: IONCAMRSize? = nil
     ) {
         self.mediaType = mediaType
         self.allowEdit = allowEdit
@@ -30,6 +33,7 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
         self.returnMetadata = returnMetadata
         self.limit = limit
         self.presentationStyle = presentationStyle
+        self.size = size
     }
 
     public required convenience init(from decoder: Decoder) throws {
@@ -48,6 +52,12 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
         let returnMetadata = try container.decodeIfPresent(Bool.self, forKey: .includeMetadata) ?? false
         let limit = try container.decodeIfPresent(Int.self, forKey: .limit) ?? 0
         let presentationStyle = try container.decodeIfPresent(IONCAMRPresentationStyle.self, forKey: .presentationStyle) ?? .fullscreen
+        let width = try container.decodeIfPresent(Int.self, forKey: .targetWidth)
+        let height = try container.decodeIfPresent(Int.self, forKey: .targetHeight)
+        var size: IONCAMRSize?
+        if let width, let height {
+            size = try? IONCAMRSize(width: width, height: height)
+        }
         self.init(
             mediaType: mediaType,
             allowEdit: allowEdit,
@@ -55,11 +65,12 @@ public class IONCAMRGalleryOptions: IONCAMREditMediaTypeOptionsDelegate, Decodab
             andThumbnailAsData: thumbnailAsData,
             returnMetadata: returnMetadata,
             limit: limit,
-            presentationStyle: presentationStyle
+            presentationStyle: presentationStyle,
+            size: size
         )
     }
 
     private enum CodingKeys: String, CodingKey {
-        case mediaType, editable, allowMultipleSelection, thumbnailAsData, includeMetadata, limit, presentationStyle
+        case mediaType, editable, allowMultipleSelection, thumbnailAsData, includeMetadata, limit, presentationStyle, targetWidth, targetHeight
     }
 }
