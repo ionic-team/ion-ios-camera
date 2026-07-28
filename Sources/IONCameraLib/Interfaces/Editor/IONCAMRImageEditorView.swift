@@ -88,7 +88,7 @@ struct IONCAMRImageEditorView: View {
             .padding()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
-            guard isPortrait != UIApplication.shared.windows.first?.windowScene?.interfaceOrientation.isPortrait else { return }
+            guard isPortrait != UIApplication.firstKeyWindowForConnectedScenes?.windowScene?.interfaceOrientation.isPortrait else { return }
             isPortrait.toggle()
             croppingOffset = .init(width: 0.0, height: 0.0)
             croppingWidthMagnification = 1.0
