@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/ionic-team/ion-ios-camera/compare/1.0.4...1.0.5) (2026-07-30)
+
+
+### Bug Fixes
+
+* adopt scene-aware UIWindow lookup for UIScene lifecycle ([#18](https://github.com/ionic-team/ion-ios-camera/issues/18)) ([05128d6](https://github.com/ionic-team/ion-ios-camera/commit/05128d65c775aa56a5f2002f603b76cd82ad4362))
+
 ## [1.0.4](https://github.com/ionic-team/ion-ios-camera/compare/1.0.3...1.0.4) (2026-04-23)
 
 
