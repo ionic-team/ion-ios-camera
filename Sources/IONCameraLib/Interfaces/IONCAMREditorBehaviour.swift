@@ -6,7 +6,7 @@ final class IONCAMREditorBehaviour: NSObject, IONCAMREditorDelegate {
 
     func editPicture(_ image: UIImage, _ handler: @escaping (UIViewController) -> Void) {
         DispatchQueue.main.async {
-            let isPortrait = UIApplication.shared.windows.first?.windowScene?.interfaceOrientation.isPortrait ?? false
+            let isPortrait = UIApplication.firstKeyWindowForConnectedScenes?.windowScene?.interfaceOrientation.isPortrait ?? false
             let imageEditorView = IONCAMRImageEditorView(delegate: self, image: image, isPortrait: isPortrait)
             let viewController = UIHostingController(rootView: imageEditorView)
             viewController.modalPresentationStyle = .fullScreen
