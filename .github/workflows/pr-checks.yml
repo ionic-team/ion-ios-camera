@@ -21,9 +21,11 @@ jobs:
               'test', 'chore', 'perf', 'ci', 'build', 'revert'
             ];
             
-            // Build regex dynamically from validTypes array
+            // Build regex dynamically from validTypes array.
+            // The optional `!` before the colon is the conventional commits marker for a
+            // breaking change, which semantic-release reads to trigger a major release.
             const typePattern = validTypes.join('|');
-            const conventionalRegex = new RegExp(`^(${typePattern})(\\(.+\\))?:\\s.+`);
+            const conventionalRegex = new RegExp(`^(${typePattern})(\\(.+\\))?!?:\\s.+`);
             
             if (conventionalRegex.test(title)) {
               console.log(`✅ PR title is valid: "${title}"`);
@@ -31,7 +33,7 @@ jobs:
               const errorMsg = [
                 `❌ PR title must follow conventional commits format:`,
                 ``,
-                `Expected: <type>[optional scope]: <description>`,
+                `Expected: <type>[optional scope][optional !]: <description>`,
                 ``,
                 `Valid types: ${validTypes.join(', ')}`,
                 ``,
@@ -39,6 +41,7 @@ jobs:
                 `- feat: add photo capture functionality`,
                 `- fix(camera): resolve permission issue`, 
                 `- docs: update README installation steps`,
+                `- feat!: bump minimum deployment target (breaking change)`,
                 ``,
                 `Your title: "${title}"`
               ].join('\n');
