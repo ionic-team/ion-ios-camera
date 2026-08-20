@@ -11,7 +11,7 @@ Pod::Spec.new do |spec|
   spec.license      = { :type => package['license'], :file => "LICENSE" }
   spec.author       = { package['author'] => package['email'] }
 
-  spec.ios.deployment_target = "14.0"
+  spec.ios.deployment_target = "15.0"
 
   spec.source       = { :git => package['repository']['url'], :tag => "#{spec.version}" }
   spec.source_files  = "Sources/IONCameraLib/**/*.swift"
