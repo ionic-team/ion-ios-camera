@@ -22,26 +22,25 @@ final class IONCAMRPlayerBehaviour: NSObject, IONCAMRPlayerDelegate {
     func playVideo(_ url: URL) async throws {
         // Resolve the URL in case the app sandbox path has changed
         let resolvedURL = try resolveVideoURL(url)
-        let asset = AVAsset(url: resolvedURL)
+        let asset = AVURLAsset(url: resolvedURL)
 
-        let isPlayable: Bool = if #available(iOS 15, *) {
-            try await asset.load(.isPlayable)
-        } else {
-            asset.isPlayable
-        }
+        let isPlayable = try await asset.load(.isPlayable)
 
         if isPlayable {
-            DispatchQueue.main.async {
-                let player = AVPlayer(url: resolvedURL)
-                let playerViewController = AVPlayerViewController()
-                playerViewController.player = player
-                self.coordinator.present(playerViewController)
-
-                player.play()
-            }
+            await presentPlayer(for: resolvedURL)
         } else {
             throw IONCAMRError.playVideoIssue
         }
+    }
+
+    @MainActor
+    private func presentPlayer(for url: URL) {
+        let player = AVPlayer(url: url)
+        let playerViewController = AVPlayerViewController()
+        playerViewController.player = player
+        coordinator.present(playerViewController)
+
+        player.play()
     }
 
     private func resolveVideoURL(_ url: URL) throws -> URL {

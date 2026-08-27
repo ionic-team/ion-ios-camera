@@ -8,26 +8,15 @@ private enum IONCAMRMetadataError: Error {
 
 final class IONCAMRMediaResultGenerator: IONCAMRMetadataGetterDelegate {
     func getVideoMetadata(from url: URL) async throws -> IONCAMRMetadata {
-        let asset = AVAsset(url: url)
+        let asset = AVURLAsset(url: url)
 
-        let durationProperty: CMTime
-        let trackArray: [AVAssetTrack]
-        if #available(iOS 15, *) {
-            durationProperty = try await asset.load(.duration)
-            trackArray = try await asset.loadTracks(withMediaType: .video)
-        } else {
-            durationProperty = asset.duration
-            trackArray = asset.tracks(withMediaType: .video)
-        }
+        let durationProperty = try await asset.load(.duration)
+        let trackArray = try await asset.loadTracks(withMediaType: .video)
 
         guard let track = trackArray.first else { throw IONCAMRMetadataError.noVideoTrack }
         guard let urlMetadata = url.metadata else { throw IONCAMRMetadataError.urlConversionError }
 
-        let naturalSize: CGSize = if #available(iOS 15, *) {
-            try await track.load(.naturalSize)
-        } else {
-            track.naturalSize
-        }
+        let naturalSize = try await track.load(.naturalSize)
         let duration = Int(CMTimeGetSeconds(durationProperty).rounded())
         let format = url.pathExtension.lowercased()
         let creationDate = urlMetadata.date
@@ -53,7 +42,7 @@ final class IONCAMRMediaResultGenerator: IONCAMRMetadataGetterDelegate {
 extension IONCAMRMediaResultGenerator: IONCAMRThumbnailGeneratorDelegate {
     func getImage(from videoURL: URL, _ completion: @escaping (UIImage?) -> Void) {
         DispatchQueue.global().async { // run this on background
-            let asset = AVAsset(url: videoURL)
+            let asset = AVURLAsset(url: videoURL)
             let avAssetImageGenerator = AVAssetImageGenerator(asset: asset)
             avAssetImageGenerator.appliesPreferredTrackTransform = true // correct thumbnail orientation
             let thumnailTime = CMTimeMake(value: 2, timescale: 1) // time of the video to be used as a thumbnail

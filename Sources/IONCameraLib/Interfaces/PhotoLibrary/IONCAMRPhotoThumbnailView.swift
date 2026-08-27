@@ -59,7 +59,7 @@ struct IONCAMRPhotoThumbnailView: View {
             }
         }
         // We need to use the task to work on a concurrent request to load the image from the photo library service, which is asynchronous work.
-        .taskOperation {
+        .task(priority: .userInitiated) {
             await loadImageAsset()
         }
         // Finally, when the view disappears, we need to free it up from the memory
@@ -80,24 +80,5 @@ extension IONCAMRPhotoThumbnailView {
             return
         }
         image = Image(uiImage: uiImage)
-    }
-}
-
-extension View {
-    func taskOperation(priority: TaskPriority = .userInitiated, _ action: @escaping @Sendable () async -> Void) -> some View {
-        if #available(iOS 15, *) {
-            return task(priority: priority, action)
-        } else {
-            return taskiOS14(priority: priority, action)
-        }
-    }
-
-    @available(iOS, deprecated: 15.0, message: "This extension is no longer necessary. Use API built into SDK")
-    func taskiOS14(priority: TaskPriority = .userInitiated, _ action: @escaping @Sendable () async -> Void) -> some View {
-        onAppear {
-            Task(priority: priority) {
-                await action()
-            }
-        }
     }
 }

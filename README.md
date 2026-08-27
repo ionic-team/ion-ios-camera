@@ -295,7 +295,7 @@ The library includes a `PrivacyInfo.xcprivacy` file that documents the required 
 
 ## Requirements
 
-- iOS 14.0+
+- iOS 15.0+
 - Xcode 15.0+
 - Swift 5.0+
 
