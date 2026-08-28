@@ -19,7 +19,7 @@ dependencies: [
 Add the following to your `Podfile`:
 
 ```ruby
-pod 'IONCameraLib', '~> 1.0.5'
+pod 'IONCameraLib', '~> 2.0.0'
 ```
 
 Then run:

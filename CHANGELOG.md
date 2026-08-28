@@ -1,3 +1,16 @@
+# [2.0.0](https://github.com/ionic-team/ion-ios-camera/compare/1.0.5...2.0.0) (2026-08-28)
+
+
+### Features
+
+* bump minimum deployment target to iOS 15 ([#19](https://github.com/ionic-team/ion-ios-camera/issues/19)) ([16ade64](https://github.com/ionic-team/ion-ios-camera/commit/16ade64095d1e0349defabde879566329e549c85))
+
+
+### BREAKING CHANGES
+
+* the minimum supported iOS version is now 15.0. Apps
+with a deployment target of iOS 14 can no longer consume this library.
+
 ## [1.0.5](https://github.com/ionic-team/ion-ios-camera/compare/1.0.4...1.0.5) (2026-07-30)
 
 
