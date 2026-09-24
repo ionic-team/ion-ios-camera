@@ -15,16 +15,6 @@ struct IONCAMRPHFetchResultCollection: RandomAccessCollection, Equatable {
     }
 
     subscript(position: Int) -> PHAsset {
-        fetchResult.object(at: fetchResult.count - position - 1)
-    }
-}
-
-extension IONCAMRPHFetchResultCollection {
-    var startElement: PHAsset {
-        fetchResult[startIndex]
-    }
-
-    var endElement: PHAsset {
-        fetchResult[endIndex - 1]
+        fetchResult.object(at: position)
     }
 }

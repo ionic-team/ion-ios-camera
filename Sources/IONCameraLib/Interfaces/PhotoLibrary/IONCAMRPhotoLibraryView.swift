@@ -68,50 +68,47 @@ struct IONCAMRPhotoLibraryView: View {
                 .padding()
                 .foregroundColor(.gray)
             } else {
-                // We'll show the photo library in a grid
-                ScrollViewReader { value in
-                    ScrollView {
-                        LazyVGrid(
-                            // We'll set a 3-column row with an adaptive width of 100 for each grid item, and give it a spacing of 1 pixel in between
-                            // columns and in between rows
-                            columns: Array(repeating: .init(.adaptive(minimum: 100), spacing: 1), count: 3),
-                            spacing: 1
-                        ) {
-                            // We'll go through the photo references fetched by the photo gallery and give a photo asset ID into the
-                            // PhotoThumbnailView so it knows what image to load and show into the grid
-                            ForEach(photoLibraryService.results, id: \.self) { asset in
-                                ZStack(alignment: .bottomTrailing) {
-                                    // Wrap the PhotoThumbnailView into a button so we can tap on it without overlapping the tap area of each photo,
-                                    // as photos have their aspect ratios, and may go out of bounds of the square view.
-                                    Button {
-                                        if let assetIndex = selectedAssetArray.firstIndex(of: asset) {
-                                            selectedAssetArray.remove(at: assetIndex)
-                                        } else if allowMultipleSelection {
-                                            if limit == 0 || selectedAssetArray.count < limit {
-                                                selectedAssetArray.append(asset)
-                                            }
-                                        } else {
-                                            selectedAssetArray = [asset]
+                // We'll show the photo library in a grid, most recent first. Opening at the top means no programmatic scroll is needed, which
+                // would otherwise make SwiftUI build every cell up to the end of the library on the main thread.
+                ScrollView {
+                    LazyVGrid(
+                        // We'll set a 3-column row with an adaptive width of 100 for each grid item, and give it a spacing of 1 pixel in between
+                        // columns and in between rows
+                        columns: Array(repeating: .init(.adaptive(minimum: 100), spacing: 1), count: 3),
+                        spacing: 1
+                    ) {
+                        // We'll go through the photo references fetched by the photo gallery and give a photo asset ID into the
+                        // PhotoThumbnailView so it knows what image to load and show into the grid
+                        ForEach(photoLibraryService.results, id: \.self) { asset in
+                            let isSelected = selectedAssetArray.contains(asset)
+                            ZStack(alignment: .bottomTrailing) {
+                                // Wrap the PhotoThumbnailView into a button so we can tap on it without overlapping the tap area of each photo,
+                                // as photos have their aspect ratios, and may go out of bounds of the square view.
+                                Button {
+                                    if let assetIndex = selectedAssetArray.firstIndex(of: asset) {
+                                        selectedAssetArray.remove(at: assetIndex)
+                                    } else if allowMultipleSelection {
+                                        if limit == 0 || selectedAssetArray.count < limit {
+                                            selectedAssetArray.append(asset)
                                         }
-                                    } label: {
-                                        IONCAMRPhotoThumbnailView(assetLocalId: asset.localIdentifier, showVideoIcon: asset.mediaType == .video)
-                                            .opacity(selectedAssetArray.contains(asset) ? 0.5 : 1)
+                                    } else {
+                                        selectedAssetArray = [asset]
                                     }
+                                } label: {
+                                    IONCAMRPhotoThumbnailView(assetLocalId: asset.localIdentifier, showVideoIcon: asset.mediaType == .video)
+                                        .opacity(isSelected ? 0.5 : 1)
+                                }
 
-                                    if selectedAssetArray.contains(asset) {
-                                        Image(systemName: "checkmark.circle")
-                                            .resizable()
-                                            .frame(width: 25, height: 25)
-                                            .foregroundColor(.white)
-                                            .background(Color.blue)
-                                            .clipShape(Circle())
-                                            .offset(x: -5, y: -5)
-                                    }
+                                if isSelected {
+                                    Image(systemName: "checkmark.circle")
+                                        .resizable()
+                                        .frame(width: 25, height: 25)
+                                        .foregroundColor(.white)
+                                        .background(Color.blue)
+                                        .clipShape(Circle())
+                                        .offset(x: -5, y: -5)
                                 }
                             }
-                        }
-                        .onAppear {
-                            value.scrollTo(photoLibraryService.results.startElement, anchor: .bottom)
                         }
                     }
                 }
