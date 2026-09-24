@@ -70,7 +70,7 @@ extension UIImage {
         let resolution = CGFloat(
             min(originalResolution.height, originalResolution.width, IONCAMRTakePhotoOptions.ThumbnailDefaultConfigurations.resolution)
         )
-        let quality = CGFloat(originalQuality / 100)
+        let quality = CGFloat(originalQuality) / 100
 
         return applyConfigurations(resolution, and: quality)
     }

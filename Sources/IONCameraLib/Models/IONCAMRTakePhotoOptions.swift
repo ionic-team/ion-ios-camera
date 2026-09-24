@@ -96,7 +96,7 @@ public class IONCAMRTakePhotoOptions: IONCAMRMediaOptions, Decodable {
 
 extension IONCAMRTakePhotoOptions {
     enum ThumbnailDefaultConfigurations {
-        static let quality = 1
+        static let quality = 100
         static let resolution = 1080
     }
 
