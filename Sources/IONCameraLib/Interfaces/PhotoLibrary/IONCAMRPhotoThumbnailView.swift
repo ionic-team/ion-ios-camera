@@ -38,7 +38,7 @@ struct IONCAMRPhotoThumbnailView: View {
                 ZStack(alignment: .bottomLeading) {
                     image
                         .resizable()
-                        .aspectRatio(contentMode: .fill)
+                        .scaledToFill()
                         .clipped()
                     if showVideoIcon {
                         Image(systemName: "video.fill")
