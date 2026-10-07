@@ -4,12 +4,6 @@
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
-    [
-      "@semantic-release/exec",
-      {
-        "prepareCmd": "bash ./scripts/update_readme_version.sh ${nextRelease.version} \"IONCameraLib\" \"README.md\""
-      }
-    ],
     "@semantic-release/changelog",
     [
       "@semantic-release/npm",

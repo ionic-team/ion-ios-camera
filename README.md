@@ -4,13 +4,15 @@ A modern, flexible and feature-rich camera and media library for iOS apps. Inclu
 
 ## Installation
 
+> Replace `${version to use}` below with the version you want to use. Check the [Releases page](https://github.com/ionic-team/ion-ios-camera/releases) for available versions.
+
 ### Swift Package Manager
 
 Add the following to your `Package.swift` file:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ionic-team/ion-ios-camera.git", from: "1.0.0")
+    .package(url: "https://github.com/ionic-team/ion-ios-camera.git", from: "${version to use}")
 ]
 ```
 
@@ -19,7 +21,7 @@ dependencies: [
 Add the following to your `Podfile`:
 
 ```ruby
-pod 'IONCameraLib', '~> 2.0.0'
+pod 'IONCameraLib', '~> ${version to use}'
 ```
 
 Then run:
