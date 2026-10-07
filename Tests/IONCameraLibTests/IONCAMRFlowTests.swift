@@ -118,9 +118,13 @@ extension IONCAMRFlowTests {
         XCTAssertEqual(error, editorError)
     }
 
-    func test_takePicture_withAllowEditEnabled_butCancels_delegatesToDidCancel() throws {
+    func test_takePicture_withAllowEditEnabled_butCancels_delegatesToDidCancel() async throws {
         try sut.takePhoto(with: XCTUnwrap(IONCAMRPictureOptionsConfigurations.allowEdit))
         mockPicker.didEndSuccessfullyTakePictureHandler()
+        // didEndSuccessfullyTakePictureHandler() resolves asynchronously (it's wrapped in a Task), and it's what
+        // sets up the editor as the active step. Yield here so that happens before we cancel the editor below -
+        // otherwise this races and the editor's cancel can be delivered before the picker result is processed.
+        await Task.yield()
         mockEditor.didCancelEditPicture()
 
         XCTAssertNil(singleResult)
@@ -319,9 +323,13 @@ extension IONCAMRFlowTests {
         XCTAssertEqual(error, editorError)
     }
 
-    func test_choosePicture_withAllowEditEnabled_butCancels_delegatesToDidCancel() {
+    func test_choosePicture_withAllowEditEnabled_butCancels_delegatesToDidCancel() async {
         sut.choosePicture(allowEdit: true)
         mockGallery.didEndSuccessfullyChoosePictureHandler()
+        // didEndSuccessfullyChoosePictureHandler() resolves asynchronously (it's wrapped in a Task), and it's what
+        // sets up the editor as the active step. Yield here so that happens before we cancel the editor below -
+        // otherwise this races and the editor's cancel can be delivered before the gallery result is processed.
+        await Task.yield()
         mockEditor.didCancelEditPicture()
 
         XCTAssertNil(singleResult)
