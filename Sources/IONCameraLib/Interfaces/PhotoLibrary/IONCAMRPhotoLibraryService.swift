@@ -18,6 +18,7 @@ class IONCAMRPhotoLibraryService: NSObject, ObservableObject {
     private let mediaTypeArray: [PHAssetMediaType]
     private let thumbnailAsData: Bool
     private let returnMetadata: Bool
+    private let targetSize: IONCAMRSize?
 
     /// The manager that will fetch and cache photos for us
     var imageCachingManager = PHCachingImageManager()
@@ -31,13 +32,15 @@ class IONCAMRPhotoLibraryService: NSObject, ObservableObject {
         metadataGetter: IONCAMRMetadataGetterDelegate,
         mediaTypeArray: [PHAssetMediaType],
         thumbnailAsData: Bool,
-        returnMetadata: Bool
+        returnMetadata: Bool,
+        targetSize: IONCAMRSize? = nil
     ) {
         self.delegate = delegate
         self.metadataGetter = metadataGetter
         self.mediaTypeArray = mediaTypeArray
         self.thumbnailAsData = thumbnailAsData
         self.returnMetadata = returnMetadata
+        self.targetSize = targetSize
         super.init()
         PHPhotoLibrary.shared().register(self)
     }
@@ -154,13 +157,28 @@ extension IONCAMRPhotoLibraryService {
 
     private func fetchImage(from asset: PHAsset) async throws -> IONCAMRMediaResult {
         guard let image = try await fetchImage(byLocalIdentifier: asset.localIdentifier),
-              let imageData = image.pictureThumbnailData(),
               let imageURL = try await fetchImageURL(for: asset)
         else { throw IONCAMRError.imageNotFound }
 
+        let finalImage: UIImage
+        let imageData: String
+        if let size = targetSize {
+            let resized = image.resizeTo(CGSize(size: size)) ?? image
+            let quality = CGFloat(IONCAMRTakePhotoOptions.ThumbnailDefaultConfigurations.quality) / 100
+            guard let data = resized.jpegData(compressionQuality: quality)?.base64EncodedString()
+            else { throw IONCAMRError.imageNotFound }
+            finalImage = resized
+            imageData = data
+        } else {
+            guard let data = image.pictureThumbnailData()
+            else { throw IONCAMRError.imageNotFound }
+            finalImage = image
+            imageData = data
+        }
+
         var metadata: IONCAMRMetadata?
         if returnMetadata {
-            metadata = try? metadataGetter.getImageMetadata(from: image, and: imageURL)
+            metadata = try? metadataGetter.getImageMetadata(from: finalImage, and: imageURL)
         }
 
         return IONCAMRMediaResult(pictureWith: imageURL.absoluteString, imageData, and: metadata)
